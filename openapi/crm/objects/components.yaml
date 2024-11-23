@@ -1,0 +1,610 @@
+components:
+  schemas:
+    AssociationResponse:
+      properties:
+        id:
+          format: int64
+          type: integer
+        type:
+          type: string
+      type: object
+    AssociationsResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/AssociationResponse"
+          type: array
+      type: object
+    DealAssociations:
+      properties:
+        companies:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        contacts:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        tickets:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+      type: object
+    DealProperties:
+      properties:
+        amount:
+          description: The total amount of the deal.
+          format: double
+          title: Amount
+          type: number
+        closedate:
+          description: The expected close date of the deal.
+          format: date-time
+          title: Close Date
+          type: string
+        createdate:
+          description:
+            The date the deal was created. This property is set automatically
+            by HubSpot.
+          format: date-time
+          readOnly: true
+          title: Create Date
+          type: string
+        dealname:
+          description: The name given to this deal.
+          title: Deal Name
+          type: string
+        dealstage:
+          description: The stage of the deal.
+          title: Deal Stage
+          type: string
+        hs_lastmodifieddate:
+          description:
+            Most recent timestamp of any property update for this deal. This
+            includes HubSpot internal properties, which can be visible or
+            hidden. This property is updated automatically.
+          format: date-time
+          readOnly: true
+          title: Last Modified Date
+          type: string
+        hs_object_id:
+          description:
+            The unique ID for this deal. This unique ID is automatically
+            populated by HubSpot and cannot be changed.
+          readOnly: true
+          title: Deal ID
+          type: string
+        pipeline:
+          description:
+            The pipeline the deal is in. This determines which stages are
+            options for the deal.
+          title: Pipeline
+          type: string
+        sage_sales_order_number_c:
+          description:
+            The Sales Order Number of the related Sales Order from the Sage
+            system.
+          title: Sage Sales Order Number
+          type: string
+        woocommerce_order_id_c:
+          description: The Order ID of the WooCommerce order this deal was created from.
+          title: WooCommerce Order ID
+          type: string
+      type: object
+    DealResponse:
+      properties:
+        archived:
+          type: boolean
+        associations:
+          $ref: "components.yaml#/components/schemas/DealAssociations"
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/DealProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    DealSearchResponse:
+      properties:
+        archived:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/DealProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    DealsResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/DealResponse"
+          type: array
+      type: object
+    DealsSearchResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/DealSearchResponse"
+          type: array
+        total:
+          type: integer
+      type: object
+    Filter:
+      properties:
+        operator:
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          type: string
+        propertyName:
+          type: string
+        value:
+          type: string
+      type: object
+    Filters:
+      properties:
+        filters:
+          items:
+            $ref: "components.yaml#/components/schemas/Filter"
+          type: array
+      type: object
+    LineItemAssociations:
+      properties:
+        deals:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        quotes:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+      type: object
+    LineItemCreateParams:
+      properties:
+        properties:
+          $ref: "components.yaml#/components/schemas/LineItemProperties"
+      type: object
+    LineItemProperties:
+      properties:
+        amount:
+          description: The amount of a line item.
+          format: double
+          readOnly: true
+          title: Net price
+          type: number
+        createdate:
+          description: The date the line item was created.
+          format: date-time
+          title: Create Date
+          type: string
+        description:
+          description: Full description of product.
+          title: Description
+          type: string
+        discount:
+          description: The discount amount applied.
+          format: double
+          title: Unit discount
+          type: number
+        hs_acv:
+          description: The annual contract value (ACV) of this product.
+          format: double
+          readOnly: true
+          title: Annual contract value
+          type: number
+        hs_arr:
+          description: The annual recurring revenue (ARR) of this product.
+          format: double
+          readOnly: true
+          title: Annual recurring revenue
+          type: number
+        hs_cost_of_goods_sold:
+          description: The amount that sold goods cost the HubSpot customer.
+          format: double
+          title: Unit cost
+          type: number
+        hs_created_by_user_id:
+          description:
+            The user that created this object. This value is automatically set
+            by HubSpot and may not be modified.
+          format: int64
+          readOnly: true
+          title: Created by user ID
+          type: integer
+        hs_createdate:
+          description:
+            The date and time at which this object was created. This value is
+            automatically set by HubSpot and may not be modified.
+          format: date-time
+          readOnly: true
+          title: Object create date/time
+          type: string
+        hs_discount_percentage:
+          description: The discount percentage applied.
+          format: double
+          title: Discount Percentage
+          type: number
+        hs_lastmodifieddate:
+          description: The date any property on this product was modified.
+          format: date-time
+          title: Last Modified Date
+          type: string
+        hs_line_item_currency_code:
+          description: Currency code for the line item.
+          title: Currency
+          type: string
+        hs_margin:
+          description: The margin value of this product.
+          format: double
+          readOnly: true
+          title: Margin
+          type: number
+        hs_margin_acv:
+          description: The margin value of this product.
+          format: double
+          readOnly: true
+          title: Annual contract value margin
+          type: number
+        hs_object_id:
+          description:
+            The unique ID for this object. This value is automatically set by
+            HubSpot and may not be modified.
+          readOnly: true
+          title: Object ID
+          type: string
+        hs_position_on_quote:
+          description: The order which the line item appears on the quotes.
+          format: int32
+          title: Position on quote
+          type: integer
+        hs_product_id:
+          description: ID of the product this was copied from.
+          title: Product ID
+          type: string
+        hs_sku:
+          description: Unique product identifier.
+          title: SKU
+          type: string
+        hs_updated_by_user_id:
+          description:
+            The user that last updated this object. This value is automatically
+            set by HubSpot and may not be modified.
+          format: int64
+          readOnly: true
+          title: Updated by user ID
+          type: integer
+        name:
+          description: Product name.
+          title: Name
+          type: string
+        price:
+          description: Cost of product.
+          format: double
+          title: Unit price
+          type: number
+        quantity:
+          description: How many units of a product are in this line item.
+          format: int32
+          title: Quantity
+          type: integer
+        tax:
+          description: The tax amount applied.
+          format: double
+          title: Tax
+          type: number
+        woocommerce_line_item_id_c:
+          description:
+            The unique ID of the line item from the WooCommerce order that this
+            line item was created from.
+          title: WooCommerce Line Item ID
+          type: string
+      type: object
+    LineItemResponse:
+      properties:
+        archived:
+          type: boolean
+        associations:
+          $ref: "components.yaml#/components/schemas/LineItemAssociations"
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/LineItemProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    LineItemsResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/LineItemResponse"
+          type: array
+      type: object
+    ObjectAssociationsResponse:
+      properties:
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/AssociationResponse"
+          type: array
+      type: object
+    OwnerResponse:
+      properties:
+        archived:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        id:
+          type: string
+        lastName:
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        userId:
+          format: int64
+          type: integer
+      type: object
+    OwnersResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/OwnerResponse"
+          type: array
+      type: object
+    Paging:
+      properties:
+        next:
+          $ref: "components.yaml#/components/schemas/PagingNext"
+      type: object
+    PagingNext:
+      properties:
+        after:
+          type: string
+        link:
+          type: string
+      type: object
+    ProductAssociations:
+      properties:
+        line_items:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+      type: object
+    ProductProperties:
+      properties:
+        amount:
+          description:
+            Internal placeholder (to prevent conflicts with line item property
+            of same name).
+          format: double
+          title: Net price
+          type: number
+        createdate:
+          description: The date the product was created.
+          format: date-time
+          title: Create Date
+          type: string
+        description:
+          description: Full description of product.
+          title: Product description
+          type: string
+        discount:
+          description: The discount amount applied.
+          format: double
+          title: Unit discount
+          type: number
+        hs_cost_of_goods_sold:
+          description: The amount that sold goods cost the HubSpot customer.
+          format: double
+          title: Unit cost
+          type: number
+        hs_created_by_user_id:
+          description:
+            The user that created this object. This value is automatically set
+            by HubSpot and may not be modified.
+          format: int64
+          readOnly: true
+          title: Created by user ID
+          type: integer
+        hs_discount_percentage:
+          description: The discount percentage applied.
+          format: double
+          title: Discount Percentage
+          type: number
+        hs_lastmodifieddate:
+          description: The date any property on this product was modified.
+          format: date-time
+          readOnly: true
+          title: Last Modified Date
+          type: string
+        hs_object_id:
+          description:
+            The unique ID for this object. This value is automatically set by
+            HubSpot and may not be modified.
+          readOnly: true
+          title: Object ID
+          type: string
+        hs_sku:
+          description: Unique product identifier.
+          title: SKU
+          type: string
+        hs_updated_by_user_id:
+          description:
+            The user that last updated this object. This value is automatically
+            set by HubSpot and may not be modified.
+          readOnly: true
+          title: Updated by user ID
+          type: string
+        name:
+          description: Product name.
+          title: Name
+          type: string
+        price:
+          description: Cost of product.
+          format: double
+          title: Unit price
+          type: number
+      type: object
+    ProductResponse:
+      properties:
+        archived:
+          type: boolean
+        associations:
+          $ref: "components.yaml#/components/schemas/ProductAssociations"
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/ProductProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    ProductSearchResponse:
+      properties:
+        archived:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/ProductProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    ProductsResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/ProductResponse"
+          type: array
+      type: object
+    ProductsSearchResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/ProductSearchResponse"
+          type: array
+        total:
+          type: integer
+      type: object
+    QuoteAssociations:
+      properties:
+        companies:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        contacts:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        deals:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+      type: object
+    QuoteProperties:
+      properties:
+        hs_createdate:
+          description: The date the quote was created.
+          format: date-time
+          readOnly: true
+          title: Create date
+          type: string
+        hs_expiration_date:
+          description: The date that this quote expires.
+          format: date-time
+          title: Expiration date
+          type: string
+        hs_lastmodifieddate:
+          description: The last time any property on the quote was modified.
+          format: date-time
+          readOnly: true
+          title: Last modified date
+          type: string
+        hs_object_id:
+          description:
+            The unique ID for this object. This value is automatically set by
+            HubSpot and may not be modified.
+          readOnly: true
+          title: Object ID
+          type: string
+        hs_public_url_key:
+          description: Key for accessing quote document URL.
+          readOnly: true
+          title: Public URL key
+          type: string
+        hs_quote_amount:
+          description: The total due for the quote.
+          format: double
+          title: Quote amount,
+          type: number
+        hs_status:
+          description: Approval status of the quote.
+          enum:
+            - DRAFT
+            - PENDING_APPROVAL
+            - REJECTED
+            - APPROVED
+            - APPROVAL_NOT_NEEDED
+          title: Quote approval status
+          type: string
+        hs_title:
+          description: The title of this quote.
+          title: Quote title
+          type: string
+      type: object
+    QuoteResponse:
+      properties:
+        archived:
+          type: boolean
+        associations:
+          $ref: "components.yaml#/components/schemas/QuoteAssociations"
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          format: int64
+          type: integer
+        properties:
+          $ref: "components.yaml#/components/schemas/QuoteProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    QuotesResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/QuoteResponse"
+          type: array
+      type: object

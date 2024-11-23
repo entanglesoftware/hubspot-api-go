@@ -1,0 +1,118 @@
+components:
+  schemas:
+    ContactsResponse:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Paging"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactResponse"
+
+    Paging:
+      type: object
+      properties:
+        next:
+          $ref: "#/components/schemas/PagingNext"
+
+    PagingNext:
+      type: object
+      properties:
+        link:
+          type: string
+          description: The link for the next page of results.
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+
+    ContactResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the contact.
+        createdAt:
+          type: string
+          format: date-time
+          description: When the contact was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the contact was last updated.
+        archived:
+          type: boolean
+          description: Indicates if the contact is archived.
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the contact was archived.
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: A key-value map of the contact's properties.
+        propertiesWithHistory:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/PropertyHistory"
+          description: A map of the contact's properties including historical values.
+        associations:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ObjectAssociationsResponse"
+          description: A map of associated objects.
+
+    PropertyHistory:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          description: The source ID of the historical property value.
+        sourceType:
+          type: string
+          description: The source type of the historical property value.
+        sourceLabel:
+          type: string
+          description: The source label for the historical property.
+        updatedByUserId:
+          type: integer
+          description: The user ID who updated the property.
+        value:
+          type: string
+          description: The historical value of the property.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the property value was set.
+
+    ObjectAssociationsResponse:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Paging"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationResponse"
+
+    AssociationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the associated object.
+        type:
+          type: string
+          description: The type of association.
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.contacts.read: Grants access to contacts

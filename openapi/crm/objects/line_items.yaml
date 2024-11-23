@@ -1,0 +1,134 @@
+openapi: 3.0.0
+info:
+  description: Hubspot v3 API
+  title: Hubspot v3 API
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+paths:
+  /crm/v3/objects/line_items:
+    get:
+      parameters:
+        - description:
+            The maximum number of results to display per page. Default Value =
+            10.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: string
+        - description:
+            The paging cursor token of the last successfully read resource will
+            be returned as the paging.next.after JSON property of a paged
+            response containing more results.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+        - description:
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          in: query
+          name: properties
+          required: false
+          schema:
+            type: string
+        - description:
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          in: query
+          name: associations
+          required: false
+          schema:
+            type: string
+        - description:
+            Whether to return only results that have been archived. Default
+            Value = false.
+          in: query
+          name: archived
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/LineItemsResponse"
+          description: A list of Line Item objects
+      tags:
+        - Crm
+      operationId: getCrm_v3_objects_line_items
+    post:
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/LineItemResponse"
+          description: The newly created line item object.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "components.yaml#/components/schemas/LineItemCreateParams"
+        description: Line item property values to post for new line item.
+        required: true
+      tags:
+        - Crm
+      operationId: postCrm_v3_objects_line_items
+  /crm/v3/objects/line_items/{lineItemId}:
+    get:
+      parameters:
+        - description: The ID of the line item.
+          in: path
+          name: lineItemId
+          required: true
+          schema:
+            format: int64
+            type: integer
+        - description:
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          in: query
+          name: properties
+          required: false
+          schema:
+            type: string
+        - description:
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          in: query
+          name: associations
+          required: false
+          schema:
+            type: string
+        - description:
+            Whether to return only results that have been archived. Default
+            value - false.
+          in: query
+          name: archived
+          required: false
+          schema:
+            type: boolean
+        - description: The name of a property whose values are unique for this object type.
+          in: query
+          name: idProperty
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/LineItemResponse"
+          description: A Line Item object
+      tags:
+        - Crm
+      operationId: getCrm_v3_objects_line_items_{lineItemId}

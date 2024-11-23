@@ -1,0 +1,283 @@
+components:
+  requestBodies:
+    SearchParams:
+      content:
+        application/json:
+          schema:
+            $ref: "components.yaml#/components/schemas/SearchParams"
+      description: The maximum number of results to display per page. Default Value = 10.
+  schemas:
+    CompaniesSearchResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/CompanySearchResponse"
+          type: array
+        total:
+          type: integer
+      type: object
+    CompanyAssociations:
+      properties:
+        contacts:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        deals:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+        tickets:
+          $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
+      type: object
+    CompanyProperties:
+      properties:
+        address:
+          description:
+            The street address of the company or organization, including unit
+            number. Powered by HubSpot Insights.
+          title: Street Address
+          type: string
+        address2:
+          description:
+            The additional address of the company or organization. Powered by
+            HubSpot Insights.
+          title: Street Address 2
+          type: string
+        city:
+          description: The city where the company is located. Powered by HubSpot Insights.
+          title: City
+          type: string
+        country:
+          description:
+            The country/region in which the company or organization is located.
+            Powered by HubSpot Insights.
+          title: Country/Region
+          type: string
+        createdate:
+          description: The date the company or organization was added to the database.
+          format: date-time
+          readOnly: true
+          title: Create Date
+          type: string
+        customer_id:
+          description: The Cirris customer identification number.
+          readOnly: true
+          title: Customer ID
+          type: string
+        description:
+          description:
+            A short statement about the company's mission and goals. Powered by
+            HubSpot Insights.
+          title: Description
+          type: string
+        domain:
+          description: The domain name of the company or organization
+          title: Company Domain Name
+          type: string
+        hs_lastmodifieddate:
+          description:
+            Most recent timestamp of any property update for this company. This
+            includes HubSpot internal properties, which can be visible or
+            hidden. This property is updated automatically.
+          format: date-time
+          readOnly: true
+          title: Last Modified Date
+          type: string
+        hs_lead_status:
+          description: The company's sales, prospecting or outreach status.
+          title: Lead Status
+          type: string
+        hs_object_id:
+          description:
+            The unique ID for this company. This unique ID is automatically
+            populated by HubSpot and cannot be changed.
+          readOnly: true
+          title: Company ID
+          type: string
+        hubspot_owner_assigneddate:
+          description: The timestamp when an owner was assigned to this company.
+          format: date-time
+          readOnly: true
+          title: Owner Assigned Date
+          type: string
+        lifecyclestage:
+          description:
+            The most advanced lifecycle stage across all contacts associated
+            with this company or organization.
+          title: Lifecycle Stage
+          type: string
+        name:
+          description: The name of the company or organization. Powered by HubSpot Insights.
+          title: Name
+          type: string
+        notes_last_contacted:
+          description:
+            The last timestamp when a call, email or meeting was logged for a
+            contact at this company.
+          format: date-time
+          readOnly: true
+          title: Last Contacted
+          type: string
+        notes_last_updated:
+          description:
+            The last time a note, call, meeting, or task was logged for a
+            company. This is set automatically by HubSpot based on user actions
+            in the company record.
+          format: date-time
+          readOnly: true
+          title: Last Activity Date
+          type: string
+        phone:
+          description: A company's primary phone number. Powered by HubSpot Insights.
+          title: Phone Number
+          type: string
+        state:
+          description:
+            The state or region in which the company or organization is
+            located. Powered by HubSpot Insights.
+          title: State/Region
+          type: string
+        website:
+          description:
+            The main website of the company or organization. This property is
+            used to identify unique companies. Powered by HubSpot Insights.
+          title: Website URL
+          type: string
+        zip:
+          description:
+            The postal or zip code of the company or organization. Powered by
+            HubSpot Insights.
+          title: Postal Code
+          type: string
+      type: object
+    CompanyResponse:
+      properties:
+        archived:
+          type: boolean
+        associations:
+          $ref: "components.yaml#/components/schemas/CompanyAssociations"
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/CompanyProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    CompanySearchResponse:
+      properties:
+        archived:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        properties:
+          $ref: "components.yaml#/components/schemas/CompanyProperties"
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    Paging:
+      properties:
+        next:
+          $ref: "components.yaml#/components/schemas/PagingNext"
+      type: object
+    PagingNext:
+      properties:
+        after:
+          type: string
+        link:
+          type: string
+      type: object
+    ObjectAssociationsResponse:
+      properties:
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/AssociationResponse"
+          type: array
+      type: object
+    AssociationResponse:
+      properties:
+        id:
+          format: int64
+          type: integer
+        type:
+          type: string
+      type: object
+    SearchParams:
+      properties:
+        after:
+          type: integer
+        filterGroups:
+          description:
+            Use filters in the request body to limit the results to only CRM
+            objects with matching property values.
+          items:
+            $ref: "components.yaml#/components/schemas/Filters"
+          type: array
+        limit:
+          type: integer
+        properties:
+          items:
+            type: string
+          type: array
+        query:
+          type: string
+        sorts:
+          description:
+            Use a sorting rule in the request body to see results in a specific
+            order (ascending or descending). Only one sorting rule can be
+            applied to any search.
+          items:
+            $ref: "components.yaml#/components/schemas/Sort"
+          type: array
+      type: object
+    Sort:
+      properties:
+        direction:
+          enum:
+            - ASCENDING
+            - DESCENDING
+          type: string
+        propertyName:
+          type: string
+      type: object
+    Filter:
+      properties:
+        operator:
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          type: string
+        propertyName:
+          type: string
+        value:
+          type: string
+      type: object
+    Filters:
+      properties:
+        filters:
+          items:
+            $ref: "components.yaml#/components/schemas/Filter"
+          type: array
+      type: object
+    CompaniesResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/CompanyResponse"
+          type: array
+      type: object

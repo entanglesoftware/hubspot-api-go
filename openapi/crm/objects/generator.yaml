@@ -1,0 +1,9 @@
+generator: 1.0.0
+package: objects
+resources:
+  - name: contacts
+    enabled: true
+  - name: companies
+    enabled: true
+  - name: tickets
+    enabled: false

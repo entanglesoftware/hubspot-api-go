@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  description: Hubspot v3 API
+  title: Hubspot v3 API
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+paths:
+  /crm/v3/owners:
+    get:
+      parameters:
+        - description: Filter by email address (optional).
+          in: query
+          name: email
+          required: false
+          schema:
+            type: string
+        - description:
+            The maximum number of results to display per page. Default Value =
+            100.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: string
+        - description:
+            The paging cursor token of the last successfully read resource will
+            be returned as the paging.next.after JSON property of a paged
+            response containing more results.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/OwnersResponse"
+          description: A list of owner objects
+      tags:
+        - Crm
+      operationId: getCrm_v3_owners
+  /crm/v3/owners/{ownerId}:
+    get:
+      parameters:
+        - description: The id or userId of the owner.
+          in: path
+          name: ownerId
+          required: true
+          schema:
+            type: string
+        - description:
+            Whether to return only results that have been archived. Default
+            value - false.
+          in: query
+          name: archived
+          required: false
+          schema:
+            type: boolean
+        - description:
+            The name of the id property to lookup by. Acceptable values are id
+            or userId.
+          in: query
+          name: idProperty
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/OwnerResponse"
+          description: An Owner object
+      tags:
+        - Crm
+      operationId: getCrm_v3_owners_{ownerId}
+package:
+output:
