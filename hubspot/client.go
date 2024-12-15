@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 	decorator "github.com/entanglesoftware/hubspot-api-go/util/decorator"
 	"github.com/entanglesoftware/hubspot-api-go/util/http"
 	"sync"
@@ -16,7 +17,7 @@ type Client struct {
 	// cms                      *CmsDiscovery
 	// communicationPreferences *CommunicationPreferencesDiscovery
 	// conversations            *ConversationsDiscovery
-	crm *CrmDiscovery
+	crm *crm.CrmDiscovery
 	// events                   *EventsDiscovery
 	// files                    *FilesDiscovery
 	// marketing                *MarketingDiscovery
@@ -37,40 +38,19 @@ func (c *Client) init() {
 	defer c.mutex.Unlock()
 
 	// Initialize or reset service instances
-	// c.automation = nil
-	// c.cms = nil
-	// c.communicationPreferences = nil
-	// c.conversations = nil
 	c.crm = nil
-	// c.events = nil
-	// c.files = nil
-	// c.marketing = nil
-	// c.oauth = nil
-	// c.settings = nil
-	// c.webhooks = nil
 }
 
-// Automation Lazy loading for AutomationDiscovery
-// func (c *Client) Automation() *AutomationDiscovery {
-// 	c.mutex.Lock()
-// 	defer c.mutex.Unlock()
-//
-// 	if c.automation == nil {
-// 		c.automation = NewAutomationDiscovery(c.Config)
-// 	}
-// 	return c.automation
-// }
-//
-// // Cms Lazy loading for CmsDiscovery
-// func (c *Client) Cms() *CmsDiscovery {
-// 	c.mutex.Lock()
-// 	defer c.mutex.Unlock()
-//
-// 	if c.cms == nil {
-// 		c.cms = NewCmsDiscovery(c.Config)
-// 	}
-// 	return c.cms
-// }
+// Crm Lazy loading for CrmDiscovery
+func (c *Client) Crm() *crm.CrmDiscovery {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	if c.crm == nil {
+		c.crm = crm.NewCrmDiscovery(&c.Config)
+	}
+	return c.crm
+}
 
 // SetAccessToken Example implementation for setting access token
 func (c *Client) SetAccessToken(token string) {

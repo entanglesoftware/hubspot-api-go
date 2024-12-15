@@ -10,13 +10,13 @@ import (
 
 // ContactsDiscovery is the struct that contains all API clients
 type ContactsDiscovery struct {
-	Contacts *contacts.Client
+	Contacts *contacts.ClientWithResponses
 }
 
 // NewContactsDiscovery creates a new instance of ContactsDiscovery
 func NewContactsDiscovery(config *configuration.Configuration) (*ContactsDiscovery, error) {
 	// Create configuration for API clients
-	contactClient, err := contacts.NewClient(config.BasePath, contacts.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+	contactClient, err := contacts.NewClientWithResponses(config.BasePath, contacts.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
 		return nil
 	}))
