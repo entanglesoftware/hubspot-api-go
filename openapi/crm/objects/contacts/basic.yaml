@@ -94,6 +94,54 @@ paths:
             application/json:
               schema:
                 $ref: "components.yaml#/components/schemas/ContactsResponse"
+    post:
+      summary: Create a new contact
+      description: Create a new contact in the HubSpot CRM.
+      tags:
+        - Contacts
+      operationId: createContact
+      requestBody:
+        description: Contact details to create a new contact.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of contact properties.
+                  additionalProperties:
+                    type: string
+              required:
+                - properties
+              example:
+                properties:
+                  firstname: "John"
+                  lastname: "Doe"
+                  email: "johndoe@example.com"
+      responses:
+        "201":
+          description: Contact created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the created contact.
+                  properties:
+                    type: object
+                    description: Properties of the created contact.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was last updated.
 
   /crm/v3/objects/contacts/{contactId}:
     get:
