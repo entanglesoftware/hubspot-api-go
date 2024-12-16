@@ -4,6 +4,7 @@
 package contacts
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 )
@@ -91,12 +93,41 @@ type ClientInterface interface {
 	// GetContacts request
 	GetContacts(ctx context.Context, params *GetContactsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateContactWithBody request with any body
+	CreateContactWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetContactById request
 	GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetContacts(ctx context.Context, params *GetContactsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetContactsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateContactWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateContactRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateContactRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -248,6 +279,46 @@ func NewGetContactsRequest(server string, params *GetContactsParams) (*http.Requ
 	return req, nil
 }
 
+// NewCreateContactRequest calls the generic CreateContact builder with application/json body
+func NewCreateContactRequest(server string, body CreateContactJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateContactRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateContactRequestWithBody generates requests for CreateContact with any type of body
+func NewCreateContactRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetContactByIdRequest generates requests for GetContactById
 func NewGetContactByIdRequest(server string, contactId int64, params *GetContactByIdParams) (*http.Request, error) {
 	var err error
@@ -382,6 +453,11 @@ type ClientWithResponsesInterface interface {
 	// GetContactsWithResponse request
 	GetContactsWithResponse(ctx context.Context, params *GetContactsParams, reqEditors ...RequestEditorFn) (*GetContactsResponse, error)
 
+	// CreateContactWithBodyWithResponse request with any body
+	CreateContactWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateContactResponse, error)
+
+	CreateContactWithResponse(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContactResponse, error)
+
 	// GetContactByIdWithResponse request
 	GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error)
 }
@@ -402,6 +478,40 @@ func (r GetContactsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetContactsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateContactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// CreatedAt Timestamp when the contact was created.
+		CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+		// Id Unique ID of the created contact.
+		Id *string `json:"id,omitempty"`
+
+		// Properties Properties of the created contact.
+		Properties *map[string]interface{} `json:"properties,omitempty"`
+
+		// UpdatedAt Timestamp when the contact was last updated.
+		UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateContactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateContactResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -439,6 +549,23 @@ func (c *ClientWithResponses) GetContactsWithResponse(ctx context.Context, param
 	return ParseGetContactsResponse(rsp)
 }
 
+// CreateContactWithBodyWithResponse request with arbitrary body returning *CreateContactResponse
+func (c *ClientWithResponses) CreateContactWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateContactResponse, error) {
+	rsp, err := c.CreateContactWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateContactResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateContactWithResponse(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContactResponse, error) {
+	rsp, err := c.CreateContact(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateContactResponse(rsp)
+}
+
 // GetContactByIdWithResponse request returning *GetContactByIdResponse
 func (c *ClientWithResponses) GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error) {
 	rsp, err := c.GetContactById(ctx, contactId, params, reqEditors...)
@@ -468,6 +595,44 @@ func ParseGetContactsResponse(rsp *http.Response) (*GetContactsResponse, error) 
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateContactResponse parses an HTTP response from a CreateContactWithResponse call
+func ParseCreateContactResponse(rsp *http.Response) (*CreateContactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateContactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// CreatedAt Timestamp when the contact was created.
+			CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+			// Id Unique ID of the created contact.
+			Id *string `json:"id,omitempty"`
+
+			// Properties Properties of the created contact.
+			Properties *map[string]interface{} `json:"properties,omitempty"`
+
+			// UpdatedAt Timestamp when the contact was last updated.
+			UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
 
 	}
 
