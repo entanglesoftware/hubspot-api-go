@@ -66,8 +66,25 @@ type GetContactByIdParams struct {
 	Archived *bool `form:"archived,omitempty" json:"archived,omitempty"`
 }
 
+// UpdateContactJSONBody defines parameters for UpdateContact.
+type UpdateContactJSONBody struct {
+	Properties struct {
+		// Email The new email address of the contact.
+		Email *string `json:"email,omitempty"`
+
+		// Firstname The new first name of the contact.
+		Firstname *string `json:"firstname,omitempty"`
+
+		// Lastname The new last name of the contact.
+		Lastname *string `json:"lastname,omitempty"`
+	} `json:"properties"`
+}
+
 // CreateContactJSONRequestBody defines body for CreateContact for application/json ContentType.
 type CreateContactJSONRequestBody CreateContactJSONBody
+
+// UpdateContactJSONRequestBody defines body for UpdateContact for application/json ContentType.
+type UpdateContactJSONRequestBody UpdateContactJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -80,6 +97,9 @@ type ServerInterface interface {
 	// Retrieve contact details by ID
 	// (GET /crm/v3/objects/contacts/{contactId})
 	GetContactById(ctx echo.Context, contactId int64, params GetContactByIdParams) error
+	// Update a contact
+	// (PATCH /crm/v3/objects/contacts/{contactId})
+	UpdateContact(ctx echo.Context, contactId string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -194,6 +214,24 @@ func (w *ServerInterfaceWrapper) GetContactById(ctx echo.Context) error {
 	return err
 }
 
+// UpdateContact converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateContact(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "contactId" -------------
+	var contactId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "contactId", ctx.Param("contactId"), &contactId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter contactId: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.contacts.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateContact(ctx, contactId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -225,39 +263,42 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/crm/v3/objects/contacts", wrapper.GetContacts)
 	router.POST(baseURL+"/crm/v3/objects/contacts", wrapper.CreateContact)
 	router.GET(baseURL+"/crm/v3/objects/contacts/:contactId", wrapper.GetContactById)
+	router.PATCH(baseURL+"/crm/v3/objects/contacts/:contactId", wrapper.UpdateContact)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"XyjTGd1eb/8NAAD//0FoVHHgHAAA",
+	"H4sIAAAAAAAC/+xZ32/bNhD+VwhuwF5cO222PRgosDTZVm9LV6Qp+tAELS2dLSYSqZKUEyHw/z4c9YuS",
+	"KNlO26EPfdnSiDzefcf77jvmgQYySaUAYTSdP1AdRJAw+2Pz4cOJ1jLgzHApLkCnUmjAFamSKSjDwa7n",
+	"If43BB0onuJSOqeXEZDFGZErYiIgrDQDIZHLGwjMlE6oyVOgc6qN4mJNt9UvfJbwC9pijTseC7UJWhyC",
+	"Np1YTqUwLDDDcTAVRHwDnmgWIuQBM6AJLwIKCluEa1LtchxaShkDE3h+9fXE9K2+i0C0rN2xtrmVVAkz",
+	"dE5DZuCJ4Qn4YHNAKcIIQ47/YPHrVng/KljROf1h1mAyK7Pu/OrDvxY7J/G6Rmw76URwQhKWuompE6wd",
+	"OJxsKMA1e4NRrt8fC99VfCv4pwwID0EYvuKgyEoq9yjvZexcjQFMe9u6+NxC/mTD4gwqpJxzf9KkOcWL",
+	"V/P5HTfRS66NVPmYP9xAckiyy915ZbopIaYUy0cyPhQH4SKIs5CLNYmsUR6wmFgI/DFmaXjQnYiZNqTc",
+	"tO/F2I8Z9DA1pGyNhg4AttiwnVAFOovNo7LTZaxednbENVLK30iEvv5yaJSva8/bEQm4NwfH8wo37Xfi",
+	"q9J+hylWBpS/iwWZ0sg88hZEzUHoJUnZ2va3EkkvIcVc3Prt4pdD7e2KsMMLvTC1zFQAi4HOX3x1BIBD",
+	"BaWdvOAEb6jF9n/YEuJR+zGuqCP3nDFi/XJQbJTGK81xuPvIQdqwJB1htLYZS2wazP6NriTAF/lbDWoo",
+	"DZkGhUm4i2TFmK3DHe+5MLAGhaatR36DXUav8BnBu3/R8FdcrGT/iJfZ8k0qDTl5vbBZTZiwlUZOL85b",
+	"uoKbGJz1m2PcQid0A0oXpjbHGIpMQbCU0zk9nh5Nj+iEpsxE9gLPApXMNsez0uysbDH22xo8zegPMEFE",
+	"WF1b1YYpQZpWMrZIqJLF7GcQhmw4I58yUDlJmWIJGFA2BgTM8h4mj/4JpmpC1slqJZ2/7/pxzu55kiVE",
+	"ZMkSlFPlJAVlvUPzcM+SFEH65QjRpnNqnaATKliC2MU84YZOSt1fhLtiWWzo/OlR/1psJ10/Tg9hs9od",
+	"en5z8vT85Plz6neroE/Xrd596jkik4Q90YCo4Q2PuTZ4vKNJjCxlCRAuWnmaXonFijCiUwhQHIZNZXJN",
+	"hDQkVaBBmAnhhtzxOCZLIHwtpIJweiWa2LSDYVuU6SxJGJIo/b1Y6rhG63p7T1dcaWNxmFBUOeWPkDAe",
+	"02ssG7hPYxkCna9YrMGPYMt2A2PdmQfGrkbwaZPbTCER0c+F+46bCAHnyiMHr8TL5nchM4woCLMALUQo",
+	"mLsXvaxVosBkSmCuQBEFnzLQZo9cdDT0WFoKv6Ny8a4cPSI3ri//a5oKDG13s4lSYBSHTWtGX5xprOjp",
+	"lXglBdxzbZnMnTP3roSTznDaB701vjpIh8Bibck+uAWj9we5Y/ArYLsoL7cUcV4P7F66G3Ozem3wcnC5",
+	"sfugsL22cttSlw3l2dFR8WRju40VoGka88CGP7vR6O+Dc8Bhk4cz+m97o6BVwa27VbdE2/abVF/Ud4yk",
+	"g5sw1WyNHY/WrfAaZ2CpPd341L4MEEYE3DWvMQW3V7Lg9OK832mLjeUJFNG09PFChvlBQNYp7irjgq7n",
+	"9EZGIpTwW7lwGsgE1V3NH3P6l4yESyNzeibBQtcZzb7EU8Tf9UNEyrjSDvLjjxDbAiKuIMTUOL5ce5Vd",
+	"l4WKI0IwjMeWcAJP5qbUPcWoDLa9e/70oPS0MRt5d7qsxDq5+9ovUM04VFo94AGqU3pNo9ppca+Xlh0o",
+	"fJk3l+HrUXmvsyAArVdZHOddEvFVvJ8ztpNBdT97KH9ahNudSr9CoGyZ9QNiSJY54UaTj7Wxj1NyJQ6f",
+	"A2zXHJoEXuSLcNcw0L9ZTf5t08F5p+k5tb+9enObUJ1dLsyvP9O9hoHvGvxb0ODfxd13cfdlxN1pm/vK",
+	"/j0o7IJOn1/mZHE2qOiYCSJPl7T9pZj9Kjty5fAwF+PSrjDQSLtR5rTvY72/DLVZFEuo6Hqfxafdxnj9",
+	"eNU5Jgy9MtQXNjZQ+5mwMFSgtad59KrIEa5DNu0Sgmv2MdjI3iF7VnXsZ2779XVrcxF2KdWjz0jp0N/S",
+	"s26jr95zHyshL/s2dg4CO2F74+i31otz7WWbP4qKbUq8sKkhyBQ3ua1ayTITPcMUBiqZVo/A9aSpgIX0",
+	"GktKg9pUpZ4pnMAiY1I9n81YyqdRtsT/BTKZ0e319r8AAAD//7O8qAr+IAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
