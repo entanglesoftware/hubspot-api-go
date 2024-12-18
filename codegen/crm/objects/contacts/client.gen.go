@@ -100,6 +100,11 @@ type ClientInterface interface {
 
 	// GetContactById request
 	GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateContactWithBody request with any body
+	UpdateContactWithBody(ctx context.Context, contactId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateContact(ctx context.Context, contactId string, body UpdateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetContacts(ctx context.Context, params *GetContactsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -140,6 +145,30 @@ func (c *Client) CreateContact(ctx context.Context, body CreateContactJSONReques
 
 func (c *Client) GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetContactByIdRequest(c.Server, contactId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateContactWithBody(ctx context.Context, contactId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateContactRequestWithBody(c.Server, contactId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateContact(ctx context.Context, contactId string, body UpdateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateContactRequest(c.Server, contactId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -407,6 +436,53 @@ func NewGetContactByIdRequest(server string, contactId int64, params *GetContact
 	return req, nil
 }
 
+// NewUpdateContactRequest calls the generic UpdateContact builder with application/json body
+func NewUpdateContactRequest(server string, contactId string, body UpdateContactJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateContactRequestWithBody(server, contactId, "application/json", bodyReader)
+}
+
+// NewUpdateContactRequestWithBody generates requests for UpdateContact with any type of body
+func NewUpdateContactRequestWithBody(server string, contactId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "contactId", runtime.ParamLocationPath, contactId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -460,6 +536,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetContactByIdWithResponse request
 	GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error)
+
+	// UpdateContactWithBodyWithResponse request with any body
+	UpdateContactWithBodyWithResponse(ctx context.Context, contactId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateContactResponse, error)
+
+	UpdateContactWithResponse(ctx context.Context, contactId string, body UpdateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateContactResponse, error)
 }
 
 type GetContactsResponse struct {
@@ -540,6 +621,34 @@ func (r GetContactByIdResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateContactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Id The unique ID of the updated contact.
+		Id *string `json:"id,omitempty"`
+
+		// Properties The updated contact properties.
+		Properties *map[string]interface{} `json:"properties,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateContactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateContactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetContactsWithResponse request returning *GetContactsResponse
 func (c *ClientWithResponses) GetContactsWithResponse(ctx context.Context, params *GetContactsParams, reqEditors ...RequestEditorFn) (*GetContactsResponse, error) {
 	rsp, err := c.GetContacts(ctx, params, reqEditors...)
@@ -573,6 +682,23 @@ func (c *ClientWithResponses) GetContactByIdWithResponse(ctx context.Context, co
 		return nil, err
 	}
 	return ParseGetContactByIdResponse(rsp)
+}
+
+// UpdateContactWithBodyWithResponse request with arbitrary body returning *UpdateContactResponse
+func (c *ClientWithResponses) UpdateContactWithBodyWithResponse(ctx context.Context, contactId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateContactResponse, error) {
+	rsp, err := c.UpdateContactWithBody(ctx, contactId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateContactResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateContactWithResponse(ctx context.Context, contactId string, body UpdateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateContactResponse, error) {
+	rsp, err := c.UpdateContact(ctx, contactId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateContactResponse(rsp)
 }
 
 // ParseGetContactsResponse parses an HTTP response from a GetContactsWithResponse call
@@ -655,6 +781,38 @@ func ParseGetContactByIdResponse(rsp *http.Response) (*GetContactByIdResponse, e
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ContactsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateContactResponse parses an HTTP response from a UpdateContactWithResponse call
+func ParseUpdateContactResponse(rsp *http.Response) (*UpdateContactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateContactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Id The unique ID of the updated contact.
+			Id *string `json:"id,omitempty"`
+
+			// Properties The updated contact properties.
+			Properties *map[string]interface{} `json:"properties,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

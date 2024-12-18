@@ -207,3 +207,50 @@ paths:
             application/json:
               schema:
                 $ref: "components.yaml#/components/schemas/ContactsResponse"
+    patch:
+      summary: Update a contact
+      description: Updates the details of a contact in HubSpot CRM.
+      operationId: updateContact
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          description: The unique identifier of the contact to update.
+          schema:
+            type: string
+      requestBody:
+        description: Contact details to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: The new email address of the contact.
+                    firstname:
+                      type: string
+                      description: The new first name of the contact.
+                    lastname:
+                      type: string
+                      description: The new last name of the contact.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the contact.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The unique ID of the updated contact.
+                  properties:
+                    type: object
+                    description: The updated contact properties.
