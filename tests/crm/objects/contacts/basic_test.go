@@ -109,23 +109,12 @@ func TestGetContactById(t *testing.T) {
 	}
 
 	if response.StatusCode() == 200 {
-		if response.JSON200 == nil || response.JSON200.Results == nil {
+		if response.JSON200 == nil || response.JSON200.Properties == nil {
 			t.Fatalf("Response contains no results")
 		}
 
-		for _, result := range *response.JSON200.Results {
-			t.Logf("%+v\n", result)
-			t.Log("-----")
-
-			// Assuming Properties is a map of key-value pairs
-			if result.Properties != nil {
-				for key, value := range *result.Properties {
-					t.Logf("Key: %s, Value: %+v\n", key, value)
-				}
-			} else {
-				t.Log("No properties found.")
-			}
-			t.Log("-----")
+		for key, result := range *response.JSON200.Properties {
+			t.Logf("Key: %s, Value: %+v\n", key, result)
 		}
 	} else {
 		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
