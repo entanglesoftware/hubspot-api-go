@@ -602,7 +602,7 @@ func (r CreateContactResponse) StatusCode() int {
 type GetContactByIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ContactsResponse
+	JSON200      *ContactResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -780,7 +780,7 @@ func ParseGetContactByIdResponse(rsp *http.Response) (*GetContactByIdResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ContactsResponse
+		var dest ContactResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

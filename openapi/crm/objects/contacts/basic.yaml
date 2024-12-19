@@ -206,7 +206,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/ContactsResponse"
+                $ref: "components.yaml#/components/schemas/ContactResponse"
     patch:
       summary: Update a contact
       description: Updates the details of a contact in HubSpot CRM.
