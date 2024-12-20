@@ -290,6 +290,18 @@ func TestSearchContactsByEmail(t *testing.T) {
 		t.Fatalf("API call failed: %v", err)
 	}
 
+	var result struct {
+		Total int `json:"total"`
+	}
+
+	if err := json.Unmarshal(response.Body, &result); err != nil {
+		t.Fatalf("Failed to parse response body: %v", err)
+	}
+
+	if result.Total == 0 {
+		t.Fatalf("Response contains no results")
+	}
+
 	if response.StatusCode() == 200 {
 		if response.JSON200 == nil || response.JSON200.Results == nil {
 			t.Fatalf("Response contains no results")
