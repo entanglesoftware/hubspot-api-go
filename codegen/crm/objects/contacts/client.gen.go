@@ -98,6 +98,11 @@ type ClientInterface interface {
 
 	CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SearchContactsByEmailWithBody request with any body
+	SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetContactById request
 	GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -133,6 +138,30 @@ func (c *Client) CreateContactWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateContactRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchContactsByEmailRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchContactsByEmailRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -348,6 +377,64 @@ func NewCreateContactRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
+// NewSearchContactsByEmailRequest calls the generic SearchContactsByEmail builder with application/json body
+func NewSearchContactsByEmailRequest(server string, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSearchContactsByEmailRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewSearchContactsByEmailRequestWithBody generates requests for SearchContactsByEmail with any type of body
+func NewSearchContactsByEmailRequestWithBody(server string, params *SearchContactsByEmailParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetContactByIdRequest generates requests for GetContactById
 func NewGetContactByIdRequest(server string, contactId int64, params *GetContactByIdParams) (*http.Request, error) {
 	var err error
@@ -534,6 +621,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateContactWithResponse(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContactResponse, error)
 
+	// SearchContactsByEmailWithBodyWithResponse request with any body
+	SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
+
+	SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
+
 	// GetContactByIdWithResponse request
 	GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error)
 
@@ -593,6 +685,28 @@ func (r CreateContactResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateContactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SearchContactsByEmailResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ContactsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchContactsByEmailResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchContactsByEmailResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -673,6 +787,23 @@ func (c *ClientWithResponses) CreateContactWithResponse(ctx context.Context, bod
 		return nil, err
 	}
 	return ParseCreateContactResponse(rsp)
+}
+
+// SearchContactsByEmailWithBodyWithResponse request with arbitrary body returning *SearchContactsByEmailResponse
+func (c *ClientWithResponses) SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error) {
+	rsp, err := c.SearchContactsByEmailWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchContactsByEmailResponse(rsp)
+}
+
+func (c *ClientWithResponses) SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error) {
+	rsp, err := c.SearchContactsByEmail(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchContactsByEmailResponse(rsp)
 }
 
 // GetContactByIdWithResponse request returning *GetContactByIdResponse
@@ -759,6 +890,32 @@ func ParseCreateContactResponse(rsp *http.Response) (*CreateContactResponse, err
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSearchContactsByEmailResponse parses an HTTP response from a SearchContactsByEmailWithResponse call
+func ParseSearchContactsByEmailResponse(rsp *http.Response) (*SearchContactsByEmailResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchContactsByEmailResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ContactsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 
