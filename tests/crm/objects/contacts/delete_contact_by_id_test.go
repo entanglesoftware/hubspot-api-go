@@ -3,9 +3,10 @@ package contacts_test
 import (
 	"context"
 	"os"
-	"test/configuration"
-	"test/hubspot"
 	"testing"
+
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
 // TestDeleteContactById fetches a page of contacts

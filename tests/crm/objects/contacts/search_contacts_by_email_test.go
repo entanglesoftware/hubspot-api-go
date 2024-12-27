@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"test/codegen/crm/objects/contacts"
-	"test/configuration"
 	"test/hubspot"
 	"testing"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
 func TestSearchContactsByEmail(t *testing.T) {

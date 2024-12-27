@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"test/configuration"
-	"test/hubspot"
 	"testing"
+
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
 func TestMergeContacts(t *testing.T) {

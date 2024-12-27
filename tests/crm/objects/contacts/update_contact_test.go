@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"test/codegen/crm/objects/contacts"
-	"test/configuration"
-	"test/hubspot"
 	"testing"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
 func TestUpdateContact(t *testing.T) {
