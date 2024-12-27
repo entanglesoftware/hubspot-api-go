@@ -98,10 +98,23 @@ type ClientInterface interface {
 
 	CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GdprDeleteContactWithBody request with any body
+	GdprDeleteContactWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GdprDeleteContact(ctx context.Context, body GdprDeleteContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MergeContactsWithBody request with any body
+	MergeContactsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	MergeContacts(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SearchContactsByEmailWithBody request with any body
 	SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteCrmV3ObjectsContactsContactId request
+	DeleteCrmV3ObjectsContactsContactId(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetContactById request
 	GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -148,6 +161,54 @@ func (c *Client) CreateContact(ctx context.Context, body CreateContactJSONReques
 	return c.Client.Do(req)
 }
 
+func (c *Client) GdprDeleteContactWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGdprDeleteContactRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GdprDeleteContact(ctx context.Context, body GdprDeleteContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGdprDeleteContactRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MergeContactsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMergeContactsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MergeContacts(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMergeContactsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSearchContactsByEmailRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
@@ -162,6 +223,18 @@ func (c *Client) SearchContactsByEmailWithBody(ctx context.Context, params *Sear
 
 func (c *Client) SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSearchContactsByEmailRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteCrmV3ObjectsContactsContactId(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteCrmV3ObjectsContactsContactIdRequest(c.Server, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -377,6 +450,86 @@ func NewCreateContactRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
+// NewGdprDeleteContactRequest calls the generic GdprDeleteContact builder with application/json body
+func NewGdprDeleteContactRequest(server string, body GdprDeleteContactJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGdprDeleteContactRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGdprDeleteContactRequestWithBody generates requests for GdprDeleteContact with any type of body
+func NewGdprDeleteContactRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/gdpr-delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMergeContactsRequest calls the generic MergeContacts builder with application/json body
+func NewMergeContactsRequest(server string, body MergeContactsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMergeContactsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewMergeContactsRequestWithBody generates requests for MergeContacts with any type of body
+func NewMergeContactsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/merge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewSearchContactsByEmailRequest calls the generic SearchContactsByEmail builder with application/json body
 func NewSearchContactsByEmailRequest(server string, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -431,6 +584,40 @@ func NewSearchContactsByEmailRequestWithBody(server string, params *SearchContac
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteCrmV3ObjectsContactsContactIdRequest generates requests for DeleteCrmV3ObjectsContactsContactId
+func NewDeleteCrmV3ObjectsContactsContactIdRequest(server string, contactId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "contactId", runtime.ParamLocationPath, contactId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -621,10 +808,23 @@ type ClientWithResponsesInterface interface {
 
 	CreateContactWithResponse(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContactResponse, error)
 
+	// GdprDeleteContactWithBodyWithResponse request with any body
+	GdprDeleteContactWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GdprDeleteContactResponse, error)
+
+	GdprDeleteContactWithResponse(ctx context.Context, body GdprDeleteContactJSONRequestBody, reqEditors ...RequestEditorFn) (*GdprDeleteContactResponse, error)
+
+	// MergeContactsWithBodyWithResponse request with any body
+	MergeContactsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MergeContactsResponse, error)
+
+	MergeContactsWithResponse(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*MergeContactsResponse, error)
+
 	// SearchContactsByEmailWithBodyWithResponse request with any body
 	SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
 
 	SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
+
+	// DeleteCrmV3ObjectsContactsContactIdWithResponse request
+	DeleteCrmV3ObjectsContactsContactIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteCrmV3ObjectsContactsContactIdResponse, error)
 
 	// GetContactByIdWithResponse request
 	GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error)
@@ -691,6 +891,49 @@ func (r CreateContactResponse) StatusCode() int {
 	return 0
 }
 
+type GdprDeleteContactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GdprDeleteContactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GdprDeleteContactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MergeContactsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ContactResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r MergeContactsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MergeContactsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SearchContactsByEmailResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -707,6 +950,27 @@ func (r SearchContactsByEmailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SearchContactsByEmailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteCrmV3ObjectsContactsContactIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteCrmV3ObjectsContactsContactIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteCrmV3ObjectsContactsContactIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -789,6 +1053,40 @@ func (c *ClientWithResponses) CreateContactWithResponse(ctx context.Context, bod
 	return ParseCreateContactResponse(rsp)
 }
 
+// GdprDeleteContactWithBodyWithResponse request with arbitrary body returning *GdprDeleteContactResponse
+func (c *ClientWithResponses) GdprDeleteContactWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GdprDeleteContactResponse, error) {
+	rsp, err := c.GdprDeleteContactWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGdprDeleteContactResponse(rsp)
+}
+
+func (c *ClientWithResponses) GdprDeleteContactWithResponse(ctx context.Context, body GdprDeleteContactJSONRequestBody, reqEditors ...RequestEditorFn) (*GdprDeleteContactResponse, error) {
+	rsp, err := c.GdprDeleteContact(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGdprDeleteContactResponse(rsp)
+}
+
+// MergeContactsWithBodyWithResponse request with arbitrary body returning *MergeContactsResponse
+func (c *ClientWithResponses) MergeContactsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MergeContactsResponse, error) {
+	rsp, err := c.MergeContactsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMergeContactsResponse(rsp)
+}
+
+func (c *ClientWithResponses) MergeContactsWithResponse(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*MergeContactsResponse, error) {
+	rsp, err := c.MergeContacts(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMergeContactsResponse(rsp)
+}
+
 // SearchContactsByEmailWithBodyWithResponse request with arbitrary body returning *SearchContactsByEmailResponse
 func (c *ClientWithResponses) SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error) {
 	rsp, err := c.SearchContactsByEmailWithBody(ctx, params, contentType, body, reqEditors...)
@@ -804,6 +1102,15 @@ func (c *ClientWithResponses) SearchContactsByEmailWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseSearchContactsByEmailResponse(rsp)
+}
+
+// DeleteCrmV3ObjectsContactsContactIdWithResponse request returning *DeleteCrmV3ObjectsContactsContactIdResponse
+func (c *ClientWithResponses) DeleteCrmV3ObjectsContactsContactIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteCrmV3ObjectsContactsContactIdResponse, error) {
+	rsp, err := c.DeleteCrmV3ObjectsContactsContactId(ctx, contactId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteCrmV3ObjectsContactsContactIdResponse(rsp)
 }
 
 // GetContactByIdWithResponse request returning *GetContactByIdResponse
@@ -896,6 +1203,48 @@ func ParseCreateContactResponse(rsp *http.Response) (*CreateContactResponse, err
 	return response, nil
 }
 
+// ParseGdprDeleteContactResponse parses an HTTP response from a GdprDeleteContactWithResponse call
+func ParseGdprDeleteContactResponse(rsp *http.Response) (*GdprDeleteContactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GdprDeleteContactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseMergeContactsResponse parses an HTTP response from a MergeContactsWithResponse call
+func ParseMergeContactsResponse(rsp *http.Response) (*MergeContactsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MergeContactsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ContactResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseSearchContactsByEmailResponse parses an HTTP response from a SearchContactsByEmailWithResponse call
 func ParseSearchContactsByEmailResponse(rsp *http.Response) (*SearchContactsByEmailResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -917,6 +1266,22 @@ func ParseSearchContactsByEmailResponse(rsp *http.Response) (*SearchContactsByEm
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseDeleteCrmV3ObjectsContactsContactIdResponse parses an HTTP response from a DeleteCrmV3ObjectsContactsContactIdWithResponse call
+func ParseDeleteCrmV3ObjectsContactsContactIdResponse(rsp *http.Response) (*DeleteCrmV3ObjectsContactsContactIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteCrmV3ObjectsContactsContactIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

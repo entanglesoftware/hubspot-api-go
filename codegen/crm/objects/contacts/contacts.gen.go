@@ -52,6 +52,24 @@ type CreateContactJSONBody struct {
 	Properties map[string]string `json:"properties"`
 }
 
+// GdprDeleteContactJSONBody defines parameters for GdprDeleteContact.
+type GdprDeleteContactJSONBody struct {
+	// IdProperty The property used to identify the contact (e.g., `email` or `phone`).
+	IdProperty *string `json:"idProperty,omitempty"`
+
+	// ObjectId The unique identifier of the contact to delete.
+	ObjectId *string `json:"objectId,omitempty"`
+}
+
+// MergeContactsJSONBody defines parameters for MergeContacts.
+type MergeContactsJSONBody struct {
+	// ObjectIdToMerge ID of the contact to merge into the primary contact.
+	ObjectIdToMerge string `json:"objectIdToMerge"`
+
+	// PrimaryObjectId ID of the primary contact that will remain after the merge.
+	PrimaryObjectId string `json:"primaryObjectId"`
+}
+
 // SearchContactsByEmailJSONBody defines parameters for SearchContactsByEmail.
 type SearchContactsByEmailJSONBody struct {
 	Filters *[]struct {
@@ -100,6 +118,12 @@ type UpdateContactJSONBody struct {
 // CreateContactJSONRequestBody defines body for CreateContact for application/json ContentType.
 type CreateContactJSONRequestBody CreateContactJSONBody
 
+// GdprDeleteContactJSONRequestBody defines body for GdprDeleteContact for application/json ContentType.
+type GdprDeleteContactJSONRequestBody GdprDeleteContactJSONBody
+
+// MergeContactsJSONRequestBody defines body for MergeContacts for application/json ContentType.
+type MergeContactsJSONRequestBody MergeContactsJSONBody
+
 // SearchContactsByEmailJSONRequestBody defines body for SearchContactsByEmail for application/json ContentType.
 type SearchContactsByEmailJSONRequestBody SearchContactsByEmailJSONBody
 
@@ -114,9 +138,18 @@ type ServerInterface interface {
 	// Create a new contact
 	// (POST /crm/v3/objects/contacts)
 	CreateContact(ctx echo.Context) error
+	// GDPR Delete Contact
+	// (POST /crm/v3/objects/contacts/gdpr-delete)
+	GdprDeleteContact(ctx echo.Context) error
+	// Merge two contacts
+	// (POST /crm/v3/objects/contacts/merge)
+	MergeContacts(ctx echo.Context) error
 	// Search for contacts by email
 	// (POST /crm/v3/objects/contacts/search)
 	SearchContactsByEmail(ctx echo.Context, params SearchContactsByEmailParams) error
+	// Delete a contact
+	// (DELETE /crm/v3/objects/contacts/{contactId})
+	DeleteCrmV3ObjectsContactsContactId(ctx echo.Context, contactId string) error
 	// Retrieve contact details by ID
 	// (GET /crm/v3/objects/contacts/{contactId})
 	GetContactById(ctx echo.Context, contactId int64, params GetContactByIdParams) error
@@ -196,6 +229,28 @@ func (w *ServerInterfaceWrapper) CreateContact(ctx echo.Context) error {
 	return err
 }
 
+// GdprDeleteContact converts echo context to params.
+func (w *ServerInterfaceWrapper) GdprDeleteContact(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.contacts.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GdprDeleteContact(ctx)
+	return err
+}
+
+// MergeContacts converts echo context to params.
+func (w *ServerInterfaceWrapper) MergeContacts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.contacts.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MergeContacts(ctx)
+	return err
+}
+
 // SearchContactsByEmail converts echo context to params.
 func (w *ServerInterfaceWrapper) SearchContactsByEmail(ctx echo.Context) error {
 	var err error
@@ -213,6 +268,24 @@ func (w *ServerInterfaceWrapper) SearchContactsByEmail(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SearchContactsByEmail(ctx, params)
+	return err
+}
+
+// DeleteCrmV3ObjectsContactsContactId converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteCrmV3ObjectsContactsContactId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "contactId" -------------
+	var contactId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "contactId", ctx.Param("contactId"), &contactId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter contactId: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.contacts.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteCrmV3ObjectsContactsContactId(ctx, contactId)
 	return err
 }
 
@@ -305,7 +378,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/crm/v3/objects/contacts", wrapper.GetContacts)
 	router.POST(baseURL+"/crm/v3/objects/contacts", wrapper.CreateContact)
+	router.POST(baseURL+"/crm/v3/objects/contacts/gdpr-delete", wrapper.GdprDeleteContact)
+	router.POST(baseURL+"/crm/v3/objects/contacts/merge", wrapper.MergeContacts)
 	router.POST(baseURL+"/crm/v3/objects/contacts/search", wrapper.SearchContactsByEmail)
+	router.DELETE(baseURL+"/crm/v3/objects/contacts/:contactId", wrapper.DeleteCrmV3ObjectsContactsContactId)
 	router.GET(baseURL+"/crm/v3/objects/contacts/:contactId", wrapper.GetContactById)
 	router.PATCH(baseURL+"/crm/v3/objects/contacts/:contactId", wrapper.UpdateContact)
 
@@ -314,39 +390,45 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"//+cRjgNMyUAAA==",
+	"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",
+	"AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
