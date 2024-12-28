@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const (
+	BaseURL = "https://api.hubapi.com"
+)
+
 // LimiterOptions represents the configuration options for a rate limiter.
 type LimiterOptions struct {
 	MaxConcurrent            int           // Maximum concurrent jobs
