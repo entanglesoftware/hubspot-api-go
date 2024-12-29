@@ -19,73 +19,73 @@ type AssociationResponse struct {
 // ContactResponse defines model for ContactResponse.
 type ContactResponse struct {
 	// Archived Indicates if the contact is archived.
-	Archived *bool `json:"archived,omitempty"`
+	Archived bool `json:"archived,omitempty"`
 
 	// ArchivedAt When the contact was archived.
-	ArchivedAt *time.Time `json:"archivedAt,omitempty"`
+	ArchivedAt time.Time `json:"archivedAt,omitempty"`
 
 	// Associations A map of associated objects.
-	Associations *map[string]ObjectAssociationsResponse `json:"associations,omitempty"`
+	Associations map[string]ObjectAssociationsResponse `json:"associations,omitempty"`
 
 	// CreatedAt When the contact was created.
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	CreatedAt time.Time `json:"createdAt,omitempty"`
 
 	// Id Unique identifier for the contact.
-	Id *string `json:"id,omitempty"`
+	Id string `json:"id,omitempty"`
 
 	// Properties A key-value map of the contact's properties.
-	Properties *map[string]string `json:"properties,omitempty"`
+	Properties map[string]string `json:"properties,omitempty"`
 
 	// PropertiesWithHistory A map of the contact's properties including historical values.
-	PropertiesWithHistory *map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
 
 	// UpdatedAt When the contact was last updated.
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
 // ContactsResponse defines model for ContactsResponse.
 type ContactsResponse struct {
-	Paging  *Paging            `json:"paging,omitempty"`
-	Results *[]ContactResponse `json:"results,omitempty"`
+	Paging  Paging            `json:"paging,omitempty"`
+	Results []ContactResponse `json:"results,omitempty"`
 }
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {
-	Paging  *Paging                `json:"paging,omitempty"`
+	Paging  Paging                 `json:"paging,omitempty"`
 	Results *[]AssociationResponse `json:"results,omitempty"`
 }
 
 // Paging defines model for Paging.
 type Paging struct {
-	Next *PagingNext `json:"next,omitempty"`
+	Next PagingNext `json:"next,omitempty"`
 }
 
 // PagingNext defines model for PagingNext.
 type PagingNext struct {
 	// After The cursor token for the next page of results.
-	After *string `json:"after,omitempty"`
+	After string `json:"after,omitempty"`
 
 	// Link The link for the next page of results.
-	Link *string `json:"link,omitempty"`
+	Link string `json:"link,omitempty"`
 }
 
 // PropertyHistory defines model for PropertyHistory.
 type PropertyHistory struct {
 	// SourceId The source ID of the historical property value.
-	SourceId *string `json:"sourceId,omitempty"`
+	SourceId string `json:"sourceId,omitempty"`
 
 	// SourceLabel The source label for the historical property.
-	SourceLabel *string `json:"sourceLabel,omitempty"`
+	SourceLabel string `json:"sourceLabel,omitempty"`
 
 	// SourceType The source type of the historical property value.
-	SourceType *string `json:"sourceType,omitempty"`
+	SourceType string `json:"sourceType,omitempty"`
 
 	// Timestamp When the property value was set.
-	Timestamp *time.Time `json:"timestamp,omitempty"`
+	Timestamp time.Time `json:"timestamp,omitempty"`
 
 	// UpdatedByUserId The user ID who updated the property.
-	UpdatedByUserId *int `json:"updatedByUserId,omitempty"`
+	UpdatedByUserId int `json:"updatedByUserId,omitempty"`
 
 	// Value The historical value of the property.
-	Value *string `json:"value,omitempty"`
+	Value string `json:"value,omitempty"`
 }
