@@ -861,17 +861,26 @@ type CreateContactResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
+		// Archived Whether the customer is archived or not.
+		Archived bool `json:"archived,omitempty"`
+
+		// ArchivedAt Timestamp when the contact was archived.
+		ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
 		// CreatedAt Timestamp when the contact was created.
-		CreatedAt *time.Time `json:"createdAt,omitempty"`
+		CreatedAt time.Time `json:"createdAt,omitempty"`
 
 		// Id Unique ID of the created contact.
-		Id *string `json:"id,omitempty"`
+		Id string `json:"id,omitempty"`
 
 		// Properties Properties of the created contact.
-		Properties *map[string]interface{} `json:"properties,omitempty"`
+		Properties map[string]interface{} `json:"properties,omitempty"`
+
+		// PropertiesWithHistory A map of the contact's properties including historical values.
+		PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
 
 		// UpdatedAt Timestamp when the contact was last updated.
-		UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+		UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	}
 }
 
@@ -1181,17 +1190,26 @@ func ParseCreateContactResponse(rsp *http.Response) (*CreateContactResponse, err
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
+			// Archived Whether the customer is archived or not.
+			Archived bool `json:"archived,omitempty"`
+
+			// ArchivedAt Timestamp when the contact was archived.
+			ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
 			// CreatedAt Timestamp when the contact was created.
-			CreatedAt *time.Time `json:"createdAt,omitempty"`
+			CreatedAt time.Time `json:"createdAt,omitempty"`
 
 			// Id Unique ID of the created contact.
-			Id *string `json:"id,omitempty"`
+			Id string `json:"id,omitempty"`
 
 			// Properties Properties of the created contact.
-			Properties *map[string]interface{} `json:"properties,omitempty"`
+			Properties map[string]interface{} `json:"properties,omitempty"`
+
+			// PropertiesWithHistory A map of the contact's properties including historical values.
+			PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
 
 			// UpdatedAt Timestamp when the contact was last updated.
-			UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+			UpdatedAt time.Time `json:"updatedAt,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err

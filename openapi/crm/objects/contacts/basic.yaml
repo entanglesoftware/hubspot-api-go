@@ -113,6 +113,34 @@ paths:
                   description: Key-value pairs of contact properties.
                   additionalProperties:
                     type: string
+                associations:
+                  type: array
+                  description: List of associations for the contact.
+                  items:
+                    type: object
+                    properties:
+                      associationCategory:
+                        type: string
+                        description: Category of the association.
+                        enum:
+                          - Search
+                          - HUBSPOT_DEFINED
+                          - USER_DEFINED
+                          - INTEGRATOR_DEFINED
+                      associationTypeId:
+                        type: integer
+                        format: int32
+                        description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+                objectWriteTraceId:
+                  type: string
+                  description: Trace ID for object write operations.
               required:
                 - properties
               example:
@@ -131,17 +159,38 @@ paths:
                   id:
                     type: string
                     description: Unique ID of the created contact.
+                    x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
                     description: Properties of the created contact.
+                    x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
                     description: Timestamp when the contact was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was archived.
+                    x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
                     description: Timestamp when the contact was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the contact's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
 
   /crm/v3/objects/contacts/{contactId}:
     get:
