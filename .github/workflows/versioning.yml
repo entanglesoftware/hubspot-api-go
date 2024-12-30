@@ -1,0 +1,31 @@
+name: Integration Tests And Versioning
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  versioning:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      - name: Bump version and push tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          INITIAL_VERSION: '0.0.1'
+          RELEASE_BRANCHES: 'main'
+          WITH_V: true
+
