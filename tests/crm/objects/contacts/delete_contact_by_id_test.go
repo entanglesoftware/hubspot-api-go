@@ -30,7 +30,7 @@ func TestDeleteContactById(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.DeleteCrmV3ObjectsContactsContactIdWithResponse(context.Background(), "87484938935")
 	if err != nil {

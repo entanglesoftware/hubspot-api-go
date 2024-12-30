@@ -275,6 +275,9 @@ paths:
             schema:
               type: object
               properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
                 properties:
                   type: object
                   properties:
@@ -299,10 +302,39 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: The unique ID of the updated contact.
+                    description: Unique ID of the updated contact.
+                    x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: The updated contact properties.
+                    description: Properties of the updated contact.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the contact was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the contact's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
     delete:
       summary: Delete a contact
       description: Deletes a contact from HubSpot using the provided contact ID.
@@ -345,6 +377,12 @@ paths:
                   items:
                     type: object
                     properties:
+                      highValue:
+                        type: string
+                      values:
+                        type: array
+                        items:
+                          type: string
                       propertyName:
                         type: string
                         example: "email"
@@ -362,6 +400,14 @@ paths:
                 limit:
                   type: integer
                   example: 1
+                query:
+                  type: string
+                after:
+                  type: string
+                sorts:
+                  type: array
+                  items:
+                    type: string
       responses:
         "200":
           description: Contact object details.

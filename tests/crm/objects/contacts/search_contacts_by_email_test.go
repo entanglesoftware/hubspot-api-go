@@ -52,7 +52,7 @@ func TestSearchContactsByEmail(t *testing.T) {
 		return
 	}
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.SearchContactsByEmailWithResponse(context.Background(), &contactByEmailParam, body)
 	if err != nil {
@@ -76,13 +76,13 @@ func TestSearchContactsByEmail(t *testing.T) {
 			t.Fatalf("Response contains no results")
 		}
 
-		for _, result := range *response.JSON200.Results {
+		for _, result := range response.JSON200.Results {
 			t.Logf("%+v\n", result)
 			t.Log("-----")
 
 			// Assuming Properties is a map of key-value pairs
 			if result.Properties != nil {
-				for key, value := range *result.Properties {
+				for key, value := range result.Properties {
 					t.Logf("Key: %s, Value: %+v\n", key, value)
 				}
 			} else {
