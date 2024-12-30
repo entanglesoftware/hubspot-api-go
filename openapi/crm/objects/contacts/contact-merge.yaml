@@ -1,0 +1,32 @@
+merge:
+  post:
+      summary: Merge two contacts
+      description: Merge one HubSpot contact into another. The primary contact will remain after the merge, and the secondary contact will be archived.
+      operationId: mergeContacts
+      tags:
+        - Contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectIdToMerge:
+                  type: string
+                  description: ID of the contact to merge into the primary contact.
+                  example: "12345"
+                primaryObjectId:
+                  type: string
+                  description: ID of the primary contact that will remain after the merge.
+                  example: "67890"
+              required:
+                - objectIdToMerge
+                - primaryObjectId
+      responses:
+        "200":
+          description: Contact object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ContactResponse"
