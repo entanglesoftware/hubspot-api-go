@@ -41,7 +41,7 @@ func TestGetContacts(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.GetContactsWithResponse(context.Background(), &contactsParams)
 	if err != nil {
@@ -53,13 +53,13 @@ func TestGetContacts(t *testing.T) {
 			t.Fatalf("Response contains no results")
 		}
 
-		for _, result := range *response.JSON200.Results {
+		for _, result := range response.JSON200.Results {
 			t.Logf("%+v\n", result)
 			t.Log("-----")
 
 			// Assuming Properties is a map of key-value pairs
 			if result.Properties != nil {
-				for key, value := range *result.Properties {
+				for key, value := range result.Properties {
 					t.Logf("Key: %s, Value: %+v\n", key, value)
 				}
 			} else {
@@ -96,7 +96,7 @@ func TestGetContactById(t *testing.T) {
 	// Make the API call
 	contactByIdParam := contacts.GetContactByIdParams{}
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.GetContactByIdWithResponse(context.Background(), 84952873394, &contactByIdParam)
 	if err != nil {
@@ -108,7 +108,7 @@ func TestGetContactById(t *testing.T) {
 			t.Fatalf("Response contains no results")
 		}
 
-		for key, result := range *response.JSON200.Properties {
+		for key, result := range response.JSON200.Properties {
 			t.Logf("Key: %s, Value: %+v\n", key, result)
 		}
 	} else {
@@ -154,7 +154,7 @@ func TestSaveContacts(t *testing.T) {
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.CreateContactWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
 	if err != nil {
@@ -162,7 +162,7 @@ func TestSaveContacts(t *testing.T) {
 	}
 
 	if response.StatusCode() == 201 {
-		if response.JSON201 == nil || response.JSON201.Id == nil {
+		if response.JSON201 == nil || response.JSON201.Id == "" {
 			t.Fatalf("Response contains no results")
 		}
 

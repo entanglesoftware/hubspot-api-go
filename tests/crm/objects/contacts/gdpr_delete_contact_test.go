@@ -44,7 +44,7 @@ func TestGDPRDeleteContact(t *testing.T) {
 		log.Fatalf("Error serializing contact properties: %v", err)
 	}
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	contentType := "application/json"
 
