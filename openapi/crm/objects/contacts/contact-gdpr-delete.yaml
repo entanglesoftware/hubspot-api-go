@@ -1,0 +1,25 @@
+gdprDelete:
+  post:
+      summary: GDPR Delete Contact
+      description: Deletes a contact in HubSpot in compliance with GDPR regulations.
+      operationId: gdprDeleteContact
+      tags:
+        - Contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idProperty:
+                  type: string
+                  description: The property used to identify the contact (e.g., `email` or `phone`).
+                  example: email
+                objectId:
+                  type: string
+                  description: The unique identifier of the contact to delete.
+                  example: example@example.com
+      responses:
+        '204':
+          description: Contact successfully deleted.

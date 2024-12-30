@@ -1,0 +1,67 @@
+search:
+  post:
+      summary: Search for contacts by email
+      description: |
+        Queries the HubSpot CRM for contacts based on the `email` property.
+        Returns contact details such as `firstname`, `lastname`, and `email`.
+      operationId: searchContactsByEmail
+      tags:
+        - Contacts
+      parameters:
+        - name: hapikey
+          in: query
+          description: HubSpot API key
+          required: true
+          schema:
+            type: string
+            example: "YOUR_API_KEY"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      highValue:
+                        type: string
+                      values:
+                        type: array
+                        items:
+                          type: string
+                      propertyName:
+                        type: string
+                        example: "email"
+                      operator:
+                        type: string
+                        example: "EQ"
+                      value:
+                        type: string
+                        example: "example@example.com"
+                properties:
+                  type: array
+                  items:
+                    type: string
+                    example: ["firstname", "lastname", "email"]
+                limit:
+                  type: integer
+                  example: 1
+                query:
+                  type: string
+                after:
+                  type: string
+                sorts:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Contact object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ContactsResponse"
