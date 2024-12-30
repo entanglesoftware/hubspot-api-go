@@ -8,8 +8,8 @@ on:
 
 jobs:
 
+  # Root job that doesn't depend on anything
   versioning:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -17,7 +17,7 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
+          fetch-depth: 0
 
       - name: Bump version and push tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -26,6 +26,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           INITIAL_VERSION: '0.0.1'
-          RELEASE_BRANCHES: 'main'
+          RELEASE_BRANCHES: main
           WITH_V: true
 
