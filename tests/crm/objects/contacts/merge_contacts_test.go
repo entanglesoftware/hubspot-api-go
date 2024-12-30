@@ -44,7 +44,7 @@ func TestMergeContacts(t *testing.T) {
 		log.Fatalf("Error serializing contact properties: %v", err)
 	}
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	contentType := "application/json"
 
@@ -58,7 +58,7 @@ func TestMergeContacts(t *testing.T) {
 			t.Fatalf("Response contains no results")
 		}
 
-		for key, result := range *response.JSON200.Properties {
+		for key, result := range response.JSON200.Properties {
 			t.Logf("Key: %s, Value: %+v\n", key, result)
 		}
 	} else {

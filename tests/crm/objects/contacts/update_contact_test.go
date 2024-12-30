@@ -52,7 +52,7 @@ func TestUpdateContact(t *testing.T) {
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Contacts().Contacts
+	ct := hsClient.Crm().Contacts()
 
 	response, err := ct.UpdateContactWithBodyWithResponse(context.Background(), contactId, contentType, bytes.NewReader(body))
 	if err != nil {
@@ -60,7 +60,7 @@ func TestUpdateContact(t *testing.T) {
 	}
 
 	if response.StatusCode() == 200 {
-		if response.JSON200 == nil || response.JSON200.Id == nil {
+		if response.JSON200 == nil || response.JSON200.Id == "" {
 			t.Fatalf("Response contains no results")
 		}
 
