@@ -1,4 +1,4 @@
-package contacts_test
+package products_test
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-// TestDeleteContactById fetches a page of contacts
-func TestDeleteContactById(t *testing.T) {
+// TestDeleteProductById fetches a page of products
+func TestDeleteProductById(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -30,15 +30,15 @@ func TestDeleteContactById(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	ct := hsClient.Crm().Contacts()
+	ct := hsClient.Crm().Products()
 
-	response, err := ct.DeleteContactByIdWithResponse(context.Background(), "87484938935")
+	response, err := ct.DeleteProductByIdWithResponse(context.Background(), "17897571956")
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
 
 	if response.StatusCode() == 204 {
-		t.Logf("Contact Deleted")
+		t.Logf("Product Deleted")
 	} else {
 		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
 	}

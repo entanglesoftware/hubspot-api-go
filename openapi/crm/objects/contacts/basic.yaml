@@ -338,6 +338,7 @@ paths:
     delete:
       summary: Delete a contact
       description: Deletes a contact from HubSpot using the provided contact ID.
+      operationId: deleteContactById
       parameters:
         - name: contactId
           in: path

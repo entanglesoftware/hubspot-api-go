@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Products API
+  description: API for fetching products from HubSpot
+  version: v3
+paths:
+  /crm/v3/objects/products:
+    get:
+      summary: Retrieve a list of products
+      description: Fetches products with pagination and properties.
+      operationId: getProducts
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 50
+        - name: after
+          in: query
+          description: Cursor token for the next page of results.
+          required: false
+          schema:
+            type: string
+          example: "MjA1MA=="
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Paginated list of products.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ProductsResponse"
+    post:
+      summary: Create a new product
+      description: Create a new product in the HubSpot CRM.
+      tags:
+        - Products
+      operationId: createProduct
+      requestBody:
+        description: Product details to create a new product.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of product properties.
+                  additionalProperties:
+                    type: string
+                associations:
+                  type: array
+                  description: List of associations for the product.
+                  items:
+                    type: object
+                    properties:
+                      associationCategory:
+                        type: string
+                        description: Category of the association.
+                        enum:
+                          - Search
+                          - HUBSPOT_DEFINED
+                          - USER_DEFINED
+                          - INTEGRATOR_DEFINED
+                      associationTypeId:
+                        type: integer
+                        format: int32
+                        description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+                objectWriteTraceId:
+                  type: string
+                  description: Trace ID for object write operations.
+              required:
+                - properties
+              example:
+                properties:
+                  name: "Product1"
+                  price: "200"
+                  sku: "p1"
+      responses:
+        "201":
+          description: Product created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the created product.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the created product.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the product's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+
+  /crm/v3/objects/products/{productId}:
+    get:
+      summary: Get Product Details
+      description: Retrieve product details, including associations and additional metadata.
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The ID of the product to retrieve.
+          schema:
+            type: string
+            format: int64
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to use as the ID.
+          schema:
+            type: string
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Product object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ProductResponse"
+    patch:
+      summary: Update a product
+      description: Updates the details of a product in HubSpot CRM.
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The unique identifier of the product to update.
+          schema:
+            type: string
+      requestBody:
+        description: Product details to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
+                properties:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: The new name of the product.
+                    hs_sku:
+                      type: string
+                      description: The new sku of the product.
+                    price:
+                      type: integer
+                      description: The new price of the product.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the updated product.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the updated product.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the product was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the product's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+    delete:
+      summary: Delete a product
+      description: Deletes a product from HubSpot using the provided product ID.
+      operationId: deleteProductById
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The unique ID of the product to delete.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content. The product was successfully deleted.
