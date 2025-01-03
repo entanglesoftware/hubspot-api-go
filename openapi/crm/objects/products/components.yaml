@@ -127,6 +127,68 @@ components:
           description: When the property value was set.
           x-go-type-skip-optional-pointer: true
 
+  parameters:
+    Properties:
+        name: properties
+        in: query
+        description: |
+          Comma-separated list of properties to include in the response.
+          If a specified property is not present, it will be ignored.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        examples:
+          defaultProperties:
+            summary: Example properties
+            value: ["name", "price", "description"]
+    PropertiesWithHistory:
+      name: propertiesWithHistory
+      in: query
+      description: |
+        Comma-separated list of properties to include with their historical values.
+        Historical data reduces the maximum number of objects returned per request.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultPropertiesWithHistory:
+          summary: Example properties with history
+          value: ["name", "price"]
+    Associations:
+      name: associations
+      in: query
+      description: |
+        Comma-separated list of object types to retrieve associated IDs for.
+        Nonexistent associations will be ignored.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultAssociations:
+          summary: Example associations
+          value: ["deals", "tickets"]
+    Archived:
+      name: archived
+      in: query
+      description: Include only archived results.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+
   securitySchemes:
     oauth2:
       type: oauth2

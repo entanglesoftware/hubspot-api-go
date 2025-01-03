@@ -89,3 +89,15 @@ type PropertyHistory struct {
 	// Value The historical value of the property.
 	Value string `json:"value,omitempty"`
 }
+
+// Archived defines model for Archived.
+type Archived = bool
+
+// Associations defines model for Associations.
+type Associations = []string
+
+// Properties defines model for Properties.
+type Properties = []string
+
+// PropertiesWithHistory defines model for PropertiesWithHistory.
+type PropertiesWithHistory = []string

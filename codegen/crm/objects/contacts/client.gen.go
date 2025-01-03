@@ -113,8 +113,8 @@ type ClientInterface interface {
 
 	SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteCrmV3ObjectsContactsContactId request
-	DeleteCrmV3ObjectsContactsContactId(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteContactById request
+	DeleteContactById(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetContactById request
 	GetContactById(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -233,8 +233,8 @@ func (c *Client) SearchContactsByEmail(ctx context.Context, params *SearchContac
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteCrmV3ObjectsContactsContactId(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteCrmV3ObjectsContactsContactIdRequest(c.Server, contactId)
+func (c *Client) DeleteContactById(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteContactByIdRequest(c.Server, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -588,8 +588,8 @@ func NewSearchContactsByEmailRequestWithBody(server string, params *SearchContac
 	return req, nil
 }
 
-// NewDeleteCrmV3ObjectsContactsContactIdRequest generates requests for DeleteCrmV3ObjectsContactsContactId
-func NewDeleteCrmV3ObjectsContactsContactIdRequest(server string, contactId string) (*http.Request, error) {
+// NewDeleteContactByIdRequest generates requests for DeleteContactById
+func NewDeleteContactByIdRequest(server string, contactId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -823,8 +823,8 @@ type ClientWithResponsesInterface interface {
 
 	SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
 
-	// DeleteCrmV3ObjectsContactsContactIdWithResponse request
-	DeleteCrmV3ObjectsContactsContactIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteCrmV3ObjectsContactsContactIdResponse, error)
+	// DeleteContactByIdWithResponse request
+	DeleteContactByIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteContactByIdResponse, error)
 
 	// GetContactByIdWithResponse request
 	GetContactByIdWithResponse(ctx context.Context, contactId int64, params *GetContactByIdParams, reqEditors ...RequestEditorFn) (*GetContactByIdResponse, error)
@@ -965,13 +965,13 @@ func (r SearchContactsByEmailResponse) StatusCode() int {
 	return 0
 }
 
-type DeleteCrmV3ObjectsContactsContactIdResponse struct {
+type DeleteContactByIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r DeleteCrmV3ObjectsContactsContactIdResponse) Status() string {
+func (r DeleteContactByIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -979,7 +979,7 @@ func (r DeleteCrmV3ObjectsContactsContactIdResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DeleteCrmV3ObjectsContactsContactIdResponse) StatusCode() int {
+func (r DeleteContactByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1128,13 +1128,13 @@ func (c *ClientWithResponses) SearchContactsByEmailWithResponse(ctx context.Cont
 	return ParseSearchContactsByEmailResponse(rsp)
 }
 
-// DeleteCrmV3ObjectsContactsContactIdWithResponse request returning *DeleteCrmV3ObjectsContactsContactIdResponse
-func (c *ClientWithResponses) DeleteCrmV3ObjectsContactsContactIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteCrmV3ObjectsContactsContactIdResponse, error) {
-	rsp, err := c.DeleteCrmV3ObjectsContactsContactId(ctx, contactId, reqEditors...)
+// DeleteContactByIdWithResponse request returning *DeleteContactByIdResponse
+func (c *ClientWithResponses) DeleteContactByIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteContactByIdResponse, error) {
+	rsp, err := c.DeleteContactById(ctx, contactId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDeleteCrmV3ObjectsContactsContactIdResponse(rsp)
+	return ParseDeleteContactByIdResponse(rsp)
 }
 
 // GetContactByIdWithResponse request returning *GetContactByIdResponse
@@ -1304,15 +1304,15 @@ func ParseSearchContactsByEmailResponse(rsp *http.Response) (*SearchContactsByEm
 	return response, nil
 }
 
-// ParseDeleteCrmV3ObjectsContactsContactIdResponse parses an HTTP response from a DeleteCrmV3ObjectsContactsContactIdWithResponse call
-func ParseDeleteCrmV3ObjectsContactsContactIdResponse(rsp *http.Response) (*DeleteCrmV3ObjectsContactsContactIdResponse, error) {
+// ParseDeleteContactByIdResponse parses an HTTP response from a DeleteContactByIdWithResponse call
+func ParseDeleteContactByIdResponse(rsp *http.Response) (*DeleteContactByIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DeleteCrmV3ObjectsContactsContactIdResponse{
+	response := &DeleteContactByIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

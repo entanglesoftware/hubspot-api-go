@@ -4,6 +4,7 @@
 package products
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 )
@@ -90,10 +92,98 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	// GetProducts request
 	GetProducts(ctx context.Context, params *GetProductsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProductWithBody request with any body
+	CreateProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteProductById request
+	DeleteProductById(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProductById request
+	GetProductById(ctx context.Context, productId string, params *GetProductByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateProductWithBody request with any body
+	UpdateProductWithBody(ctx context.Context, productId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateProduct(ctx context.Context, productId string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetProducts(ctx context.Context, params *GetProductsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProductsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProductRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProductRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteProductById(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteProductByIdRequest(c.Server, productId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProductById(ctx context.Context, productId string, params *GetProductByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProductByIdRequest(c.Server, productId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateProductWithBody(ctx context.Context, productId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProductRequestWithBody(c.Server, productId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateProduct(ctx context.Context, productId string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProductRequest(c.Server, productId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -233,6 +323,247 @@ func NewGetProductsRequest(server string, params *GetProductsParams) (*http.Requ
 	return req, nil
 }
 
+// NewCreateProductRequest calls the generic CreateProduct builder with application/json body
+func NewCreateProductRequest(server string, body CreateProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateProductRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateProductRequestWithBody generates requests for CreateProduct with any type of body
+func NewCreateProductRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteProductByIdRequest generates requests for DeleteProductById
+func NewDeleteProductByIdRequest(server string, productId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "productId", runtime.ParamLocationPath, productId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetProductByIdRequest generates requests for GetProductById
+func NewGetProductByIdRequest(server string, productId string, params *GetProductByIdParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "productId", runtime.ParamLocationPath, productId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.IdProperty != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "idProperty", runtime.ParamLocationQuery, *params.IdProperty); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Properties != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "properties", runtime.ParamLocationQuery, *params.Properties); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PropertiesWithHistory != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "propertiesWithHistory", runtime.ParamLocationQuery, *params.PropertiesWithHistory); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Associations != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "associations", runtime.ParamLocationQuery, *params.Associations); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Archived != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "archived", runtime.ParamLocationQuery, *params.Archived); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateProductRequest calls the generic UpdateProduct builder with application/json body
+func NewUpdateProductRequest(server string, productId string, body UpdateProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateProductRequestWithBody(server, productId, "application/json", bodyReader)
+}
+
+// NewUpdateProductRequestWithBody generates requests for UpdateProduct with any type of body
+func NewUpdateProductRequestWithBody(server string, productId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "productId", runtime.ParamLocationPath, productId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -278,6 +609,22 @@ func WithBaseURL(baseURL string) ClientOption {
 type ClientWithResponsesInterface interface {
 	// GetProductsWithResponse request
 	GetProductsWithResponse(ctx context.Context, params *GetProductsParams, reqEditors ...RequestEditorFn) (*GetProductsResponse, error)
+
+	// CreateProductWithBodyWithResponse request with any body
+	CreateProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
+
+	CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
+
+	// DeleteProductByIdWithResponse request
+	DeleteProductByIdWithResponse(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*DeleteProductByIdResponse, error)
+
+	// GetProductByIdWithResponse request
+	GetProductByIdWithResponse(ctx context.Context, productId string, params *GetProductByIdParams, reqEditors ...RequestEditorFn) (*GetProductByIdResponse, error)
+
+	// UpdateProductWithBodyWithResponse request with any body
+	UpdateProductWithBodyWithResponse(ctx context.Context, productId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error)
+
+	UpdateProductWithResponse(ctx context.Context, productId string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error)
 }
 
 type GetProductsResponse struct {
@@ -302,6 +649,135 @@ func (r GetProductsResponse) StatusCode() int {
 	return 0
 }
 
+type CreateProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Archived Whether the customer is archived or not.
+		Archived bool `json:"archived,omitempty"`
+
+		// ArchivedAt Timestamp when the product was archived.
+		ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+		// CreatedAt Timestamp when the product was created.
+		CreatedAt time.Time `json:"createdAt,omitempty"`
+
+		// Id Unique ID of the created product.
+		Id string `json:"id,omitempty"`
+
+		// Properties Properties of the created product.
+		Properties map[string]interface{} `json:"properties,omitempty"`
+
+		// PropertiesWithHistory A map of the product's properties including historical values.
+		PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+		// UpdatedAt Timestamp when the product was last updated.
+		UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteProductByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteProductByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteProductByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetProductByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ProductResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProductByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProductByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Archived Whether the customer is archived or not.
+		Archived bool `json:"archived,omitempty"`
+
+		// ArchivedAt Timestamp when the product was archived.
+		ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+		// CreatedAt Timestamp when the product was created.
+		CreatedAt time.Time `json:"createdAt,omitempty"`
+
+		// Id Unique ID of the updated product.
+		Id string `json:"id,omitempty"`
+
+		// Properties Properties of the updated product.
+		Properties map[string]interface{} `json:"properties,omitempty"`
+
+		// PropertiesWithHistory A map of the product's properties including historical values.
+		PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+		// UpdatedAt Timestamp when the product was last updated.
+		UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetProductsWithResponse request returning *GetProductsResponse
 func (c *ClientWithResponses) GetProductsWithResponse(ctx context.Context, params *GetProductsParams, reqEditors ...RequestEditorFn) (*GetProductsResponse, error) {
 	rsp, err := c.GetProducts(ctx, params, reqEditors...)
@@ -309,6 +785,58 @@ func (c *ClientWithResponses) GetProductsWithResponse(ctx context.Context, param
 		return nil, err
 	}
 	return ParseGetProductsResponse(rsp)
+}
+
+// CreateProductWithBodyWithResponse request with arbitrary body returning *CreateProductResponse
+func (c *ClientWithResponses) CreateProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProductResponse, error) {
+	rsp, err := c.CreateProductWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error) {
+	rsp, err := c.CreateProduct(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProductResponse(rsp)
+}
+
+// DeleteProductByIdWithResponse request returning *DeleteProductByIdResponse
+func (c *ClientWithResponses) DeleteProductByIdWithResponse(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*DeleteProductByIdResponse, error) {
+	rsp, err := c.DeleteProductById(ctx, productId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteProductByIdResponse(rsp)
+}
+
+// GetProductByIdWithResponse request returning *GetProductByIdResponse
+func (c *ClientWithResponses) GetProductByIdWithResponse(ctx context.Context, productId string, params *GetProductByIdParams, reqEditors ...RequestEditorFn) (*GetProductByIdResponse, error) {
+	rsp, err := c.GetProductById(ctx, productId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProductByIdResponse(rsp)
+}
+
+// UpdateProductWithBodyWithResponse request with arbitrary body returning *UpdateProductResponse
+func (c *ClientWithResponses) UpdateProductWithBodyWithResponse(ctx context.Context, productId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error) {
+	rsp, err := c.UpdateProductWithBody(ctx, productId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateProductWithResponse(ctx context.Context, productId string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error) {
+	rsp, err := c.UpdateProduct(ctx, productId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProductResponse(rsp)
 }
 
 // ParseGetProductsResponse parses an HTTP response from a GetProductsWithResponse call
@@ -327,6 +855,142 @@ func ParseGetProductsResponse(rsp *http.Response) (*GetProductsResponse, error) 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ProductsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateProductResponse parses an HTTP response from a CreateProductWithResponse call
+func ParseCreateProductResponse(rsp *http.Response) (*CreateProductResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Archived Whether the customer is archived or not.
+			Archived bool `json:"archived,omitempty"`
+
+			// ArchivedAt Timestamp when the product was archived.
+			ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+			// CreatedAt Timestamp when the product was created.
+			CreatedAt time.Time `json:"createdAt,omitempty"`
+
+			// Id Unique ID of the created product.
+			Id string `json:"id,omitempty"`
+
+			// Properties Properties of the created product.
+			Properties map[string]interface{} `json:"properties,omitempty"`
+
+			// PropertiesWithHistory A map of the product's properties including historical values.
+			PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+			// UpdatedAt Timestamp when the product was last updated.
+			UpdatedAt time.Time `json:"updatedAt,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteProductByIdResponse parses an HTTP response from a DeleteProductByIdWithResponse call
+func ParseDeleteProductByIdResponse(rsp *http.Response) (*DeleteProductByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteProductByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetProductByIdResponse parses an HTTP response from a GetProductByIdWithResponse call
+func ParseGetProductByIdResponse(rsp *http.Response) (*GetProductByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProductByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProductResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateProductResponse parses an HTTP response from a UpdateProductWithResponse call
+func ParseUpdateProductResponse(rsp *http.Response) (*UpdateProductResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Archived Whether the customer is archived or not.
+			Archived bool `json:"archived,omitempty"`
+
+			// ArchivedAt Timestamp when the product was archived.
+			ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+			// CreatedAt Timestamp when the product was created.
+			CreatedAt time.Time `json:"createdAt,omitempty"`
+
+			// Id Unique ID of the updated product.
+			Id string `json:"id,omitempty"`
+
+			// Properties Properties of the updated product.
+			Properties map[string]interface{} `json:"properties,omitempty"`
+
+			// PropertiesWithHistory A map of the product's properties including historical values.
+			PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+			// UpdatedAt Timestamp when the product was last updated.
+			UpdatedAt time.Time `json:"updatedAt,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
