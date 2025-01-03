@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Products API
+  description: API for fetching products from HubSpot
+  version: v3
+paths:
+  /crm/v3/objects/products:
+    get:
+      summary: Retrieve a list of products
+      description: Fetches products with pagination and properties.
+      operationId: getProducts
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 50
+        - name: after
+          in: query
+          description: Cursor token for the next page of results.
+          required: false
+          schema:
+            type: string
+          example: "MjA1MA=="
+        - name: properties
+          in: query
+          description: |
+            Comma-separated list of properties to include in the response.
+            If a specified property is not present, it will be ignored.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          examples:
+            defaultProperties:
+              summary: Example properties
+              value: ["firstname", "lastname", "email"]
+        - name: propertiesWithHistory
+          in: query
+          description: |
+            Comma-separated list of properties to include with their historical values.
+            Historical data reduces the maximum number of objects returned per request.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          examples:
+            defaultPropertiesWithHistory:
+              summary: Example properties with history
+              value: ["firstname", "lastname"]
+        - name: associations
+          in: query
+          description: |
+            Comma-separated list of object types to retrieve associated IDs for.
+            Nonexistent associations will be ignored.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          examples:
+            defaultAssociations:
+              summary: Example associations
+              value: ["deals", "tickets"]
+        - name: archived
+          in: query
+          description: Include only archived results.
+          required: false
+          schema:
+            type: boolean
+            default: false
+          example: false
+      responses:
+        "200":
+          description: Paginated list of contacts.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ProductsResponse"

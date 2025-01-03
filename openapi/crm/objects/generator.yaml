@@ -7,3 +7,5 @@ resources:
     enabled: true
   - name: tickets
     enabled: false
+  - name: products
+    enabled: true
