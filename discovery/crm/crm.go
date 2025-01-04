@@ -3,11 +3,10 @@ package crm
 import (
 	"sync"
 
-	"test/codegen/crm/objects/contacts"
-	"test/codegen/crm/objects/products"
-
-	"test/configuration"
-	"test/discovery/crm/objects"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 )
 
 // CrmDiscovery provides access to API clients for various CRM modules.

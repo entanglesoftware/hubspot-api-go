@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"test/codegen/crm/objects/products"
-	"test/configuration"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
 // ProductsDiscovery is the struct that contains all API clients
