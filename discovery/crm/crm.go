@@ -3,6 +3,7 @@ package crm
 import (
 	"sync"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -64,4 +65,12 @@ func (d *CrmDiscovery) Products() *products.ClientWithResponses {
 		client, _ := objects.NewProductsDiscovery(config)
 		return client.Products
 	}).(*products.ClientWithResponses)
+}
+
+// Products retrieves the ProductsDiscovery client.
+func (d *CrmDiscovery) Companies() *companies.ClientWithResponses {
+	return d.getClient("companies", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewCompaniesDiscovery(config)
+		return client.Companies
+	}).(*companies.ClientWithResponses)
 }

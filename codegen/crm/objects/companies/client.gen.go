@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 )
@@ -89,17 +90,33 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// SearchCompanyWithBody request with any body
-	SearchCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetCompanies request
+	GetCompanies(ctx context.Context, params *GetCompaniesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchCompany(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateCompanyWithBody request with any body
+	CreateCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateCompany(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SearchCompanyWithBody request with any body
+	SearchCompanyWithBody(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SearchCompany(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteCompanyById request
+	DeleteCompanyById(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetCompanyById request
 	GetCompanyById(ctx context.Context, companyId int64, params *GetCompanyByIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCompanyWithBody request with any body
+	UpdateCompanyWithBody(ctx context.Context, companyId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateCompany(ctx context.Context, companyId string, body UpdateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) SearchCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchCompanyRequestWithBody(c.Server, contentType, body)
+func (c *Client) GetCompanies(ctx context.Context, params *GetCompaniesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCompaniesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +127,56 @@ func (c *Client) SearchCompanyWithBody(ctx context.Context, contentType string, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchCompany(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchCompanyRequest(c.Server, body)
+func (c *Client) CreateCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCompanyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateCompany(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCompanyRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchCompanyWithBody(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchCompanyRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchCompany(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchCompanyRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteCompanyById(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteCompanyByIdRequest(c.Server, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -134,19 +199,212 @@ func (c *Client) GetCompanyById(ctx context.Context, companyId int64, params *Ge
 	return c.Client.Do(req)
 }
 
-// NewSearchCompanyRequest calls the generic SearchCompany builder with application/json body
-func NewSearchCompanyRequest(server string, body SearchCompanyJSONRequestBody) (*http.Request, error) {
+func (c *Client) UpdateCompanyWithBody(ctx context.Context, companyId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCompanyRequestWithBody(c.Server, companyId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateCompany(ctx context.Context, companyId string, body UpdateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCompanyRequest(c.Server, companyId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewGetCompaniesRequest generates requests for GetCompanies
+func NewGetCompaniesRequest(server string, params *GetCompaniesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/companies")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.After != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "after", runtime.ParamLocationQuery, *params.After); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Properties != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "properties", runtime.ParamLocationQuery, *params.Properties); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PropertiesWithHistory != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "propertiesWithHistory", runtime.ParamLocationQuery, *params.PropertiesWithHistory); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Associations != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "associations", runtime.ParamLocationQuery, *params.Associations); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Archived != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "archived", runtime.ParamLocationQuery, *params.Archived); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateCompanyRequest calls the generic CreateCompany builder with application/json body
+func NewCreateCompanyRequest(server string, body CreateCompanyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchCompanyRequestWithBody(server, "application/json", bodyReader)
+	return NewCreateCompanyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateCompanyRequestWithBody generates requests for CreateCompany with any type of body
+func NewCreateCompanyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/companies")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSearchCompanyRequest calls the generic SearchCompany builder with application/json body
+func NewSearchCompanyRequest(server string, params *SearchCompanyParams, body SearchCompanyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSearchCompanyRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewSearchCompanyRequestWithBody generates requests for SearchCompany with any type of body
-func NewSearchCompanyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchCompanyRequestWithBody(server string, params *SearchCompanyParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -164,12 +422,64 @@ func NewSearchCompanyRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
 	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteCompanyByIdRequest generates requests for DeleteCompanyById
+func NewDeleteCompanyByIdRequest(server string, companyId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "companyId", runtime.ParamLocationPath, companyId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/companies/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -203,9 +513,41 @@ func NewGetCompanyByIdRequest(server string, companyId int64, params *GetCompany
 	if params != nil {
 		queryValues := queryURL.Query()
 
+		if params.IdProperty != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "idProperty", runtime.ParamLocationQuery, *params.IdProperty); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Properties != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "properties", runtime.ParamLocationQuery, *params.Properties); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "properties", runtime.ParamLocationQuery, *params.Properties); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PropertiesWithHistory != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "propertiesWithHistory", runtime.ParamLocationQuery, *params.PropertiesWithHistory); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -221,7 +563,7 @@ func NewGetCompanyByIdRequest(server string, companyId int64, params *GetCompany
 
 		if params.Associations != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "associations", runtime.ParamLocationQuery, *params.Associations); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "associations", runtime.ParamLocationQuery, *params.Associations); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -251,22 +593,6 @@ func NewGetCompanyByIdRequest(server string, companyId int64, params *GetCompany
 
 		}
 
-		if params.IdProperty != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "idProperty", runtime.ParamLocationQuery, *params.IdProperty); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
@@ -274,6 +600,53 @@ func NewGetCompanyByIdRequest(server string, companyId int64, params *GetCompany
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateCompanyRequest calls the generic UpdateCompany builder with application/json body
+func NewUpdateCompanyRequest(server string, companyId string, body UpdateCompanyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCompanyRequestWithBody(server, companyId, "application/json", bodyReader)
+}
+
+// NewUpdateCompanyRequestWithBody generates requests for UpdateCompany with any type of body
+func NewUpdateCompanyRequestWithBody(server string, companyId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "companyId", runtime.ParamLocationPath, companyId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/companies/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -321,19 +694,100 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// SearchCompanyWithBodyWithResponse request with any body
-	SearchCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+	// GetCompaniesWithResponse request
+	GetCompaniesWithResponse(ctx context.Context, params *GetCompaniesParams, reqEditors ...RequestEditorFn) (*GetCompaniesResponse, error)
 
-	SearchCompanyWithResponse(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+	// CreateCompanyWithBodyWithResponse request with any body
+	CreateCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCompanyResponse, error)
+
+	CreateCompanyWithResponse(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCompanyResponse, error)
+
+	// SearchCompanyWithBodyWithResponse request with any body
+	SearchCompanyWithBodyWithResponse(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+
+	SearchCompanyWithResponse(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+
+	// DeleteCompanyByIdWithResponse request
+	DeleteCompanyByIdWithResponse(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*DeleteCompanyByIdResponse, error)
 
 	// GetCompanyByIdWithResponse request
 	GetCompanyByIdWithResponse(ctx context.Context, companyId int64, params *GetCompanyByIdParams, reqEditors ...RequestEditorFn) (*GetCompanyByIdResponse, error)
+
+	// UpdateCompanyWithBodyWithResponse request with any body
+	UpdateCompanyWithBodyWithResponse(ctx context.Context, companyId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCompanyResponse, error)
+
+	UpdateCompanyWithResponse(ctx context.Context, companyId string, body UpdateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCompanyResponse, error)
+}
+
+type GetCompaniesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CompaniesResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCompaniesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCompaniesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateCompanyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Archived Whether the customer is archived or not.
+		Archived bool `json:"archived,omitempty"`
+
+		// ArchivedAt Timestamp when the company was archived.
+		ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+		// CreatedAt Timestamp when the company was created.
+		CreatedAt time.Time `json:"createdAt,omitempty"`
+
+		// Id Unique ID of the created company.
+		Id string `json:"id,omitempty"`
+
+		// Properties Properties of the created company.
+		Properties map[string]interface{} `json:"properties,omitempty"`
+
+		// PropertiesWithHistory A map of the company's properties including historical values.
+		PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+		// UpdatedAt Timestamp when the company was last updated.
+		UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateCompanyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateCompanyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type SearchCompanyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *CompaniesSearchResponse
+	JSON200      *CompaniesResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -346,6 +800,27 @@ func (r SearchCompanyResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SearchCompanyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteCompanyByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteCompanyByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteCompanyByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -374,21 +849,99 @@ func (r GetCompanyByIdResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateCompanyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Archived Whether the customer is archived or not.
+		Archived bool `json:"archived,omitempty"`
+
+		// ArchivedAt Timestamp when the company was archived.
+		ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+		// CreatedAt Timestamp when the company was created.
+		CreatedAt time.Time `json:"createdAt,omitempty"`
+
+		// Id Unique ID of the updated company.
+		Id string `json:"id,omitempty"`
+
+		// Properties Properties of the updated company.
+		Properties map[string]interface{} `json:"properties,omitempty"`
+
+		// PropertiesWithHistory A map of the company's properties including historical values.
+		PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+		// UpdatedAt Timestamp when the company was last updated.
+		UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCompanyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCompanyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// GetCompaniesWithResponse request returning *GetCompaniesResponse
+func (c *ClientWithResponses) GetCompaniesWithResponse(ctx context.Context, params *GetCompaniesParams, reqEditors ...RequestEditorFn) (*GetCompaniesResponse, error) {
+	rsp, err := c.GetCompanies(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCompaniesResponse(rsp)
+}
+
+// CreateCompanyWithBodyWithResponse request with arbitrary body returning *CreateCompanyResponse
+func (c *ClientWithResponses) CreateCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCompanyResponse, error) {
+	rsp, err := c.CreateCompanyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCompanyResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateCompanyWithResponse(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCompanyResponse, error) {
+	rsp, err := c.CreateCompany(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCompanyResponse(rsp)
+}
+
 // SearchCompanyWithBodyWithResponse request with arbitrary body returning *SearchCompanyResponse
-func (c *ClientWithResponses) SearchCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
-	rsp, err := c.SearchCompanyWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchCompanyWithBodyWithResponse(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
+	rsp, err := c.SearchCompanyWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchCompanyResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchCompanyWithResponse(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
-	rsp, err := c.SearchCompany(ctx, body, reqEditors...)
+func (c *ClientWithResponses) SearchCompanyWithResponse(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
+	rsp, err := c.SearchCompany(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchCompanyResponse(rsp)
+}
+
+// DeleteCompanyByIdWithResponse request returning *DeleteCompanyByIdResponse
+func (c *ClientWithResponses) DeleteCompanyByIdWithResponse(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*DeleteCompanyByIdResponse, error) {
+	rsp, err := c.DeleteCompanyById(ctx, companyId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteCompanyByIdResponse(rsp)
 }
 
 // GetCompanyByIdWithResponse request returning *GetCompanyByIdResponse
@@ -398,6 +951,96 @@ func (c *ClientWithResponses) GetCompanyByIdWithResponse(ctx context.Context, co
 		return nil, err
 	}
 	return ParseGetCompanyByIdResponse(rsp)
+}
+
+// UpdateCompanyWithBodyWithResponse request with arbitrary body returning *UpdateCompanyResponse
+func (c *ClientWithResponses) UpdateCompanyWithBodyWithResponse(ctx context.Context, companyId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCompanyResponse, error) {
+	rsp, err := c.UpdateCompanyWithBody(ctx, companyId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCompanyResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateCompanyWithResponse(ctx context.Context, companyId string, body UpdateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCompanyResponse, error) {
+	rsp, err := c.UpdateCompany(ctx, companyId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCompanyResponse(rsp)
+}
+
+// ParseGetCompaniesResponse parses an HTTP response from a GetCompaniesWithResponse call
+func ParseGetCompaniesResponse(rsp *http.Response) (*GetCompaniesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCompaniesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CompaniesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateCompanyResponse parses an HTTP response from a CreateCompanyWithResponse call
+func ParseCreateCompanyResponse(rsp *http.Response) (*CreateCompanyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateCompanyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Archived Whether the customer is archived or not.
+			Archived bool `json:"archived,omitempty"`
+
+			// ArchivedAt Timestamp when the company was archived.
+			ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+			// CreatedAt Timestamp when the company was created.
+			CreatedAt time.Time `json:"createdAt,omitempty"`
+
+			// Id Unique ID of the created company.
+			Id string `json:"id,omitempty"`
+
+			// Properties Properties of the created company.
+			Properties map[string]interface{} `json:"properties,omitempty"`
+
+			// PropertiesWithHistory A map of the company's properties including historical values.
+			PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+			// UpdatedAt Timestamp when the company was last updated.
+			UpdatedAt time.Time `json:"updatedAt,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseSearchCompanyResponse parses an HTTP response from a SearchCompanyWithResponse call
@@ -415,12 +1058,28 @@ func ParseSearchCompanyResponse(rsp *http.Response) (*SearchCompanyResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest CompaniesSearchResponse
+		var dest CompaniesResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseDeleteCompanyByIdResponse parses an HTTP response from a DeleteCompanyByIdWithResponse call
+func ParseDeleteCompanyByIdResponse(rsp *http.Response) (*DeleteCompanyByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteCompanyByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -442,6 +1101,53 @@ func ParseGetCompanyByIdResponse(rsp *http.Response) (*GetCompanyByIdResponse, e
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest CompanyResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCompanyResponse parses an HTTP response from a UpdateCompanyWithResponse call
+func ParseUpdateCompanyResponse(rsp *http.Response) (*UpdateCompanyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCompanyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Archived Whether the customer is archived or not.
+			Archived bool `json:"archived,omitempty"`
+
+			// ArchivedAt Timestamp when the company was archived.
+			ArchivedAt time.Time `json:"archivedAt,omitempty"`
+
+			// CreatedAt Timestamp when the company was created.
+			CreatedAt time.Time `json:"createdAt,omitempty"`
+
+			// Id Unique ID of the updated company.
+			Id string `json:"id,omitempty"`
+
+			// Properties Properties of the updated company.
+			Properties map[string]interface{} `json:"properties,omitempty"`
+
+			// PropertiesWithHistory A map of the company's properties including historical values.
+			PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+			// UpdatedAt Timestamp when the company was last updated.
+			UpdatedAt time.Time `json:"updatedAt,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

@@ -1,18 +1,18 @@
 openapi: 3.0.0
 info:
-  title: HubSpot Products API
-  description: API for fetching products from HubSpot
+  title: HubSpot Companies API
+  description: API for fetching companies from HubSpot
   version: v3
 servers:
   - url: https://api.hubapi.com/
 security:
-  - oauth2: ['e-commerce']
+  - oauth2: ['crm.objects.companies.read']
 paths:
-  /crm/v3/objects/products:
+  /crm/v3/objects/companies:
     get:
-      summary: Retrieve a list of products
-      description: Fetches products with pagination and properties.
-      operationId: getProducts
+      summary: Retrieve a list of companies
+      description: Fetches companies with pagination and properties.
+      operationId: getCompanies
       parameters:
         - name: limit
           in: query
@@ -35,19 +35,19 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Paginated list of products.
+          description: Paginated list of companies.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/ProductsResponse"
+                $ref: "components.yaml#/components/schemas/CompaniesResponse"
     post:
-      summary: Create a new product
-      description: Create a new product in the HubSpot CRM.
+      summary: Create a new company
+      description: Create a new company in the HubSpot CRM.
       tags:
-        - Products
-      operationId: createProduct
+        - Companies
+      operationId: createCompany
       requestBody:
-        description: Product details to create a new product.
+        description: Company details to create a new company.
         required: true
         content:
           application/json:
@@ -56,12 +56,12 @@ paths:
               properties:
                 properties:
                   type: object
-                  description: Key-value pairs of product properties.
+                  description: Key-value pairs of company properties.
                   additionalProperties:
                     type: string
                 associations:
                   type: array
-                  description: List of associations for the product.
+                  description: List of associations for the company.
                   items:
                     type: object
                     properties:
@@ -91,12 +91,11 @@ paths:
                 - properties
               example:
                 properties:
-                  name: "Product1"
-                  price: "200"
-                  sku: "p1"
+                  name: "Company Name"
+                  domain: "example.com"
       responses:
         "201":
-          description: Product created successfully.
+          description: Company created successfully.
           content:
             application/json:
               schema:
@@ -104,16 +103,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the created product.
+                    description: Unique ID of the created company.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the created product.
+                    description: Properties of the created company.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was created.
+                    description: Timestamp when the company was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -122,12 +121,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was archived.
+                    description: Timestamp when the company was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was last updated.
+                    description: Timestamp when the company was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -135,21 +134,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the product's properties including historical values.
+                    description: A map of the company's properties including historical values.
                     x-go-type-skip-optional-pointer: true
 
-  /crm/v3/objects/products/{productId}:
+  /crm/v3/objects/companies/{companyId}:
     get:
-      summary: Get Product Details
-      description: Retrieve product details, including associations and additional metadata.
-      operationId: getProductById
+      summary: Get Company Details
+      description: Retrieve company details, including associations and additional metadata.
+      operationId: getCompanyById
       parameters:
-        - name: productId
+        - name: companyId
           in: path
           required: true
-          description: The ID of the product to retrieve.
+          description: The ID of the company to retrieve.
           schema:
-            type: string
+            type: integer
             format: int64
         - name: idProperty
           in: query
@@ -163,24 +162,24 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Product object details.
+          description: company object details.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/ProductResponse"
+                $ref: "components.yaml#/components/schemas/CompanyResponse"
     patch:
-      summary: Update a product
-      description: Updates the details of a product in HubSpot CRM.
-      operationId: updateProduct
+      summary: Update a company
+      description: Updates the details of a company in HubSpot CRM.
+      operationId: updateCompany
       parameters:
-        - name: productId
+        - name: companyId
           in: path
           required: true
-          description: The unique identifier of the product to update.
+          description: The unique identifier of the company to update.
           schema:
             type: string
       requestBody:
-        description: Product details to update.
+        description: Company details to update.
         required: true
         content:
           application/json:
@@ -195,18 +194,15 @@ paths:
                   properties:
                     name:
                       type: string
-                      description: The new name of the product.
-                    hs_sku:
+                      description: The new name of the company.
+                    domain:
                       type: string
-                      description: The new sku of the product.
-                    price:
-                      type: integer
-                      description: The new price of the product.
+                      description: The new domain of the company.
               required:
                 - properties
       responses:
         '200':
-          description: Successfully updated the product.
+          description: Successfully updated the company.
           content:
             application/json:
               schema:
@@ -214,16 +210,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the updated product.
+                    description: Unique ID of the updated company.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the updated product.
+                    description: Properties of the updated company.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was created.
+                    description: Timestamp when the company was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -232,12 +228,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was archived.
+                    description: Timestamp when the company was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the product was last updated.
+                    description: Timestamp when the company was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -245,21 +241,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the product's properties including historical values.
+                    description: A map of the company's properties including historical values.
                     x-go-type-skip-optional-pointer: true
     delete:
-      summary: Delete a product
-      description: Deletes a product from HubSpot using the provided product ID.
-      operationId: deleteProductById
+      summary: Delete a company
+      description: Deletes a company from HubSpot using the provided company ID.
+      operationId: deleteCompanyById
       parameters:
-        - name: productId
+        - name: companyId
           in: path
           required: true
-          description: The unique ID of the product to delete.
+          description: The unique ID of the company to delete.
           schema:
             type: string
       responses:
         '204':
-          description: No Content. The product was successfully deleted.
-  /crm/v3/objects/products/search:
+          description: No Content. The company was successfully deleted.
+  /crm/v3/objects/companies/search:
     $ref: './search.yaml#/search'

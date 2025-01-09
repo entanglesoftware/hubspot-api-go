@@ -18,32 +18,154 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// GetCompanyByIdParams defines parameters for GetCompanyById.
-type GetCompanyByIdParams struct {
-	// Properties A comma separated list of the properties to be returned in the response. If any of the specified properties are not present on the requested object(s), they will be ignored.
-	Properties *string `form:"properties,omitempty" json:"properties,omitempty"`
+const (
+	Oauth2Scopes = "oauth2.Scopes"
+)
 
-	// Associations A comma separated list of object types to retrieve associated IDs for. If any of the specified associations do not exist, they will be ignored.
-	Associations *string `form:"associations,omitempty" json:"associations,omitempty"`
+// Defines values for CreateCompanyJSONBodyAssociationsAssociationCategory.
+const (
+	HUBSPOTDEFINED    CreateCompanyJSONBodyAssociationsAssociationCategory = "HUBSPOT_DEFINED"
+	INTEGRATORDEFINED CreateCompanyJSONBodyAssociationsAssociationCategory = "INTEGRATOR_DEFINED"
+	Search            CreateCompanyJSONBodyAssociationsAssociationCategory = "Search"
+	USERDEFINED       CreateCompanyJSONBodyAssociationsAssociationCategory = "USER_DEFINED"
+)
 
-	// Archived Whether to return only results that have been archived. Default value - false.
-	Archived *bool `form:"archived,omitempty" json:"archived,omitempty"`
+// GetCompaniesParams defines parameters for GetCompanies.
+type GetCompaniesParams struct {
+	// Limit Maximum number of results per page.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 
-	// IdProperty The name of a property whose values are unique for this object type.
-	IdProperty *string `form:"idProperty,omitempty" json:"idProperty,omitempty"`
+	// After Cursor token for the next page of results.
+	After *string `form:"after,omitempty" json:"after,omitempty"`
+
+	// Properties Comma-separated list of properties to include in the response.
+	// If a specified property is not present, it will be ignored.
+	Properties *Properties `form:"properties,omitempty" json:"properties,omitempty"`
+
+	// PropertiesWithHistory Comma-separated list of properties to include with their historical values.
+	// Historical data reduces the maximum number of objects returned per request.
+	PropertiesWithHistory *PropertiesWithHistory `form:"propertiesWithHistory,omitempty" json:"propertiesWithHistory,omitempty"`
+
+	// Associations Comma-separated list of object types to retrieve associated IDs for.
+	// Nonexistent associations will be ignored.
+	Associations *Associations `form:"associations,omitempty" json:"associations,omitempty"`
+
+	// Archived Include only archived results.
+	Archived *Archived `form:"archived,omitempty" json:"archived,omitempty"`
 }
 
+// CreateCompanyJSONBody defines parameters for CreateCompany.
+type CreateCompanyJSONBody struct {
+	// Associations List of associations for the company.
+	Associations *[]struct {
+		// AssociationCategory Category of the association.
+		AssociationCategory *CreateCompanyJSONBodyAssociationsAssociationCategory `json:"associationCategory,omitempty"`
+
+		// AssociationTypeId ID of the association type.
+		AssociationTypeId *int32 `json:"associationTypeId,omitempty"`
+
+		// To Target object details for the association.
+		To *struct {
+			// Id Target object ID.
+			Id *string `json:"id,omitempty"`
+		} `json:"to,omitempty"`
+	} `json:"associations,omitempty"`
+
+	// ObjectWriteTraceId Trace ID for object write operations.
+	ObjectWriteTraceId *string `json:"objectWriteTraceId,omitempty"`
+
+	// Properties Key-value pairs of company properties.
+	Properties map[string]string `json:"properties"`
+}
+
+// CreateCompanyJSONBodyAssociationsAssociationCategory defines parameters for CreateCompany.
+type CreateCompanyJSONBodyAssociationsAssociationCategory string
+
+// SearchCompanyJSONBody defines parameters for SearchCompany.
+type SearchCompanyJSONBody struct {
+	After   *string `json:"after,omitempty"`
+	Filters *[]struct {
+		HighValue    *string   `json:"highValue,omitempty"`
+		Operator     *string   `json:"operator,omitempty"`
+		PropertyName *string   `json:"propertyName,omitempty"`
+		Value        *string   `json:"value,omitempty"`
+		Values       *[]string `json:"values,omitempty"`
+	} `json:"filters,omitempty"`
+	Limit      *int      `json:"limit,omitempty"`
+	Properties *[]string `json:"properties,omitempty"`
+	Query      *string   `json:"query,omitempty"`
+	Sorts      *[]string `json:"sorts,omitempty"`
+}
+
+// SearchCompanyParams defines parameters for SearchCompany.
+type SearchCompanyParams struct {
+	// Hapikey HubSpot API key
+	Hapikey string `form:"hapikey" json:"hapikey"`
+}
+
+// GetCompanyByIdParams defines parameters for GetCompanyById.
+type GetCompanyByIdParams struct {
+	// IdProperty The property to use as the ID.
+	IdProperty *string `form:"idProperty,omitempty" json:"idProperty,omitempty"`
+
+	// Properties Comma-separated list of properties to include in the response.
+	// If a specified property is not present, it will be ignored.
+	Properties *Properties `form:"properties,omitempty" json:"properties,omitempty"`
+
+	// PropertiesWithHistory Comma-separated list of properties to include with their historical values.
+	// Historical data reduces the maximum number of objects returned per request.
+	PropertiesWithHistory *PropertiesWithHistory `form:"propertiesWithHistory,omitempty" json:"propertiesWithHistory,omitempty"`
+
+	// Associations Comma-separated list of object types to retrieve associated IDs for.
+	// Nonexistent associations will be ignored.
+	Associations *Associations `form:"associations,omitempty" json:"associations,omitempty"`
+
+	// Archived Include only archived results.
+	Archived *Archived `form:"archived,omitempty" json:"archived,omitempty"`
+}
+
+// UpdateCompanyJSONBody defines parameters for UpdateCompany.
+type UpdateCompanyJSONBody struct {
+	// ObjectWriteTraceId Unique trace ID for the operation.
+	ObjectWriteTraceId *string `json:"objectWriteTraceId,omitempty"`
+	Properties         struct {
+		// Domain The new domain of the company.
+		Domain *string `json:"domain,omitempty"`
+
+		// Name The new name of the company.
+		Name *string `json:"name,omitempty"`
+	} `json:"properties"`
+}
+
+// CreateCompanyJSONRequestBody defines body for CreateCompany for application/json ContentType.
+type CreateCompanyJSONRequestBody CreateCompanyJSONBody
+
 // SearchCompanyJSONRequestBody defines body for SearchCompany for application/json ContentType.
-type SearchCompanyJSONRequestBody = SearchParams
+type SearchCompanyJSONRequestBody SearchCompanyJSONBody
+
+// UpdateCompanyJSONRequestBody defines body for UpdateCompany for application/json ContentType.
+type UpdateCompanyJSONRequestBody UpdateCompanyJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-
+	// Retrieve a list of companies
+	// (GET /crm/v3/objects/companies)
+	GetCompanies(ctx echo.Context, params GetCompaniesParams) error
+	// Create a new company
+	// (POST /crm/v3/objects/companies)
+	CreateCompany(ctx echo.Context) error
+	// Search for companies by email
 	// (POST /crm/v3/objects/companies/search)
-	SearchCompany(ctx echo.Context) error
-
+	SearchCompany(ctx echo.Context, params SearchCompanyParams) error
+	// Delete a company
+	// (DELETE /crm/v3/objects/companies/{companyId})
+	DeleteCompanyById(ctx echo.Context, companyId string) error
+	// Get Company Details
 	// (GET /crm/v3/objects/companies/{companyId})
 	GetCompanyById(ctx echo.Context, companyId int64, params GetCompanyByIdParams) error
+	// Update a company
+	// (PATCH /crm/v3/objects/companies/{companyId})
+	UpdateCompany(ctx echo.Context, companyId string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -51,12 +173,107 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
+// GetCompanies converts echo context to params.
+func (w *ServerInterfaceWrapper) GetCompanies(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetCompaniesParams
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
+	// ------------- Optional query parameter "properties" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "properties", ctx.QueryParams(), &params.Properties)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter properties: %s", err))
+	}
+
+	// ------------- Optional query parameter "propertiesWithHistory" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "propertiesWithHistory", ctx.QueryParams(), &params.PropertiesWithHistory)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter propertiesWithHistory: %s", err))
+	}
+
+	// ------------- Optional query parameter "associations" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "associations", ctx.QueryParams(), &params.Associations)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter associations: %s", err))
+	}
+
+	// ------------- Optional query parameter "archived" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "archived", ctx.QueryParams(), &params.Archived)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter archived: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetCompanies(ctx, params)
+	return err
+}
+
+// CreateCompany converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateCompany(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateCompany(ctx)
+	return err
+}
+
 // SearchCompany converts echo context to params.
 func (w *ServerInterfaceWrapper) SearchCompany(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchCompanyParams
+	// ------------- Required query parameter "hapikey" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "hapikey", ctx.QueryParams(), &params.Hapikey)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter hapikey: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SearchCompany(ctx)
+	err = w.Handler.SearchCompany(ctx, params)
+	return err
+}
+
+// DeleteCompanyById converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteCompanyById(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "companyId" -------------
+	var companyId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "companyId", ctx.Param("companyId"), &companyId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter companyId: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteCompanyById(ctx, companyId)
 	return err
 }
 
@@ -71,18 +288,34 @@ func (w *ServerInterfaceWrapper) GetCompanyById(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter companyId: %s", err))
 	}
 
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetCompanyByIdParams
+	// ------------- Optional query parameter "idProperty" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "idProperty", ctx.QueryParams(), &params.IdProperty)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter idProperty: %s", err))
+	}
+
 	// ------------- Optional query parameter "properties" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "properties", ctx.QueryParams(), &params.Properties)
+	err = runtime.BindQueryParameter("form", false, false, "properties", ctx.QueryParams(), &params.Properties)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter properties: %s", err))
 	}
 
+	// ------------- Optional query parameter "propertiesWithHistory" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "propertiesWithHistory", ctx.QueryParams(), &params.PropertiesWithHistory)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter propertiesWithHistory: %s", err))
+	}
+
 	// ------------- Optional query parameter "associations" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "associations", ctx.QueryParams(), &params.Associations)
+	err = runtime.BindQueryParameter("form", false, false, "associations", ctx.QueryParams(), &params.Associations)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter associations: %s", err))
 	}
@@ -94,15 +327,26 @@ func (w *ServerInterfaceWrapper) GetCompanyById(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter archived: %s", err))
 	}
 
-	// ------------- Optional query parameter "idProperty" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "idProperty", ctx.QueryParams(), &params.IdProperty)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter idProperty: %s", err))
-	}
-
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetCompanyById(ctx, companyId, params)
+	return err
+}
+
+// UpdateCompany converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateCompany(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "companyId" -------------
+	var companyId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "companyId", ctx.Param("companyId"), &companyId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter companyId: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.companies.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateCompany(ctx, companyId)
 	return err
 }
 
@@ -134,49 +378,58 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/crm/v3/objects/companies", wrapper.GetCompanies)
+	router.POST(baseURL+"/crm/v3/objects/companies", wrapper.CreateCompany)
 	router.POST(baseURL+"/crm/v3/objects/companies/search", wrapper.SearchCompany)
+	router.DELETE(baseURL+"/crm/v3/objects/companies/:companyId", wrapper.DeleteCompanyById)
 	router.GET(baseURL+"/crm/v3/objects/companies/:companyId", wrapper.GetCompanyById)
+	router.PATCH(baseURL+"/crm/v3/objects/companies/:companyId", wrapper.UpdateCompany)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

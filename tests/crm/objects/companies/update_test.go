@@ -1,4 +1,4 @@
-package products_test
+package companies_test
 
 import (
 	"bytes"
@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-func TestUpdateProduct(t *testing.T) {
+func TestUpdateCompany(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -32,37 +32,32 @@ func TestUpdateProduct(t *testing.T) {
 
 	// Initialize the client
 	hsClient.SetAccessToken(token)
-
-	// Initialize a variable of type Product
-	name := "New Product 1"
-	price := 234
-	hs_sku := "sku"
-
-	product := products.UpdateProductJSONBody{
+	domain := "newdomain.com"
+	name := "New Name"
+	// Initialize a variable of type Company
+	company := companies.UpdateCompanyJSONBody{
 		Properties: struct {
-			HsSku *string "json:\"hs_sku,omitempty\""
-			Name  *string "json:\"name,omitempty\""
-			Price *int    "json:\"price,omitempty\""
+			Domain *string `json:"domain,omitempty"`
+			Name   *string `json:"name,omitempty"`
 		}{
-			Name:  &hs_sku,
-			HsSku: &name,
-			Price: &price,
+			Domain: &domain,
+			Name:   &name,
 		},
 	}
 
-	productId := "17897571951"
+	companyId := "28189124426"
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(product)
+	// Serialize the company properties to JSON
+	body, err := json.Marshal(company)
 	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
+		log.Fatalf("Error serializing company properties: %v", err)
 	}
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Products()
+	ct := hsClient.Crm().Companies()
 
-	response, err := ct.UpdateProductWithBodyWithResponse(context.Background(), productId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateCompanyWithBodyWithResponse(context.Background(), companyId, contentType, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

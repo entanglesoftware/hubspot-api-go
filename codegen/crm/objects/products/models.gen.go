@@ -38,28 +38,28 @@ type PagingNext struct {
 
 // ProductResponse defines model for ProductResponse.
 type ProductResponse struct {
-	// Archived Indicates if the contact is archived.
+	// Archived Indicates if the product is archived.
 	Archived bool `json:"archived,omitempty"`
 
-	// ArchivedAt When the contact was archived.
+	// ArchivedAt When the product was archived.
 	ArchivedAt time.Time `json:"archivedAt,omitempty"`
 
 	// Associations A map of associated objects.
 	Associations map[string]ObjectAssociationsResponse `json:"associations,omitempty"`
 
-	// CreatedAt When the contact was created.
+	// CreatedAt When the product was created.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 
-	// Id Unique identifier for the contact.
+	// Id Unique identifier for the product.
 	Id string `json:"id,omitempty"`
 
-	// Properties A key-value map of the contact's properties.
+	// Properties A key-value map of the product's properties.
 	Properties map[string]string `json:"properties,omitempty"`
 
-	// PropertiesWithHistory A map of the contact's properties including historical values.
+	// PropertiesWithHistory A map of the product's properties including historical values.
 	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
 
-	// UpdatedAt When the contact was last updated.
+	// UpdatedAt When the product was last updated.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 

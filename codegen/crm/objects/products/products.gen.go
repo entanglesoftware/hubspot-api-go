@@ -18,6 +18,10 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+const (
+	Oauth2Scopes = "oauth2.Scopes"
+)
+
 // Defines values for CreateProductJSONBodyAssociationsAssociationCategory.
 const (
 	HUBSPOTDEFINED    CreateProductJSONBodyAssociationsAssociationCategory = "HUBSPOT_DEFINED"
@@ -77,6 +81,28 @@ type CreateProductJSONBody struct {
 // CreateProductJSONBodyAssociationsAssociationCategory defines parameters for CreateProduct.
 type CreateProductJSONBodyAssociationsAssociationCategory string
 
+// SearchProductsJSONBody defines parameters for SearchProducts.
+type SearchProductsJSONBody struct {
+	After   *string `json:"after,omitempty"`
+	Filters *[]struct {
+		HighValue    *string   `json:"highValue,omitempty"`
+		Operator     *string   `json:"operator,omitempty"`
+		PropertyName *string   `json:"propertyName,omitempty"`
+		Value        *string   `json:"value,omitempty"`
+		Values       *[]string `json:"values,omitempty"`
+	} `json:"filters,omitempty"`
+	Limit      *int      `json:"limit,omitempty"`
+	Properties *[]string `json:"properties,omitempty"`
+	Query      *string   `json:"query,omitempty"`
+	Sorts      *[]string `json:"sorts,omitempty"`
+}
+
+// SearchProductsParams defines parameters for SearchProducts.
+type SearchProductsParams struct {
+	// Hapikey HubSpot API key
+	Hapikey string `form:"hapikey" json:"hapikey"`
+}
+
 // GetProductByIdParams defines parameters for GetProductById.
 type GetProductByIdParams struct {
 	// IdProperty The property to use as the ID.
@@ -117,6 +143,9 @@ type UpdateProductJSONBody struct {
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
 
+// SearchProductsJSONRequestBody defines body for SearchProducts for application/json ContentType.
+type SearchProductsJSONRequestBody SearchProductsJSONBody
+
 // UpdateProductJSONRequestBody defines body for UpdateProduct for application/json ContentType.
 type UpdateProductJSONRequestBody UpdateProductJSONBody
 
@@ -128,6 +157,9 @@ type ServerInterface interface {
 	// Create a new product
 	// (POST /crm/v3/objects/products)
 	CreateProduct(ctx echo.Context) error
+	// Search for products by email
+	// (POST /crm/v3/objects/products/search)
+	SearchProducts(ctx echo.Context, params SearchProductsParams) error
 	// Delete a product
 	// (DELETE /crm/v3/objects/products/{productId})
 	DeleteProductById(ctx echo.Context, productId string) error
@@ -147,6 +179,8 @@ type ServerInterfaceWrapper struct {
 // GetProducts converts echo context to params.
 func (w *ServerInterfaceWrapper) GetProducts(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProductsParams
@@ -201,8 +235,30 @@ func (w *ServerInterfaceWrapper) GetProducts(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) CreateProduct(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.CreateProduct(ctx)
+	return err
+}
+
+// SearchProducts converts echo context to params.
+func (w *ServerInterfaceWrapper) SearchProducts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchProductsParams
+	// ------------- Required query parameter "hapikey" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "hapikey", ctx.QueryParams(), &params.Hapikey)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter hapikey: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SearchProducts(ctx, params)
 	return err
 }
 
@@ -216,6 +272,8 @@ func (w *ServerInterfaceWrapper) DeleteProductById(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter productId: %s", err))
 	}
+
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.DeleteProductById(ctx, productId)
@@ -232,6 +290,8 @@ func (w *ServerInterfaceWrapper) GetProductById(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter productId: %s", err))
 	}
+
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProductByIdParams
@@ -286,6 +346,8 @@ func (w *ServerInterfaceWrapper) UpdateProduct(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter productId: %s", err))
 	}
 
+	ctx.Set(Oauth2Scopes, []string{"e-commerce"})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.UpdateProduct(ctx, productId)
 	return err
@@ -321,6 +383,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/crm/v3/objects/products", wrapper.GetProducts)
 	router.POST(baseURL+"/crm/v3/objects/products", wrapper.CreateProduct)
+	router.POST(baseURL+"/crm/v3/objects/products/search", wrapper.SearchProducts)
 	router.DELETE(baseURL+"/crm/v3/objects/products/:productId", wrapper.DeleteProductById)
 	router.GET(baseURL+"/crm/v3/objects/products/:productId", wrapper.GetProductById)
 	router.PATCH(baseURL+"/crm/v3/objects/products/:productId", wrapper.UpdateProduct)
@@ -330,41 +393,45 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"9X8CAAD//14PFiDkLAAA",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

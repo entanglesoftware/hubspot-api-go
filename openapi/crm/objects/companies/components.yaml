@@ -27,6 +27,7 @@ components:
         tickets:
           $ref: "components.yaml#/components/schemas/ObjectAssociationsResponse"
       type: object
+      x-go-type-skip-optional-pointer: true
     CompanyProperties:
       properties:
         address:
@@ -35,43 +36,51 @@ components:
             number. Powered by HubSpot Insights.
           title: Street Address
           type: string
+          x-go-type-skip-optional-pointer: true
         address2:
           description:
             The additional address of the company or organization. Powered by
             HubSpot Insights.
           title: Street Address 2
           type: string
+          x-go-type-skip-optional-pointer: true
         city:
           description: The city where the company is located. Powered by HubSpot Insights.
           title: City
           type: string
+          x-go-type-skip-optional-pointer: true
         country:
           description:
             The country/region in which the company or organization is located.
             Powered by HubSpot Insights.
           title: Country/Region
           type: string
+          x-go-type-skip-optional-pointer: true
         createdate:
           description: The date the company or organization was added to the database.
           format: date-time
           readOnly: true
           title: Create Date
           type: string
+          x-go-type-skip-optional-pointer: true
         customer_id:
           description: The Cirris customer identification number.
           readOnly: true
           title: Customer ID
           type: string
+          x-go-type-skip-optional-pointer: true
         description:
           description:
             A short statement about the company's mission and goals. Powered by
             HubSpot Insights.
           title: Description
           type: string
+          x-go-type-skip-optional-pointer: true
         domain:
           description: The domain name of the company or organization
           title: Company Domain Name
           type: string
+          x-go-type-skip-optional-pointer: true
         hs_lastmodifieddate:
           description:
             Most recent timestamp of any property update for this company. This
@@ -81,10 +90,12 @@ components:
           readOnly: true
           title: Last Modified Date
           type: string
+          x-go-type-skip-optional-pointer: true
         hs_lead_status:
           description: The company's sales, prospecting or outreach status.
           title: Lead Status
           type: string
+          x-go-type-skip-optional-pointer: true
         hs_object_id:
           description:
             The unique ID for this company. This unique ID is automatically
@@ -92,22 +103,26 @@ components:
           readOnly: true
           title: Company ID
           type: string
+          x-go-type-skip-optional-pointer: true
         hubspot_owner_assigneddate:
           description: The timestamp when an owner was assigned to this company.
           format: date-time
           readOnly: true
           title: Owner Assigned Date
           type: string
+          x-go-type-skip-optional-pointer: true
         lifecyclestage:
           description:
             The most advanced lifecycle stage across all contacts associated
             with this company or organization.
           title: Lifecycle Stage
           type: string
+          x-go-type-skip-optional-pointer: true
         name:
           description: The name of the company or organization. Powered by HubSpot Insights.
           title: Name
           type: string
+          x-go-type-skip-optional-pointer: true
         notes_last_contacted:
           description:
             The last timestamp when a call, email or meeting was logged for a
@@ -116,6 +131,7 @@ components:
           readOnly: true
           title: Last Contacted
           type: string
+          x-go-type-skip-optional-pointer: true
         notes_last_updated:
           description:
             The last time a note, call, meeting, or task was logged for a
@@ -125,46 +141,102 @@ components:
           readOnly: true
           title: Last Activity Date
           type: string
+          x-go-type-skip-optional-pointer: true
         phone:
           description: A company's primary phone number. Powered by HubSpot Insights.
           title: Phone Number
           type: string
+          x-go-type-skip-optional-pointer: true
         state:
           description:
             The state or region in which the company or organization is
             located. Powered by HubSpot Insights.
           title: State/Region
           type: string
+          x-go-type-skip-optional-pointer: true
         website:
           description:
             The main website of the company or organization. This property is
             used to identify unique companies. Powered by HubSpot Insights.
           title: Website URL
           type: string
+          x-go-type-skip-optional-pointer: true
         zip:
           description:
             The postal or zip code of the company or organization. Powered by
             HubSpot Insights.
           title: Postal Code
           type: string
-      type: object
+          x-go-type-skip-optional-pointer: true
+      type: array
+      x-go-type-skip-optional-pointer: true
     CompanyResponse:
       properties:
         archived:
           type: boolean
+          description: Indicates if the company is archived.
+          x-go-type-skip-optional-pointer: true
         associations:
           $ref: "components.yaml#/components/schemas/CompanyAssociations"
         createdAt:
-          format: date-time
           type: string
+          format: date-time
+          description: When the company was created.
+          x-go-type-skip-optional-pointer: true
         id:
           type: string
+          description: Unique identifier for the company.
+          x-go-type-skip-optional-pointer: true
         properties:
-          $ref: "components.yaml#/components/schemas/CompanyProperties"
+          type: object
+          additionalProperties:
+            type: string
+          description: A key-value map of the contact's properties.
+          x-go-type-skip-optional-pointer: true
+        propertiesWithHistory:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/PropertyHistory"
+          description: A map of the contact's properties including historical values.
+          x-go-type-skip-optional-pointer: true
         updatedAt:
-          format: date-time
           type: string
+          format: date-time
+          description: When the company was last updated.
+          x-go-type-skip-optional-pointer: true
       type: object
+
+    PropertyHistory:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          description: The source ID of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceType:
+          type: string
+          description: The source type of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceLabel:
+          type: string
+          description: The source label for the historical property.
+          x-go-type-skip-optional-pointer: true
+        updatedByUserId:
+          type: integer
+          description: The user ID who updated the property.
+          x-go-type-skip-optional-pointer: true
+        value:
+          type: string
+          description: The historical value of the property.
+          x-go-type-skip-optional-pointer: true
+        timestamp:
+          type: string
+          format: date-time
+          description: When the property value was set.
+          x-go-type-skip-optional-pointer: true
+
     CompanySearchResponse:
       properties:
         archived:
@@ -185,28 +257,41 @@ components:
         next:
           $ref: "components.yaml#/components/schemas/PagingNext"
       type: object
+      x-go-type-skip-optional-pointer: true
     PagingNext:
+      type: object
+      x-go-type-skip-optional-pointer: true
       properties:
-        after:
-          type: string
         link:
           type: string
-      type: object
+          description: The link for the next page of results.
+          x-go-type-skip-optional-pointer: true
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+          x-go-type-skip-optional-pointer: true
     ObjectAssociationsResponse:
       properties:
         results:
           items:
             $ref: "components.yaml#/components/schemas/AssociationResponse"
           type: array
+          x-go-type-skip-optional-pointer: true
       type: object
+      x-go-type-skip-optional-pointer: true
     AssociationResponse:
       properties:
         id:
           format: int64
           type: integer
+          description: The ID of the associated object.
+          x-go-type-skip-optional-pointer: true
         type:
           type: string
+          description: The type of association.
+          x-go-type-skip-optional-pointer: true
       type: object
+      x-go-type-skip-optional-pointer: true
     SearchParams:
       properties:
         after:
@@ -280,4 +365,75 @@ components:
           items:
             $ref: "components.yaml#/components/schemas/CompanyResponse"
           type: array
+          x-go-type-skip-optional-pointer: true
       type: object
+  parameters:
+    Properties:
+        name: properties
+        in: query
+        description: |
+          Comma-separated list of properties to include in the response.
+          If a specified property is not present, it will be ignored.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        examples:
+          defaultProperties:
+            summary: Example properties
+            value: ["name", "price", "description"]
+    PropertiesWithHistory:
+      name: propertiesWithHistory
+      in: query
+      description: |
+        Comma-separated list of properties to include with their historical values.
+        Historical data reduces the maximum number of objects returned per request.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultPropertiesWithHistory:
+          summary: Example properties with history
+          value: ["name", "price"]
+    Associations:
+      name: associations
+      in: query
+      description: |
+        Comma-separated list of object types to retrieve associated IDs for.
+        Nonexistent associations will be ignored.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultAssociations:
+          summary: Example associations
+          value: ["deals", "tickets"]
+    Archived:
+      name: archived
+      in: query
+      description: Include only archived results.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.companies.read: Grants access to companies

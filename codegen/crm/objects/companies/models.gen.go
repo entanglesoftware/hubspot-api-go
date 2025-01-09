@@ -29,110 +29,65 @@ const (
 
 // AssociationResponse defines model for AssociationResponse.
 type AssociationResponse struct {
-	Id   *int64  `json:"id,omitempty"`
-	Type *string `json:"type,omitempty"`
+	// Id The ID of the associated object.
+	Id int64 `json:"id,omitempty"`
+
+	// Type The type of association.
+	Type string `json:"type,omitempty"`
 }
 
 // CompaniesResponse defines model for CompaniesResponse.
 type CompaniesResponse struct {
-	Paging  *Paging            `json:"paging,omitempty"`
-	Results *[]CompanyResponse `json:"results,omitempty"`
+	Paging  Paging            `json:"paging,omitempty"`
+	Results []CompanyResponse `json:"results,omitempty"`
 }
 
 // CompaniesSearchResponse defines model for CompaniesSearchResponse.
 type CompaniesSearchResponse struct {
-	Paging  *Paging                  `json:"paging,omitempty"`
+	Paging  Paging                   `json:"paging,omitempty"`
 	Results *[]CompanySearchResponse `json:"results,omitempty"`
 	Total   *int                     `json:"total,omitempty"`
 }
 
 // CompanyAssociations defines model for CompanyAssociations.
 type CompanyAssociations struct {
-	Contacts *ObjectAssociationsResponse `json:"contacts,omitempty"`
-	Deals    *ObjectAssociationsResponse `json:"deals,omitempty"`
-	Tickets  *ObjectAssociationsResponse `json:"tickets,omitempty"`
+	Contacts ObjectAssociationsResponse `json:"contacts,omitempty"`
+	Deals    ObjectAssociationsResponse `json:"deals,omitempty"`
+	Tickets  ObjectAssociationsResponse `json:"tickets,omitempty"`
 }
 
 // CompanyProperties defines model for CompanyProperties.
-type CompanyProperties struct {
-	// Address The street address of the company or organization, including unit number. Powered by HubSpot Insights.
-	Address *string `json:"address,omitempty"`
-
-	// Address2 The additional address of the company or organization. Powered by HubSpot Insights.
-	Address2 *string `json:"address2,omitempty"`
-
-	// City The city where the company is located. Powered by HubSpot Insights.
-	City *string `json:"city,omitempty"`
-
-	// Country The country/region in which the company or organization is located. Powered by HubSpot Insights.
-	Country *string `json:"country,omitempty"`
-
-	// Createdate The date the company or organization was added to the database.
-	Createdate *time.Time `json:"createdate,omitempty"`
-
-	// CustomerId The Cirris customer identification number.
-	CustomerId *string `json:"customer_id,omitempty"`
-
-	// Description A short statement about the company's mission and goals. Powered by HubSpot Insights.
-	Description *string `json:"description,omitempty"`
-
-	// Domain The domain name of the company or organization
-	Domain *string `json:"domain,omitempty"`
-
-	// HsLastmodifieddate Most recent timestamp of any property update for this company. This includes HubSpot internal properties, which can be visible or hidden. This property is updated automatically.
-	HsLastmodifieddate *time.Time `json:"hs_lastmodifieddate,omitempty"`
-
-	// HsLeadStatus The company's sales, prospecting or outreach status.
-	HsLeadStatus *string `json:"hs_lead_status,omitempty"`
-
-	// HsObjectId The unique ID for this company. This unique ID is automatically populated by HubSpot and cannot be changed.
-	HsObjectId *string `json:"hs_object_id,omitempty"`
-
-	// HubspotOwnerAssigneddate The timestamp when an owner was assigned to this company.
-	HubspotOwnerAssigneddate *time.Time `json:"hubspot_owner_assigneddate,omitempty"`
-
-	// Lifecyclestage The most advanced lifecycle stage across all contacts associated with this company or organization.
-	Lifecyclestage *string `json:"lifecyclestage,omitempty"`
-
-	// Name The name of the company or organization. Powered by HubSpot Insights.
-	Name *string `json:"name,omitempty"`
-
-	// NotesLastContacted The last timestamp when a call, email or meeting was logged for a contact at this company.
-	NotesLastContacted *time.Time `json:"notes_last_contacted,omitempty"`
-
-	// NotesLastUpdated The last time a note, call, meeting, or task was logged for a company. This is set automatically by HubSpot based on user actions in the company record.
-	NotesLastUpdated *time.Time `json:"notes_last_updated,omitempty"`
-
-	// Phone A company's primary phone number. Powered by HubSpot Insights.
-	Phone *string `json:"phone,omitempty"`
-
-	// State The state or region in which the company or organization is located. Powered by HubSpot Insights.
-	State *string `json:"state,omitempty"`
-
-	// Website The main website of the company or organization. This property is used to identify unique companies. Powered by HubSpot Insights.
-	Website *string `json:"website,omitempty"`
-
-	// Zip The postal or zip code of the company or organization. Powered by HubSpot Insights.
-	Zip *string `json:"zip,omitempty"`
-}
+type CompanyProperties = []interface{}
 
 // CompanyResponse defines model for CompanyResponse.
 type CompanyResponse struct {
-	Archived     *bool                `json:"archived,omitempty"`
-	Associations *CompanyAssociations `json:"associations,omitempty"`
-	CreatedAt    *time.Time           `json:"createdAt,omitempty"`
-	Id           *string              `json:"id,omitempty"`
-	Properties   *CompanyProperties   `json:"properties,omitempty"`
-	UpdatedAt    *time.Time           `json:"updatedAt,omitempty"`
+	// Archived Indicates if the company is archived.
+	Archived     bool                `json:"archived,omitempty"`
+	Associations CompanyAssociations `json:"associations,omitempty"`
+
+	// CreatedAt When the company was created.
+	CreatedAt time.Time `json:"createdAt,omitempty"`
+
+	// Id Unique identifier for the company.
+	Id string `json:"id,omitempty"`
+
+	// Properties A key-value map of the contact's properties.
+	Properties map[string]string `json:"properties,omitempty"`
+
+	// PropertiesWithHistory A map of the contact's properties including historical values.
+	PropertiesWithHistory map[string][]PropertyHistory `json:"propertiesWithHistory,omitempty"`
+
+	// UpdatedAt When the company was last updated.
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
 // CompanySearchResponse defines model for CompanySearchResponse.
 type CompanySearchResponse struct {
-	Archived   *bool              `json:"archived,omitempty"`
-	CreatedAt  *time.Time         `json:"createdAt,omitempty"`
-	Id         *string            `json:"id,omitempty"`
-	Properties *CompanyProperties `json:"properties,omitempty"`
-	UpdatedAt  *time.Time         `json:"updatedAt,omitempty"`
+	Archived   *bool             `json:"archived,omitempty"`
+	CreatedAt  *time.Time        `json:"createdAt,omitempty"`
+	Id         *string           `json:"id,omitempty"`
+	Properties CompanyProperties `json:"properties,omitempty"`
+	UpdatedAt  *time.Time        `json:"updatedAt,omitempty"`
 }
 
 // Filter defines model for Filter.
@@ -152,18 +107,42 @@ type Filters struct {
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {
-	Results *[]AssociationResponse `json:"results,omitempty"`
+	Results []AssociationResponse `json:"results,omitempty"`
 }
 
 // Paging defines model for Paging.
 type Paging struct {
-	Next *PagingNext `json:"next,omitempty"`
+	Next PagingNext `json:"next,omitempty"`
 }
 
 // PagingNext defines model for PagingNext.
 type PagingNext struct {
-	After *string `json:"after,omitempty"`
-	Link  *string `json:"link,omitempty"`
+	// After The cursor token for the next page of results.
+	After string `json:"after,omitempty"`
+
+	// Link The link for the next page of results.
+	Link string `json:"link,omitempty"`
+}
+
+// PropertyHistory defines model for PropertyHistory.
+type PropertyHistory struct {
+	// SourceId The source ID of the historical property value.
+	SourceId string `json:"sourceId,omitempty"`
+
+	// SourceLabel The source label for the historical property.
+	SourceLabel string `json:"sourceLabel,omitempty"`
+
+	// SourceType The source type of the historical property value.
+	SourceType string `json:"sourceType,omitempty"`
+
+	// Timestamp When the property value was set.
+	Timestamp time.Time `json:"timestamp,omitempty"`
+
+	// UpdatedByUserId The user ID who updated the property.
+	UpdatedByUserId int `json:"updatedByUserId,omitempty"`
+
+	// Value The historical value of the property.
+	Value string `json:"value,omitempty"`
 }
 
 // SearchParams defines model for SearchParams.
@@ -188,3 +167,15 @@ type Sort struct {
 
 // SortDirection defines model for Sort.Direction.
 type SortDirection string
+
+// Archived defines model for Archived.
+type Archived = bool
+
+// Associations defines model for Associations.
+type Associations = []string
+
+// Properties defines model for Properties.
+type Properties = []string
+
+// PropertiesWithHistory defines model for PropertiesWithHistory.
+type PropertiesWithHistory = []string

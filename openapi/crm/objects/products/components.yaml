@@ -16,32 +16,32 @@ components:
       properties:
         id:
           type: string
-          description: Unique identifier for the contact.
+          description: Unique identifier for the product.
           x-go-type-skip-optional-pointer: true
         createdAt:
           type: string
           format: date-time
-          description: When the contact was created.
+          description: When the product was created.
           x-go-type-skip-optional-pointer: true
         updatedAt:
           type: string
           format: date-time
-          description: When the contact was last updated.
+          description: When the product was last updated.
           x-go-type-skip-optional-pointer: true
         archived:
           type: boolean
-          description: Indicates if the contact is archived.
+          description: Indicates if the product is archived.
           x-go-type-skip-optional-pointer: true
         archivedAt:
           type: string
           format: date-time
-          description: When the contact was archived.
+          description: When the product was archived.
           x-go-type-skip-optional-pointer: true
         properties:
           type: object
           additionalProperties:
             type: string
-          description: A key-value map of the contact's properties.
+          description: A key-value map of the product's properties.
           x-go-type-skip-optional-pointer: true
         propertiesWithHistory:
           type: object
@@ -49,7 +49,7 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/PropertyHistory"
-          description: A map of the contact's properties including historical values.
+          description: A map of the product's properties including historical values.
           x-go-type-skip-optional-pointer: true
         associations:
           type: object

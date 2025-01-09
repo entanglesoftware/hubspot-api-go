@@ -1,4 +1,4 @@
-package products_test
+package companies_test
 
 import (
 	"bytes"
@@ -8,12 +8,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-func TestGetProduct(t *testing.T) {
+// TestGetCompanies fetches a page of companies
+func TestGetCompanies(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -36,13 +37,13 @@ func TestGetProduct(t *testing.T) {
 	limit := 10
 
 	// Make the API call
-	productParams := products.GetProductsParams{
+	companiesParams := companies.GetCompaniesParams{
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Products()
+	ct := hsClient.Crm().Companies()
 
-	response, err := ct.GetProductsWithResponse(context.Background(), &productParams)
+	response, err := ct.GetCompaniesWithResponse(context.Background(), &companiesParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -71,7 +72,8 @@ func TestGetProduct(t *testing.T) {
 	}
 }
 
-func TestGetProductById(t *testing.T) {
+// TestGetCompanyById fetches a page of companies
+func TestGetCompanyById(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -92,11 +94,11 @@ func TestGetProductById(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Make the API call
-	productByIdParam := products.GetProductByIdParams{}
+	companyByIdParam := companies.GetCompanyByIdParams{}
 
-	ct := hsClient.Crm().Products()
+	ct := hsClient.Crm().Companies()
 
-	response, err := ct.GetProductByIdWithResponse(context.Background(), "17897571956", &productByIdParam)
+	response, err := ct.GetCompanyByIdWithResponse(context.Background(), 28189124426, &companyByIdParam)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -114,7 +116,7 @@ func TestGetProductById(t *testing.T) {
 	}
 }
 
-func TestSaveProduct(t *testing.T) {
+func TestSaveCompany(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -134,26 +136,25 @@ func TestSaveProduct(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Product
-	product := products.CreateProductJSONBody{
+	// Initialize a variable of type Company
+	company := companies.CreateCompanyJSONBody{
 		Properties: map[string]string{
-			"name":   "Product 1",
-			"price":  "345",
-			"hs_sku": "p7",
+			"name":   "Company 2",
+			"domain": "example2.com",
 		},
 	}
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(product)
+	// Serialize the company properties to JSON
+	body, err := json.Marshal(company)
 	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
+		log.Fatalf("Error serializing company properties: %v", err)
 	}
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Products()
+	ct := hsClient.Crm().Companies()
 
-	response, err := ct.CreateProductWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateCompanyWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

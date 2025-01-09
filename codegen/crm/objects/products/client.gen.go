@@ -98,6 +98,11 @@ type ClientInterface interface {
 
 	CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SearchProductsWithBody request with any body
+	SearchProductsWithBody(ctx context.Context, params *SearchProductsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SearchProducts(ctx context.Context, params *SearchProductsParams, body SearchProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteProductById request
 	DeleteProductById(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -136,6 +141,30 @@ func (c *Client) CreateProductWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateProductRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchProductsWithBody(ctx context.Context, params *SearchProductsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchProductsRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchProducts(ctx context.Context, params *SearchProductsParams, body SearchProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchProductsRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -351,6 +380,64 @@ func NewCreateProductRequestWithBody(server string, contentType string, body io.
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSearchProductsRequest calls the generic SearchProducts builder with application/json body
+func NewSearchProductsRequest(server string, params *SearchProductsParams, body SearchProductsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSearchProductsRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewSearchProductsRequestWithBody generates requests for SearchProducts with any type of body
+func NewSearchProductsRequestWithBody(server string, params *SearchProductsParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -615,6 +702,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
 
+	// SearchProductsWithBodyWithResponse request with any body
+	SearchProductsWithBodyWithResponse(ctx context.Context, params *SearchProductsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error)
+
+	SearchProductsWithResponse(ctx context.Context, params *SearchProductsParams, body SearchProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error)
+
 	// DeleteProductByIdWithResponse request
 	DeleteProductByIdWithResponse(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*DeleteProductByIdResponse, error)
 
@@ -686,6 +778,28 @@ func (r CreateProductResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SearchProductsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ProductsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchProductsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchProductsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -804,6 +918,23 @@ func (c *ClientWithResponses) CreateProductWithResponse(ctx context.Context, bod
 	return ParseCreateProductResponse(rsp)
 }
 
+// SearchProductsWithBodyWithResponse request with arbitrary body returning *SearchProductsResponse
+func (c *ClientWithResponses) SearchProductsWithBodyWithResponse(ctx context.Context, params *SearchProductsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error) {
+	rsp, err := c.SearchProductsWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchProductsResponse(rsp)
+}
+
+func (c *ClientWithResponses) SearchProductsWithResponse(ctx context.Context, params *SearchProductsParams, body SearchProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error) {
+	rsp, err := c.SearchProducts(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchProductsResponse(rsp)
+}
+
 // DeleteProductByIdWithResponse request returning *DeleteProductByIdResponse
 func (c *ClientWithResponses) DeleteProductByIdWithResponse(ctx context.Context, productId string, reqEditors ...RequestEditorFn) (*DeleteProductByIdResponse, error) {
 	rsp, err := c.DeleteProductById(ctx, productId, reqEditors...)
@@ -906,6 +1037,32 @@ func ParseCreateProductResponse(rsp *http.Response) (*CreateProductResponse, err
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSearchProductsResponse parses an HTTP response from a SearchProductsWithResponse call
+func ParseSearchProductsResponse(rsp *http.Response) (*SearchProductsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchProductsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProductsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 
