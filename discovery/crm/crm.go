@@ -3,11 +3,14 @@ package crm
 import (
 	"sync"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
+
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 )
 
 // CrmDiscovery provides access to API clients for various CRM modules.
@@ -73,4 +76,12 @@ func (d *CrmDiscovery) Companies() *companies.ClientWithResponses {
 		client, _ := objects.NewCompaniesDiscovery(config)
 		return client.Companies
 	}).(*companies.ClientWithResponses)
+}
+
+// Deals retrieves the DealsDiscovery client.
+func (d *CrmDiscovery) Deals() *deals.ClientWithResponses {
+	return d.getClient("deals", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewDealsDiscovery(config)
+		return client.Deals
+	}).(*deals.ClientWithResponses)
 }

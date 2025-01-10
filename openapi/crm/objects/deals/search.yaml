@@ -1,12 +1,12 @@
 search:
   post:
-      summary: Search for products by email
+      summary: Search for deals by email
       description: |
-        Queries the HubSpot CRM for products based on the `email` property.
-        Returns product details such as `firstname`, `lastname`, and `email`.
-      operationId: searchProducts
+        Queries the HubSpot CRM for deals based on the `email` property.
+        Returns deal details such as `firstname`, `lastname`, and `email`.
+      operationId: searchDeals
       tags:
-        - Products
+        - Deals
       parameters:
         - name: hapikey
           in: query
@@ -42,8 +42,8 @@ search:
                     type: string
       responses:
         "200":
-          description: Product object details.
+          description: Deal object details.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/ProductsResponse"
+                $ref: "components.yaml#/components/schemas/DealsResponse"

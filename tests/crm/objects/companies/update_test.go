@@ -36,12 +36,9 @@ func TestUpdateCompany(t *testing.T) {
 	name := "New Name"
 	// Initialize a variable of type Company
 	company := companies.UpdateCompanyJSONBody{
-		Properties: struct {
-			Domain *string `json:"domain,omitempty"`
-			Name   *string `json:"name,omitempty"`
-		}{
-			Domain: &domain,
-			Name:   &name,
+		Properties: map[string]string{
+			"domain": domain,
+			"name":   name,
 		},
 	}
 

@@ -9,3 +9,5 @@ resources:
     enabled: false
   - name: products
     enabled: true
+  - name: deals
+    enabled: true

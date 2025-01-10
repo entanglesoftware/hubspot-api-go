@@ -7,6 +7,20 @@ import (
 	"time"
 )
 
+// Defines values for FilterOperator.
+const (
+	CONTAINSTOKEN    FilterOperator = "CONTAINS_TOKEN"
+	EQ               FilterOperator = "EQ"
+	GT               FilterOperator = "GT"
+	GTE              FilterOperator = "GTE"
+	HASPROPERTY      FilterOperator = "HAS_PROPERTY"
+	LT               FilterOperator = "LT"
+	LTE              FilterOperator = "LTE"
+	NEQ              FilterOperator = "NEQ"
+	NOTCONTAINSTOKEN FilterOperator = "NOT_CONTAINS_TOKEN"
+	NOTHASPROPERTY   FilterOperator = "NOT_HAS_PROPERTY"
+)
+
 // AssociationResponse defines model for AssociationResponse.
 type AssociationResponse struct {
 	// Id The ID of the associated object.
@@ -14,6 +28,21 @@ type AssociationResponse struct {
 
 	// Type The type of association.
 	Type *string `json:"type,omitempty"`
+}
+
+// Filter defines model for Filter.
+type Filter struct {
+	Operator     *FilterOperator `json:"operator,omitempty"`
+	PropertyName *string         `json:"propertyName,omitempty"`
+	Value        *string         `json:"value,omitempty"`
+}
+
+// FilterOperator defines model for Filter.Operator.
+type FilterOperator string
+
+// Filters defines model for Filters.
+type Filters struct {
+	Filters *[]Filter `json:"filters,omitempty"`
 }
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.

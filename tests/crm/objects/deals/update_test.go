@@ -1,4 +1,4 @@
-package products_test
+package deals_test
 
 import (
 	"bytes"
@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-func TestUpdateProduct(t *testing.T) {
+func TestUpdateDeal(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -33,32 +33,34 @@ func TestUpdateProduct(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Product
-	name := "New Product 1"
-	price := "234"
-	hs_sku := "sku"
+	// Initialize a variable of type Deal
+	dealstage := "appointmentscheduled"
+	amount := "234"
+	pipeline := "default"
+	dealname := "New Deal Name"
 
-	product := products.UpdateProductJSONBody{
+	deal := deals.UpdateDealJSONBody{
 		Properties: map[string]string{
-			"hs_sku": hs_sku,
-			"name":   name,
-			"price":  price,
+			"pipeline":  pipeline,
+			"dealstage": dealstage,
+			"amount":    amount,
+			"dealname":  dealname,
 		},
 	}
 
-	productId := "17897571951"
+	dealId := "31738621965"
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(product)
+	// Serialize the deal properties to JSON
+	body, err := json.Marshal(deal)
 	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
+		log.Fatalf("Error serializing deal properties: %v", err)
 	}
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Products()
+	ct := hsClient.Crm().Deals()
 
-	response, err := ct.UpdateProductWithBodyWithResponse(context.Background(), productId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateDealWithBodyWithResponse(context.Background(), dealId, contentType, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

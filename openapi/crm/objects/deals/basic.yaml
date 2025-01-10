@@ -1,18 +1,18 @@
 openapi: 3.0.0
 info:
-  title: HubSpot Companies API
-  description: API for fetching companies from HubSpot
+  title: HubSpot Deals API
+  description: API for fetching deals from HubSpot
   version: v3
 servers:
   - url: https://api.hubapi.com/
 security:
-  - oauth2: ['crm.objects.companies.read']
+  - oauth2: ['crm.objects.deals.read']
 paths:
-  /crm/v3/objects/companies:
+  /crm/v3/objects/deals:
     get:
-      summary: Retrieve a list of companies
-      description: Fetches companies with pagination and properties.
-      operationId: getCompanies
+      summary: Retrieve a list of deals
+      description: Fetches deals with pagination and properties.
+      operationId: getDeals
       parameters:
         - name: limit
           in: query
@@ -35,19 +35,19 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Paginated list of companies.
+          description: Paginated list of deals.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/CompaniesResponse"
+                $ref: "components.yaml#/components/schemas/DealsResponse"
     post:
-      summary: Create a new company
-      description: Create a new company in the HubSpot CRM.
+      summary: Create a new deal
+      description: Create a new deal in the HubSpot CRM.
       tags:
-        - Companies
-      operationId: createCompany
+        - Deals
+      operationId: createDeal
       requestBody:
-        description: Company details to create a new company.
+        description: Deal details to create a new deal.
         required: true
         content:
           application/json:
@@ -56,12 +56,12 @@ paths:
               properties:
                 properties:
                   type: object
-                  description: Key-value pairs of company properties.
+                  description: Key-value pairs of deal properties.
                   additionalProperties:
                     type: string
                 associations:
                   type: array
-                  description: List of associations for the company.
+                  description: List of associations for the deal.
                   items:
                     type: object
                     properties:
@@ -91,11 +91,12 @@ paths:
                 - properties
               example:
                 properties:
-                  name: "Company Name"
-                  domain: "example.com"
+                  dealname: "Deal1"
+                  dealstage: "200"
+                  pipeline: "p1"
       responses:
         "201":
-          description: Company created successfully.
+          description: Deal created successfully.
           content:
             application/json:
               schema:
@@ -103,16 +104,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the created company.
+                    description: Unique ID of the created deal.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the created company.
+                    description: Properties of the created deal.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was created.
+                    description: Timestamp when the deal was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -121,12 +122,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was archived.
+                    description: Timestamp when the deal was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was last updated.
+                    description: Timestamp when the deal was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -134,21 +135,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the company's properties including historical values.
+                    description: A map of the deal's properties including historical values.
                     x-go-type-skip-optional-pointer: true
-
-  /crm/v3/objects/companies/{companyId}:
+  
+  /crm/v3/objects/deals/{dealId}:
     get:
-      summary: Get Company Details
-      description: Retrieve company details, including associations and additional metadata.
-      operationId: getCompanyById
+      summary: Get Deal Details
+      description: Retrieve deal details, including associations and additional metadata.
+      operationId: getDealById
       parameters:
-        - name: companyId
+        - name: dealId
           in: path
           required: true
-          description: The ID of the company to retrieve.
+          description: The ID of the deal to retrieve.
           schema:
-            type: integer
+            type: string
             format: int64
         - name: idProperty
           in: query
@@ -162,24 +163,24 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: company object details.
+          description: Deal object details.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/CompanyResponse"
+                $ref: "components.yaml#/components/schemas/DealResponse"
     patch:
-      summary: Update a company
-      description: Updates the details of a company in HubSpot CRM.
-      operationId: updateCompany
+      summary: Update a deal
+      description: Updates the details of a deal in HubSpot CRM.
+      operationId: updateDeal
       parameters:
-        - name: companyId
+        - name: dealId
           in: path
           required: true
-          description: The unique identifier of the company to update.
+          description: The unique identifier of the deal to update.
           schema:
             type: string
       requestBody:
-        description: Company details to update.
+        description: Deal details to update.
         required: true
         content:
           application/json:
@@ -199,7 +200,7 @@ paths:
                 - properties
       responses:
         '200':
-          description: Successfully updated the company.
+          description: Successfully updated the deal.
           content:
             application/json:
               schema:
@@ -207,16 +208,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the updated company.
+                    description: Unique ID of the updated deal.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the updated company.
+                    description: Properties of the updated deal.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was created.
+                    description: Timestamp when the deal was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -225,12 +226,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was archived.
+                    description: Timestamp when the deal was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the company was last updated.
+                    description: Timestamp when the deal was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -238,21 +239,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the company's properties including historical values.
+                    description: A map of the deal's properties including historical values.
                     x-go-type-skip-optional-pointer: true
     delete:
-      summary: Delete a company
-      description: Deletes a company from HubSpot using the provided company ID.
-      operationId: deleteCompanyById
+      summary: Delete a deal
+      description: Deletes a deal from HubSpot using the provided deal ID.
+      operationId: deleteDealById
       parameters:
-        - name: companyId
+        - name: dealId
           in: path
           required: true
-          description: The unique ID of the company to delete.
+          description: The unique ID of the deal to delete.
           schema:
             type: string
       responses:
         '204':
-          description: No Content. The company was successfully deleted.
-  /crm/v3/objects/companies/search:
+          description: No Content. The deal was successfully deleted.
+  /crm/v3/objects/deals/search:
     $ref: './search.yaml#/search'

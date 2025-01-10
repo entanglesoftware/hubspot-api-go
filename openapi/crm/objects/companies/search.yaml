@@ -22,26 +22,8 @@ search:
             schema:
               type: object
               properties:
-                filters:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      highValue:
-                        type: string
-                      values:
-                        type: array
-                        items:
-                          type: string
-                      propertyName:
-                        type: string
-                        example: "hs_email"
-                      operator:
-                        type: string
-                        example: "EQ"
-                      value:
-                        type: string
-                        example: "p7"
+                schema:
+                  $ref: "components.yaml#/components/schemas/Filters"
                 properties:
                   type: array
                   items:

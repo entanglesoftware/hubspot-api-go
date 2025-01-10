@@ -1,6 +1,6 @@
 components:
   schemas:
-    ProductsResponse:
+    DealsResponse:
       type: object
       properties:
         paging:
@@ -9,39 +9,39 @@ components:
           type: array
           x-go-type-skip-optional-pointer: true
           items:
-            $ref: "#/components/schemas/ProductResponse"
+            $ref: "#/components/schemas/DealResponse"
     
-    ProductResponse:
+    DealResponse:
       type: object
       properties:
         id:
           type: string
-          description: Unique identifier for the product.
+          description: Unique identifier for the deal.
           x-go-type-skip-optional-pointer: true
         createdAt:
           type: string
           format: date-time
-          description: When the product was created.
+          description: When the deal was created.
           x-go-type-skip-optional-pointer: true
         updatedAt:
           type: string
           format: date-time
-          description: When the product was last updated.
+          description: When the deal was last updated.
           x-go-type-skip-optional-pointer: true
         archived:
           type: boolean
-          description: Indicates if the product is archived.
+          description: Indicates if the deal is archived.
           x-go-type-skip-optional-pointer: true
         archivedAt:
           type: string
           format: date-time
-          description: When the product was archived.
+          description: When the deal was archived.
           x-go-type-skip-optional-pointer: true
         properties:
           type: object
           additionalProperties:
             type: string
-          description: A key-value map of the product's properties.
+          description: A key-value map of the deal's properties.
           x-go-type-skip-optional-pointer: true
         propertiesWithHistory:
           type: object
@@ -49,7 +49,7 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/PropertyHistory"
-          description: A map of the product's properties including historical values.
+          description: A map of the deal's properties including historical values.
           x-go-type-skip-optional-pointer: true
         associations:
           type: object
@@ -126,7 +126,6 @@ components:
           format: date-time
           description: When the property value was set.
           x-go-type-skip-optional-pointer: true
-
     Filters:
       properties:
         filters:
@@ -172,7 +171,7 @@ components:
         examples:
           defaultProperties:
             summary: Example properties
-            value: ["name", "price", "description"]
+            value: ["dealname", "dealstage", "pipeline"]
     PropertiesWithHistory:
       name: propertiesWithHistory
       in: query
@@ -189,7 +188,7 @@ components:
       examples:
         defaultPropertiesWithHistory:
           summary: Example properties with history
-          value: ["name", "price"]
+          value: ["dealname", "dealstage","pipeline"]
     Associations:
       name: associations
       in: query
@@ -225,4 +224,4 @@ components:
           authorizationUrl: https://app.hubspot.com/oauth/authorize
           tokenUrl: https://api.hubapi.com/oauth/v1/token
           scopes:
-              e-commerce: Grants access to products
+              crm.objects.deals.read: Grants access to deals

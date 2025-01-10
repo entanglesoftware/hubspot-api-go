@@ -126,6 +126,34 @@ components:
         type:
           type: string
           description: The type of association.
+
+    Filters:
+      properties:
+        filters:
+          items:
+            $ref: "components.yaml#/components/schemas/Filter"
+          type: array
+      type: object
+    Filter:
+      properties:
+        operator:
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          type: string
+        propertyName:
+          type: string
+        value:
+          type: string
+      type: object
   securitySchemes:
     oauth2:
       type: oauth2
