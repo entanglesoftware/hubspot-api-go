@@ -11,3 +11,5 @@ resources:
     enabled: true
   - name: deals
     enabled: true
+  - name: tickets
+    enabled: true

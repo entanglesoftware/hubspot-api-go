@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Tickets API
+  description: API for fetching tickets from HubSpot
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['tickets']
+paths:
+  /crm/v3/objects/tickets:
+    get:
+      summary: Retrieve a list of tickets
+      description: Fetches tickets with pagination and properties.
+      operationId: getTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 50
+        - name: after
+          in: query
+          description: Cursor token for the next page of results.
+          required: false
+          schema:
+            type: string
+          example: "MjA1MA=="
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Paginated list of tickets.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/TicketsResponse"
+    post:
+      summary: Create a new ticket
+      description: Create a new ticket in the HubSpot CRM.
+      tags:
+        - Tickets
+      operationId: createTicket
+      requestBody:
+        description: Ticket details to create a new ticket.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of ticket properties.
+                  additionalProperties:
+                    type: string
+                associations:
+                  type: array
+                  description: List of associations for the ticket.
+                  items:
+                    type: object
+                    properties:
+                      associationCategory:
+                        type: string
+                        description: Category of the association.
+                        enum:
+                          - Search
+                          - HUBSPOT_DEFINED
+                          - USER_DEFINED
+                          - INTEGRATOR_DEFINED
+                      associationTypeId:
+                        type: integer
+                        format: int32
+                        description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+                objectWriteTraceId:
+                  type: string
+                  description: Trace ID for object write operations.
+              required:
+                - properties
+              example:
+                properties:
+                  ticketname: "Ticket1"
+                  ticketstage: "200"
+                  pipeline: "p1"
+      responses:
+        "201":
+          description: Ticket created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the created ticket.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the created ticket.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the ticket's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+  
+  /crm/v3/objects/tickets/{ticketId}:
+    get:
+      summary: Get Ticket Details
+      description: Retrieve ticket details, including associations and additional metadata.
+      operationId: getTicketById
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          description: The ID of the ticket to retrieve.
+          schema:
+            type: string
+            format: int64
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to use as the ID.
+          schema:
+            type: string
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Ticket object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/TicketResponse"
+    patch:
+      summary: Update a ticket
+      description: Updates the details of a ticket in HubSpot CRM.
+      operationId: updateTicket
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          description: The unique identifier of the ticket to update.
+          schema:
+            type: string
+      requestBody:
+        description: Ticket details to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
+                properties:
+                  type: object
+                  description: Key-value pairs representing the ticket properties to update.
+                  additionalProperties:
+                    type: string
+                    description: Value of the property to update.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the ticket.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the updated ticket.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the updated ticket.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the ticket was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the ticket's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+    delete:
+      summary: Delete a ticket
+      description: Deletes a ticket from HubSpot using the provided ticket ID.
+      operationId: deleteTicketById
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          description: The unique ID of the ticket to delete.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content. The ticket was successfully deleted.
+  /crm/v3/objects/tickets/search:
+    $ref: './search.yaml#/search'

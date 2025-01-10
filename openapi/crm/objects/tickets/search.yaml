@@ -1,0 +1,49 @@
+search:
+  post:
+      summary: Search for tickets by email
+      description: |
+        Queries the HubSpot CRM for tickets based on the `email` property.
+        Returns ticket details such as `firstname`, `lastname`, and `email`.
+      operationId: searchTickets
+      tags:
+        - Tickets
+      parameters:
+        - name: hapikey
+          in: query
+          description: HubSpot API key
+          required: true
+          schema:
+            type: string
+            example: "YOUR_API_KEY"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schema:
+                  $ref: "components.yaml#/components/schemas/Filters"
+                properties:
+                  type: array
+                  items:
+                    type: string
+                    example: ["name", "hs_sku", "description"]
+                limit:
+                  type: integer
+                  example: 1
+                query:
+                  type: string
+                after:
+                  type: string
+                sorts:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Ticket object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/TicketsResponse"
