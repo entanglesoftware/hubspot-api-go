@@ -38,13 +38,13 @@ type AssociationResponse struct {
 
 // CompaniesResponse defines model for CompaniesResponse.
 type CompaniesResponse struct {
-	Paging  Paging            `json:"paging,omitempty"`
+	Paging  *Paging           `json:"paging,omitempty"`
 	Results []CompanyResponse `json:"results,omitempty"`
 }
 
 // CompaniesSearchResponse defines model for CompaniesSearchResponse.
 type CompaniesSearchResponse struct {
-	Paging  Paging                   `json:"paging,omitempty"`
+	Paging  *Paging                  `json:"paging,omitempty"`
 	Results *[]CompanySearchResponse `json:"results,omitempty"`
 	Total   *int                     `json:"total,omitempty"`
 }

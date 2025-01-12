@@ -257,7 +257,6 @@ components:
         next:
           $ref: "components.yaml#/components/schemas/PagingNext"
       type: object
-      x-go-type-skip-optional-pointer: true
     PagingNext:
       type: object
       x-go-type-skip-optional-pointer: true

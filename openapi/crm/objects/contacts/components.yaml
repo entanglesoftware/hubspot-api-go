@@ -13,7 +13,6 @@ components:
 
     Paging:
       type: object
-      x-go-type-skip-optional-pointer: true
       properties:
         next:
           $ref: "#/components/schemas/PagingNext"

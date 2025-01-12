@@ -47,7 +47,7 @@ type Filters struct {
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {
-	Paging  Paging                 `json:"paging,omitempty"`
+	Paging  *Paging                `json:"paging,omitempty"`
 	Results *[]AssociationResponse `json:"results,omitempty"`
 }
 
@@ -94,7 +94,7 @@ type ProductResponse struct {
 
 // ProductsResponse defines model for ProductsResponse.
 type ProductsResponse struct {
-	Paging  Paging            `json:"paging,omitempty"`
+	Paging  *Paging           `json:"paging,omitempty"`
 	Results []ProductResponse `json:"results,omitempty"`
 }
 

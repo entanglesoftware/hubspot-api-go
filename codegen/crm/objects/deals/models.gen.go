@@ -59,7 +59,7 @@ type DealResponse struct {
 
 // DealsResponse defines model for DealsResponse.
 type DealsResponse struct {
-	Paging  Paging         `json:"paging,omitempty"`
+	Paging  *Paging        `json:"paging,omitempty"`
 	Results []DealResponse `json:"results,omitempty"`
 }
 
@@ -80,7 +80,7 @@ type Filters struct {
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {
-	Paging  Paging                 `json:"paging,omitempty"`
+	Paging  *Paging                `json:"paging,omitempty"`
 	Results *[]AssociationResponse `json:"results,omitempty"`
 }
 
