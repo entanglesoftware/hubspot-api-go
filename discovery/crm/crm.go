@@ -10,6 +10,7 @@ import (
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
 )
@@ -93,4 +94,12 @@ func (d *CrmDiscovery) Tickets() *tickets.ClientWithResponses {
 		client, _ := objects.NewTicketsDiscovery(config)
 		return client.Tickets
 	}).(*tickets.ClientWithResponses)
+}
+
+// Leads retrieves the LeadsDiscovery client.
+func (d *CrmDiscovery) Leads() *leads.ClientWithResponses {
+	return d.getClient("leads", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewLeadsDiscovery(config)
+		return client.Leads
+	}).(*leads.ClientWithResponses)
 }

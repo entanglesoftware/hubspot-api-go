@@ -1,18 +1,18 @@
 openapi: 3.0.0
 info:
-  title: HubSpot Deals API
-  description: API for fetching deals from HubSpot
+  title: HubSpot Leads API
+  description: API for fetching leads from HubSpot
   version: v3
 servers:
   - url: https://api.hubapi.com/
 security:
-  - oauth2: ['crm.objects.deals.read']
+  - oauth2: ['leads']
 paths:
-  /crm/v3/objects/deals:
+  /crm/v3/objects/leads:
     get:
-      summary: Retrieve a list of deals
-      description: Fetches deals with pagination and properties.
-      operationId: getDeals
+      summary: Retrieve a list of leads
+      description: Fetches leads with pagination and properties.
+      operationId: getLeads
       parameters:
         - name: limit
           in: query
@@ -35,19 +35,19 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Paginated list of deals.
+          description: Paginated list of leads.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/DealsResponse"
+                $ref: "components.yaml#/components/schemas/LeadsResponse"
     post:
-      summary: Create a new deal
-      description: Create a new deal in the HubSpot CRM.
+      summary: Create a new lead
+      description: Create a new lead in the HubSpot CRM.
       tags:
-        - Deals
-      operationId: createDeal
+        - Leads
+      operationId: createLead
       requestBody:
-        description: Deal details to create a new deal.
+        description: Lead details to create a new lead.
         required: true
         content:
           application/json:
@@ -56,12 +56,12 @@ paths:
               properties:
                 properties:
                   type: object
-                  description: Key-value pairs of deal properties.
+                  description: Key-value pairs of lead properties.
                   additionalProperties:
                     type: string
                 associations:
                   type: array
-                  description: List of associations for the deal.
+                  description: List of associations for the lead.
                   items:
                     type: object
                     properties:
@@ -94,14 +94,15 @@ paths:
                   description: Trace ID for object write operations.
               required:
                 - properties
+                - associations
               example:
                 properties:
-                  dealname: "Deal1"
-                  dealstage: "200"
+                  leadname: "Lead1"
+                  leadstage: "200"
                   pipeline: "p1"
       responses:
         "201":
-          description: Deal created successfully.
+          description: Lead created successfully.
           content:
             application/json:
               schema:
@@ -109,16 +110,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the created deal.
+                    description: Unique ID of the created lead.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the created deal.
+                    description: Properties of the created lead.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was created.
+                    description: Timestamp when the lead was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -127,12 +128,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was archived.
+                    description: Timestamp when the lead was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was last updated.
+                    description: Timestamp when the lead was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -140,19 +141,19 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the deal's properties including historical values.
+                    description: A map of the lead's properties including historical values.
                     x-go-type-skip-optional-pointer: true
   
-  /crm/v3/objects/deals/{dealId}:
+  /crm/v3/objects/leads/{leadId}:
     get:
-      summary: Get Deal Details
-      description: Retrieve deal details, including associations and additional metadata.
-      operationId: getDealById
+      summary: Get Lead Details
+      description: Retrieve lead details, including associations and additional metadata.
+      operationId: getLeadById
       parameters:
-        - name: dealId
+        - name: leadId
           in: path
           required: true
-          description: The ID of the deal to retrieve.
+          description: The ID of the lead to retrieve.
           schema:
             type: string
             format: int64
@@ -168,24 +169,24 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Deal object details.
+          description: Lead object details.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/DealResponse"
+                $ref: "components.yaml#/components/schemas/LeadResponse"
     patch:
-      summary: Update a deal
-      description: Updates the details of a deal in HubSpot CRM.
-      operationId: updateDeal
+      summary: Update a lead
+      description: Updates the details of a lead in HubSpot CRM.
+      operationId: updateLead
       parameters:
-        - name: dealId
+        - name: leadId
           in: path
           required: true
-          description: The unique identifier of the deal to update.
+          description: The unique identifier of the lead to update.
           schema:
             type: string
       requestBody:
-        description: Deal details to update.
+        description: Lead details to update.
         required: true
         content:
           application/json:
@@ -197,7 +198,7 @@ paths:
                   description: Unique trace ID for the operation.
                 properties:
                   type: object
-                  description: Key-value pairs representing the deal properties to update.
+                  description: Key-value pairs representing the lead properties to update.
                   additionalProperties:
                     type: string
                     description: Value of the property to update.
@@ -205,7 +206,7 @@ paths:
                 - properties
       responses:
         '200':
-          description: Successfully updated the deal.
+          description: Successfully updated the lead.
           content:
             application/json:
               schema:
@@ -213,16 +214,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the updated deal.
+                    description: Unique ID of the updated lead.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the updated deal.
+                    description: Properties of the updated lead.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was created.
+                    description: Timestamp when the lead was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -231,12 +232,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was archived.
+                    description: Timestamp when the lead was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the deal was last updated.
+                    description: Timestamp when the lead was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -244,21 +245,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the deal's properties including historical values.
+                    description: A map of the lead's properties including historical values.
                     x-go-type-skip-optional-pointer: true
     delete:
-      summary: Delete a deal
-      description: Deletes a deal from HubSpot using the provided deal ID.
-      operationId: deleteDealById
+      summary: Delete a lead
+      description: Deletes a lead from HubSpot using the provided lead ID.
+      operationId: deleteLeadById
       parameters:
-        - name: dealId
+        - name: leadId
           in: path
           required: true
-          description: The unique ID of the deal to delete.
+          description: The unique ID of the lead to delete.
           schema:
             type: string
       responses:
         '204':
-          description: No Content. The deal was successfully deleted.
-  /crm/v3/objects/deals/search:
+          description: No Content. The lead was successfully deleted.
+  /crm/v3/objects/leads/search:
     $ref: './search.yaml#/search'

@@ -119,18 +119,23 @@ paths:
                   items:
                     type: object
                     properties:
-                      associationCategory:
-                        type: string
-                        description: Category of the association.
-                        enum:
-                          - Search
-                          - HUBSPOT_DEFINED
-                          - USER_DEFINED
-                          - INTEGRATOR_DEFINED
-                      associationTypeId:
-                        type: integer
-                        format: int32
-                        description: ID of the association type.
+                      types:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            associationCategory:
+                              type: string
+                              description: Category of the association.
+                              enum:
+                                - Search
+                                - HUBSPOT_DEFINED
+                                - USER_DEFINED
+                                - INTEGRATOR_DEFINED
+                            associationTypeId:
+                              type: integer
+                              format: int32
+                              description: ID of the association type.
                       to:
                         type: object
                         description: Target object details for the association.

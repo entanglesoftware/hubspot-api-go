@@ -13,3 +13,5 @@ resources:
     enabled: true
   - name: tickets
     enabled: true
+  - name: leads
+    enabled: true

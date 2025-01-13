@@ -1,4 +1,4 @@
-package tickets_test
+package leads_test
 
 import (
 	"bytes"
@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"test/codegen/crm/objects/tickets"
-	"test/configuration"
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-func TestUpdateTicket(t *testing.T) {
+func TestUpdateLead(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -33,32 +33,30 @@ func TestUpdateTicket(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Ticket
-	subject := "Update Ticket"
-	hs_pipeline_stage := "2"
-	hs_pipeline := "0"
+	// Initialize a variable of type Lead
+	hs_lead_name := "Update Lead"
+	hs_pipeline_stage := "attempting-stage-id"
 
-	ticket := tickets.UpdateTicketJSONBody{
+	lead := leads.UpdateLeadJSONBody{
 		Properties: map[string]string{
-			"subject":           subject,
+			"hs_lead_name":      hs_lead_name,
 			"hs_pipeline_stage": hs_pipeline_stage,
-			"hs_pipeline":       hs_pipeline,
 		},
 	}
 
-	ticketId := "18816298665"
+	leadId := "396777411872"
 
-	// Serialize the ticket properties to JSON
-	body, err := json.Marshal(ticket)
+	// Serialize the lead properties to JSON
+	body, err := json.Marshal(lead)
 	if err != nil {
-		log.Fatalf("Error serializing ticket properties: %v", err)
+		log.Fatalf("Error serializing lead properties: %v", err)
 	}
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.UpdateTicketWithBodyWithResponse(context.Background(), ticketId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateLeadWithBodyWithResponse(context.Background(), leadId, contentType, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

@@ -22,12 +22,12 @@ const (
 	Oauth2Scopes = "oauth2.Scopes"
 )
 
-// Defines values for CreateProductJSONBodyAssociationsAssociationCategory.
+// Defines values for CreateProductJSONBodyAssociationsTypesAssociationCategory.
 const (
-	HUBSPOTDEFINED    CreateProductJSONBodyAssociationsAssociationCategory = "HUBSPOT_DEFINED"
-	INTEGRATORDEFINED CreateProductJSONBodyAssociationsAssociationCategory = "INTEGRATOR_DEFINED"
-	Search            CreateProductJSONBodyAssociationsAssociationCategory = "Search"
-	USERDEFINED       CreateProductJSONBodyAssociationsAssociationCategory = "USER_DEFINED"
+	HUBSPOTDEFINED    CreateProductJSONBodyAssociationsTypesAssociationCategory = "HUBSPOT_DEFINED"
+	INTEGRATORDEFINED CreateProductJSONBodyAssociationsTypesAssociationCategory = "INTEGRATOR_DEFINED"
+	Search            CreateProductJSONBodyAssociationsTypesAssociationCategory = "Search"
+	USERDEFINED       CreateProductJSONBodyAssociationsTypesAssociationCategory = "USER_DEFINED"
 )
 
 // GetProductsParams defines parameters for GetProducts.
@@ -58,17 +58,18 @@ type GetProductsParams struct {
 type CreateProductJSONBody struct {
 	// Associations List of associations for the product.
 	Associations *[]struct {
-		// AssociationCategory Category of the association.
-		AssociationCategory *CreateProductJSONBodyAssociationsAssociationCategory `json:"associationCategory,omitempty"`
-
-		// AssociationTypeId ID of the association type.
-		AssociationTypeId *int32 `json:"associationTypeId,omitempty"`
-
 		// To Target object details for the association.
 		To *struct {
 			// Id Target object ID.
 			Id *string `json:"id,omitempty"`
 		} `json:"to,omitempty"`
+		Types *[]struct {
+			// AssociationCategory Category of the association.
+			AssociationCategory *CreateProductJSONBodyAssociationsTypesAssociationCategory `json:"associationCategory,omitempty"`
+
+			// AssociationTypeId ID of the association type.
+			AssociationTypeId *int32 `json:"associationTypeId,omitempty"`
+		} `json:"types,omitempty"`
 	} `json:"associations,omitempty"`
 
 	// ObjectWriteTraceId Trace ID for object write operations.
@@ -78,8 +79,8 @@ type CreateProductJSONBody struct {
 	Properties map[string]string `json:"properties"`
 }
 
-// CreateProductJSONBodyAssociationsAssociationCategory defines parameters for CreateProduct.
-type CreateProductJSONBodyAssociationsAssociationCategory string
+// CreateProductJSONBodyAssociationsTypesAssociationCategory defines parameters for CreateProduct.
+type CreateProductJSONBodyAssociationsTypesAssociationCategory string
 
 // SearchProductsJSONBody defines parameters for SearchProducts.
 type SearchProductsJSONBody struct {
@@ -404,22 +405,22 @@ var swaggerSpec = []string{
 	"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",
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

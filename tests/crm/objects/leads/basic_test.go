@@ -1,4 +1,4 @@
-package tickets_test
+package leads_test
 
 import (
 	"bytes"
@@ -8,14 +8,14 @@ import (
 	"os"
 	"testing"
 
-	"test/codegen/crm/objects/tickets"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
 
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
-	"test/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
-func TestGetTickets(t *testing.T) {
+func TestGetLeads(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -38,13 +38,13 @@ func TestGetTickets(t *testing.T) {
 	limit := 10
 
 	// Make the API call
-	ticketParams := tickets.GetTicketsParams{
+	leadParams := leads.GetLeadsParams{
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.GetTicketsWithResponse(context.Background(), &ticketParams)
+	response, err := ct.GetLeadsWithResponse(context.Background(), &leadParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -73,7 +73,7 @@ func TestGetTickets(t *testing.T) {
 	}
 }
 
-func TestGetTicketById(t *testing.T) {
+func TestGetLeadById(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -94,11 +94,11 @@ func TestGetTicketById(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Make the API call
-	ticketByIdParam := tickets.GetTicketByIdParams{}
+	leadByIdParam := leads.GetLeadByIdParams{}
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.GetTicketByIdWithResponse(context.Background(), "18791135765", &ticketByIdParam)
+	response, err := ct.GetLeadByIdWithResponse(context.Background(), "396711567278", &leadByIdParam)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -116,7 +116,11 @@ func TestGetTicketById(t *testing.T) {
 	}
 }
 
-func TestSaveTicket(t *testing.T) {
+func ptr[T any](v T) *T {
+	return &v
+}
+
+func TestSaveLead(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -135,27 +139,54 @@ func TestSaveTicket(t *testing.T) {
 
 	// Initialize the client
 	hsClient.SetAccessToken(token)
-
-	// Initialize a variable of type Ticket
-	ticket := tickets.CreateTicketJSONBody{
+	associationTypeId := int32(580)
+	associationCategory := "HUBSPOT_DEFINED"
+	id := "28106025611"
+	// Initialize a variable of type Lead
+	lead := leads.CreateLeadJSONBody{
 		Properties: map[string]string{
-			"subject":           "New Ticket 1",
-			"hs_pipeline_stage": "1",
-			"hs_pipeline":       "0",
+			"hs_lead_name":      "New Lead 1",
+			"hs_pipeline_stage": "connected-stage-id",
+		},
+		Associations: []struct {
+			To *struct {
+				Id *string "json:\"id,omitempty\""
+			} "json:\"to,omitempty\""
+			Types *[]struct {
+				AssociationCategory *leads.CreateLeadJSONBodyAssociationsTypesAssociationCategory "json:\"associationCategory,omitempty\""
+				AssociationTypeId   *int32                                                        "json:\"associationTypeId,omitempty\""
+			} "json:\"types,omitempty\""
+		}{
+			{
+				To: &struct {
+					Id *string "json:\"id,omitempty\""
+				}{
+					Id: &id, // Replace with actual ID
+				},
+				Types: &[]struct {
+					AssociationCategory *leads.CreateLeadJSONBodyAssociationsTypesAssociationCategory "json:\"associationCategory,omitempty\""
+					AssociationTypeId   *int32                                                        "json:\"associationTypeId,omitempty\""
+				}{
+					{
+						AssociationCategory: (*leads.CreateLeadJSONBodyAssociationsTypesAssociationCategory)(&associationCategory), // Replace with actual category
+						AssociationTypeId:   &associationTypeId,                                                                    // Replace with actual association type ID
+					},
+				},
+			},
 		},
 	}
 
-	// Serialize the ticket properties to JSON
-	body, err := json.Marshal(ticket)
+	// Serialize the lead properties to JSON
+	body, err := json.Marshal(lead)
 	if err != nil {
-		log.Fatalf("Error serializing ticket properties: %v", err)
+		log.Fatalf("Error serializing lead properties: %v", err)
 	}
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.CreateTicketWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateLeadWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

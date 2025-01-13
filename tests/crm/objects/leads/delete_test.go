@@ -1,16 +1,16 @@
-package tickets_test
+package leads_test
 
 import (
 	"context"
 	"os"
 	"testing"
 
-	"test/configuration"
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
-// TestDeleteTicketById fetches a page of tickets
-func TestDeleteTicketById(t *testing.T) {
+// TestDeleteLeadById fetches a page of leads
+func TestDeleteLeadById(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -30,15 +30,15 @@ func TestDeleteTicketById(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.DeleteTicketByIdWithResponse(context.Background(), "18816298665")
+	response, err := ct.DeleteLeadByIdWithResponse(context.Background(), "396774476665")
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
 
 	if response.StatusCode() == 204 {
-		t.Logf("Ticket Deleted")
+		t.Logf("Lead Deleted")
 	} else {
 		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
 	}

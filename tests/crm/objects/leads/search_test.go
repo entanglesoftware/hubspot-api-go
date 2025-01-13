@@ -1,4 +1,4 @@
-package tickets_test
+package leads_test
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
-	"test/codegen/crm/objects/tickets"
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
-	"test/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
-func TestSearchTickets(t *testing.T) {
+func TestSearchLeads(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -37,25 +37,25 @@ func TestSearchTickets(t *testing.T) {
 	jsonInput := `{
 		"filters": [
 			{
-				"propertyName": "hs_pipeline",
+				"propertyName": "hs_pipeline_stage",
 				"operator": "EQ",
-				"value": "1"
+				"value": "connected-stage-id"
 			}
 		],
-		"limit": 2
+		"limit": 10
 	}`
-	ticketByEmailParam := tickets.SearchTicketsParams{}
+	leadByEmailParam := leads.SearchLeadsParams{}
 
-	var body tickets.SearchTicketsJSONRequestBody
+	var body leads.SearchLeadsJSONRequestBody
 
 	if err := json.Unmarshal([]byte(jsonInput), &body); err != nil {
 		t.Fatalf("Error unmarshaling JSON: %v", err)
 		return
 	}
 
-	ct := hsClient.Crm().Tickets()
+	ct := hsClient.Crm().Leads()
 
-	response, err := ct.SearchTicketsWithResponse(context.Background(), &ticketByEmailParam, body)
+	response, err := ct.SearchLeadsWithResponse(context.Background(), &leadByEmailParam, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -71,6 +71,7 @@ func TestSearchTickets(t *testing.T) {
 	if result.Total == 0 {
 		t.Fatalf("Response contains no results")
 	}
+	t.Logf("Total result : %+v\n", result.Total)
 
 	if response.StatusCode() == 200 {
 		if response.JSON200 == nil || response.JSON200.Results == nil {
