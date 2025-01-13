@@ -380,7 +380,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
-
 	"H4sIAAAAAAAC/+xa3W7bOhJ+FYK7wN44dnJ6di8MnAs3yWmNtklO4m5RtEHKSGOLjUSqJJXECPzuiyEp",
 	"WT+0YzdOu9jtTWJL4nA4v9988gONZJZLAcJoOnygOVMsAwPKflveuxqpKOG3EOPlGHSkeG64FHRIxyJK",
 	"ixiIFOmcMP8YUaCL1Og+7VG4Z1meAh1OWaqhRzmu+laAmtMeFSwDOqTlOtqjOkogY26fKStSUy008xyf",
