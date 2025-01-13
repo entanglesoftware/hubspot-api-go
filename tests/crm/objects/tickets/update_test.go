@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"test/codegen/crm/objects/tickets"
-	"test/configuration"
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
 func TestUpdateTicket(t *testing.T) {

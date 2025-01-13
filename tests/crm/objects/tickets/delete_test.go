@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"test/configuration"
-	"test/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
 
 // TestDeleteTicketById fetches a page of tickets
