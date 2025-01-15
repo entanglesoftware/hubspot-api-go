@@ -4,7 +4,7 @@ search:
       description: |
         Queries the HubSpot CRM for contacts based on the `email` property.
         Returns contact details such as `firstname`, `lastname`, and `email`.
-      operationId: searchContactsByEmail
+      operationId: searchContacts
       tags:
         - Contacts
       parameters:
@@ -22,8 +22,8 @@ search:
             schema:
               type: object
               properties:
-                schema:
-                  $ref: "components.yaml#/components/schemas/Filters"
+                filterGroups:
+                  $ref: "components.yaml#/components/schemas/FilterGroups"
                 properties:
                   type: array
                   items:

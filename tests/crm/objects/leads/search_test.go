@@ -1,8 +1,10 @@
 package leads_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 	"testing"
 
@@ -34,28 +36,65 @@ func TestSearchLeads(t *testing.T) {
 
 	// Make the API call
 
-	jsonInput := `{
-		"filters": [
-			{
-				"propertyName": "hs_pipeline_stage",
-				"operator": "EQ",
-				"value": "connected-stage-id"
-			}
-		],
-		"limit": 10
-	}`
 	leadByEmailParam := leads.SearchLeadsParams{}
 
-	var body leads.SearchLeadsJSONRequestBody
+	propertyName := "hs_pipeline_stage"
+	operator := "EQ"
+	value := "new-stage-id"
+	limit := 10
 
-	if err := json.Unmarshal([]byte(jsonInput), &body); err != nil {
-		t.Fatalf("Error unmarshaling JSON: %v", err)
-		return
+	filters := []struct {
+		Operator     *string `json:"operator"`
+		PropertyName *string `json:"propertyName"`
+		Value        *string `json:"value"`
+	}{
+		{
+			Operator:     &operator,
+			PropertyName: &propertyName,
+			Value:        &value,
+		},
 	}
+
+	filterGroups := []struct {
+		Filters *[]struct {
+			Operator     *string `json:"operator"`
+			PropertyName *string `json:"propertyName"`
+			Value        *string `json:"value"`
+		} `json:"filters"`
+	}{
+		{
+			Filters: &filters,
+		},
+	}
+
+	body := struct {
+		Limit        *int `json:"limit"`
+		FilterGroups *[]struct {
+			Filters *[]struct {
+				Operator     *string `json:"operator"`
+				PropertyName *string `json:"propertyName"`
+				Value        *string `json:"value"`
+			} `json:"filters"`
+		} `json:"filterGroups"`
+	}{
+		Limit:        &limit,
+		FilterGroups: &filterGroups,
+	}
+
+	// Convert body to JSON
+	bodyJSON, err := json.Marshal(body)
+	if err != nil {
+		log.Fatalf("Error marshalling body: %v", err)
+	}
+
+	// Convert JSON to io.Reader
+	bodyReader := bytes.NewReader(bodyJSON)
+
+	contentType := "application/json"
 
 	ct := hsClient.Crm().Leads()
 
-	response, err := ct.SearchLeadsWithResponse(context.Background(), &leadByEmailParam, body)
+	response, err := ct.SearchLeadsWithBodyWithResponse(context.Background(), &leadByEmailParam, contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

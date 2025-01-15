@@ -1,8 +1,10 @@
 package deals_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 	"testing"
 
@@ -33,29 +35,65 @@ func TestSearchDeals(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Make the API call
-
-	jsonInput := `{
-		"filters": [
-			{
-				"propertyName": "dealname",
-				"operator": "EQ",
-				"value": "New Deal 1"
-			}
-		],
-		"limit": 2
-	}`
 	dealByEmailParam := deals.SearchDealsParams{}
 
-	var body deals.SearchDealsJSONRequestBody
+	propertyName := "dealname"
+	operator := "EQ"
+	value := "New Deal"
+	limit := 10
 
-	if err := json.Unmarshal([]byte(jsonInput), &body); err != nil {
-		t.Fatalf("Error unmarshaling JSON: %v", err)
-		return
+	filters := []struct {
+		Operator     *string `json:"operator"`
+		PropertyName *string `json:"propertyName"`
+		Value        *string `json:"value"`
+	}{
+		{
+			Operator:     &operator,
+			PropertyName: &propertyName,
+			Value:        &value,
+		},
 	}
+
+	filterGroups := []struct {
+		Filters *[]struct {
+			Operator     *string `json:"operator"`
+			PropertyName *string `json:"propertyName"`
+			Value        *string `json:"value"`
+		} `json:"filters"`
+	}{
+		{
+			Filters: &filters,
+		},
+	}
+
+	body := struct {
+		Limit        *int `json:"limit"`
+		FilterGroups *[]struct {
+			Filters *[]struct {
+				Operator     *string `json:"operator"`
+				PropertyName *string `json:"propertyName"`
+				Value        *string `json:"value"`
+			} `json:"filters"`
+		} `json:"filterGroups"`
+	}{
+		Limit:        &limit,
+		FilterGroups: &filterGroups,
+	}
+
+	// Convert body to JSON
+	bodyJSON, err := json.Marshal(body)
+	if err != nil {
+		log.Fatalf("Error marshalling body: %v", err)
+	}
+
+	// Convert JSON to io.Reader
+	bodyReader := bytes.NewReader(bodyJSON)
+
+	contentType := "application/json"
 
 	ct := hsClient.Crm().Deals()
 
-	response, err := ct.SearchDealsWithResponse(context.Background(), &dealByEmailParam, body)
+	response, err := ct.SearchDealsWithBodyWithResponse(context.Background(), &dealByEmailParam, contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

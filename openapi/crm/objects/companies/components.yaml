@@ -295,13 +295,8 @@ components:
       properties:
         after:
           type: integer
-        filterGroups:
-          description:
-            Use filters in the request body to limit the results to only CRM
-            objects with matching property values.
-          items:
-            $ref: "components.yaml#/components/schemas/Filters"
-          type: array
+        schema:
+          $ref: "components.yaml#/components/schemas/FilterGroups"
         limit:
           type: integer
         properties:
@@ -329,9 +324,36 @@ components:
         propertyName:
           type: string
       type: object
+    FilterGroups:
+      type: array
+      items:
+        type: object
+        properties:
+          Filters:
+            type: array
+            items:
+              $ref: "components.yaml#/components/schemas/Filter"
+
     Filter:
+      type: object
       properties:
+        highValue:
+          type: string
+          description: A high-value filter criterion.
+        propertyName:
+          type: string
+          description: The property name to filter by.
+        values:
+          type: array
+          items:
+            type: string
+          description: List of values to match for the property.
+        value:
+          type: string
+          description: A single value to match for the property.
         operator:
+          type: string
+          description: defines model for Filter.Operator
           enum:
             - EQ
             - NEQ
@@ -343,19 +365,6 @@ components:
             - NOT_HAS_PROPERTY
             - CONTAINS_TOKEN
             - NOT_CONTAINS_TOKEN
-          type: string
-        propertyName:
-          type: string
-        value:
-          type: string
-      type: object
-    Filters:
-      properties:
-        filters:
-          items:
-            $ref: "components.yaml#/components/schemas/Filter"
-          type: array
-      type: object
     CompaniesResponse:
       properties:
         paging:

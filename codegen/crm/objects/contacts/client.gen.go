@@ -108,10 +108,10 @@ type ClientInterface interface {
 
 	MergeContacts(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SearchContactsByEmailWithBody request with any body
-	SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SearchContactsWithBody request with any body
+	SearchContactsWithBody(ctx context.Context, params *SearchContactsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchContacts(ctx context.Context, params *SearchContactsParams, body SearchContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteContactById request
 	DeleteContactById(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -209,8 +209,8 @@ func (c *Client) MergeContacts(ctx context.Context, body MergeContactsJSONReques
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchContactsByEmailWithBody(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchContactsByEmailRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) SearchContactsWithBody(ctx context.Context, params *SearchContactsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchContactsRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -221,8 +221,8 @@ func (c *Client) SearchContactsByEmailWithBody(ctx context.Context, params *Sear
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchContactsByEmail(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchContactsByEmailRequest(c.Server, params, body)
+func (c *Client) SearchContacts(ctx context.Context, params *SearchContactsParams, body SearchContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchContactsRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -530,19 +530,19 @@ func NewMergeContactsRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
-// NewSearchContactsByEmailRequest calls the generic SearchContactsByEmail builder with application/json body
-func NewSearchContactsByEmailRequest(server string, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody) (*http.Request, error) {
+// NewSearchContactsRequest calls the generic SearchContacts builder with application/json body
+func NewSearchContactsRequest(server string, params *SearchContactsParams, body SearchContactsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchContactsByEmailRequestWithBody(server, params, "application/json", bodyReader)
+	return NewSearchContactsRequestWithBody(server, params, "application/json", bodyReader)
 }
 
-// NewSearchContactsByEmailRequestWithBody generates requests for SearchContactsByEmail with any type of body
-func NewSearchContactsByEmailRequestWithBody(server string, params *SearchContactsByEmailParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewSearchContactsRequestWithBody generates requests for SearchContacts with any type of body
+func NewSearchContactsRequestWithBody(server string, params *SearchContactsParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -818,10 +818,10 @@ type ClientWithResponsesInterface interface {
 
 	MergeContactsWithResponse(ctx context.Context, body MergeContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*MergeContactsResponse, error)
 
-	// SearchContactsByEmailWithBodyWithResponse request with any body
-	SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
+	// SearchContactsWithBodyWithResponse request with any body
+	SearchContactsWithBodyWithResponse(ctx context.Context, params *SearchContactsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsResponse, error)
 
-	SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error)
+	SearchContactsWithResponse(ctx context.Context, params *SearchContactsParams, body SearchContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsResponse, error)
 
 	// DeleteContactByIdWithResponse request
 	DeleteContactByIdWithResponse(ctx context.Context, contactId string, reqEditors ...RequestEditorFn) (*DeleteContactByIdResponse, error)
@@ -943,14 +943,14 @@ func (r MergeContactsResponse) StatusCode() int {
 	return 0
 }
 
-type SearchContactsByEmailResponse struct {
+type SearchContactsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *ContactsResponse
 }
 
 // Status returns HTTPResponse.Status
-func (r SearchContactsByEmailResponse) Status() string {
+func (r SearchContactsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -958,7 +958,7 @@ func (r SearchContactsByEmailResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r SearchContactsByEmailResponse) StatusCode() int {
+func (r SearchContactsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1111,21 +1111,21 @@ func (c *ClientWithResponses) MergeContactsWithResponse(ctx context.Context, bod
 	return ParseMergeContactsResponse(rsp)
 }
 
-// SearchContactsByEmailWithBodyWithResponse request with arbitrary body returning *SearchContactsByEmailResponse
-func (c *ClientWithResponses) SearchContactsByEmailWithBodyWithResponse(ctx context.Context, params *SearchContactsByEmailParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error) {
-	rsp, err := c.SearchContactsByEmailWithBody(ctx, params, contentType, body, reqEditors...)
+// SearchContactsWithBodyWithResponse request with arbitrary body returning *SearchContactsResponse
+func (c *ClientWithResponses) SearchContactsWithBodyWithResponse(ctx context.Context, params *SearchContactsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchContactsResponse, error) {
+	rsp, err := c.SearchContactsWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSearchContactsByEmailResponse(rsp)
+	return ParseSearchContactsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchContactsByEmailWithResponse(ctx context.Context, params *SearchContactsByEmailParams, body SearchContactsByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsByEmailResponse, error) {
-	rsp, err := c.SearchContactsByEmail(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) SearchContactsWithResponse(ctx context.Context, params *SearchContactsParams, body SearchContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchContactsResponse, error) {
+	rsp, err := c.SearchContacts(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSearchContactsByEmailResponse(rsp)
+	return ParseSearchContactsResponse(rsp)
 }
 
 // DeleteContactByIdWithResponse request returning *DeleteContactByIdResponse
@@ -1278,15 +1278,15 @@ func ParseMergeContactsResponse(rsp *http.Response) (*MergeContactsResponse, err
 	return response, nil
 }
 
-// ParseSearchContactsByEmailResponse parses an HTTP response from a SearchContactsByEmailWithResponse call
-func ParseSearchContactsByEmailResponse(rsp *http.Response) (*SearchContactsByEmailResponse, error) {
+// ParseSearchContactsResponse parses an HTTP response from a SearchContactsWithResponse call
+func ParseSearchContactsResponse(rsp *http.Response) (*SearchContactsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &SearchContactsByEmailResponse{
+	response := &SearchContactsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

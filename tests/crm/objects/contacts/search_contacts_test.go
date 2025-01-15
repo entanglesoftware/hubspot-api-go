@@ -1,17 +1,21 @@
 package contacts_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"os"
-	"test/hubspot"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 )
 
-func TestSearchContactsByEmail(t *testing.T) {
+func TestSearchContacts(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -33,28 +37,65 @@ func TestSearchContactsByEmail(t *testing.T) {
 
 	// Make the API call
 
-	jsonInput := `{
-		"filters": [
-			{
-				"propertyName": "email",
-				"operator": "EQ",
-				"value": "johndoe57hy@example.com"
-			}
-		],
-		"limit": 1
-	}`
-	contactByEmailParam := contacts.SearchContactsByEmailParams{}
+	propertyName := "lastname"
+	operator := "EQ"
+	value := "Doe"
+	limit := 10
 
-	var body contacts.SearchContactsByEmailJSONRequestBody
-
-	if err := json.Unmarshal([]byte(jsonInput), &body); err != nil {
-		t.Fatalf("Error unmarshaling JSON: %v", err)
-		return
+	filters := []struct {
+		Operator     *string `json:"operator"`
+		PropertyName *string `json:"propertyName"`
+		Value        *string `json:"value"`
+	}{
+		{
+			Operator:     &operator,
+			PropertyName: &propertyName,
+			Value:        &value,
+		},
 	}
+
+	filterGroups := []struct {
+		Filters *[]struct {
+			Operator     *string `json:"operator"`
+			PropertyName *string `json:"propertyName"`
+			Value        *string `json:"value"`
+		} `json:"filters"`
+	}{
+		{
+			Filters: &filters,
+		},
+	}
+
+	body := struct {
+		Limit        *int `json:"limit"`
+		FilterGroups *[]struct {
+			Filters *[]struct {
+				Operator     *string `json:"operator"`
+				PropertyName *string `json:"propertyName"`
+				Value        *string `json:"value"`
+			} `json:"filters"`
+		} `json:"filterGroups"`
+	}{
+		Limit:        &limit,
+		FilterGroups: &filterGroups,
+	}
+
+	// Convert body to JSON
+	bodyJSON, err := json.Marshal(body)
+	if err != nil {
+		log.Fatalf("Error marshalling body: %v", err)
+	}
+
+	// Convert JSON to io.Reader
+	bodyReader := bytes.NewReader(bodyJSON)
+
+	contactByEmailParam := contacts.SearchContactsParams{}
+
+	contentType := "application/json"
 
 	ct := hsClient.Crm().Contacts()
 
-	response, err := ct.SearchContactsByEmailWithResponse(context.Background(), &contactByEmailParam, body)
+	response, err := ct.SearchContactsWithBodyWithResponse(context.Background(), &contactByEmailParam, contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -70,6 +111,7 @@ func TestSearchContactsByEmail(t *testing.T) {
 	if result.Total == 0 {
 		t.Fatalf("Response contains no results")
 	}
+	t.Logf("%+v\n", result.Total)
 
 	if response.StatusCode() == 200 {
 		if response.JSON200 == nil || response.JSON200.Results == nil {

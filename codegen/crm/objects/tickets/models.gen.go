@@ -32,17 +32,28 @@ type AssociationResponse struct {
 
 // Filter defines model for Filter.
 type Filter struct {
-	Operator     *FilterOperator `json:"operator,omitempty"`
-	PropertyName *string         `json:"propertyName,omitempty"`
-	Value        *string         `json:"value,omitempty"`
+	// HighValue A high-value filter criterion.
+	HighValue *string `json:"highValue,omitempty"`
+
+	// Operator defines model for Filter.Operator
+	Operator *FilterOperator `json:"operator,omitempty"`
+
+	// PropertyName The property name to filter by.
+	PropertyName *string `json:"propertyName,omitempty"`
+
+	// Value A single value to match for the property.
+	Value *string `json:"value,omitempty"`
+
+	// Values List of values to match for the property.
+	Values *[]string `json:"values,omitempty"`
 }
 
-// FilterOperator defines model for Filter.Operator.
+// FilterOperator defines model for Filter.Operator
 type FilterOperator string
 
-// Filters defines model for Filters.
-type Filters struct {
-	Filters *[]Filter `json:"filters,omitempty"`
+// FilterGroups defines model for FilterGroups.
+type FilterGroups = []struct {
+	Filters *[]Filter `json:"Filters,omitempty"`
 }
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.

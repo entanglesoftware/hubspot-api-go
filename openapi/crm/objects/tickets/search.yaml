@@ -22,8 +22,8 @@ search:
             schema:
               type: object
               properties:
-                schema:
-                  $ref: "components.yaml#/components/schemas/Filters"
+                filterGroups:
+                  $ref: "components.yaml#/components/schemas/FilterGroups"
                 properties:
                   type: array
                   items:
