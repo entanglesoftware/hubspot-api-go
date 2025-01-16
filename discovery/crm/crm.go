@@ -13,6 +13,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
 )
 
@@ -111,4 +112,12 @@ func (d *CrmDiscovery) LineItems() *lineItems.ClientWithResponses {
 		client, _ := objects.NewLineItemsDiscovery(config)
 		return client.LineItems
 	}).(*lineItems.ClientWithResponses)
+}
+
+// SchemaItems retrieves the SchemaItemsDiscovery client.
+func (d *CrmDiscovery) SchemaItems() *schemas.ClientWithResponses {
+	return d.getClient("schemas", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewSchemaItemsDiscovery(config)
+		return client.Schemas
+	}).(*schemas.ClientWithResponses)
 }

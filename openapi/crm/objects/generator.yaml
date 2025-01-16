@@ -17,3 +17,5 @@ resources:
     enabled: true
   - name: lineItems
     enabled: true
+  - name: schemas
+    enabled: true

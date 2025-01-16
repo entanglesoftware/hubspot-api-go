@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Schema API
+  description: API for fetching schema from HubSpot
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.schemas.custom.read']
+paths:
+  /crm-object-schemas/v3/schemas:
+    get:
+      summary: Get CRM Object Schemas
+      description: Retrieve CRM object schemas from HubSpot, including archived schemas.
+      operationId: getObjectSchemas
+      parameters:
+        - name: archived
+          in: query
+          description: Whether to include archived schemas.
+          required: true
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      description: A CRM object schema.
+    post:
+      summary: Create a custom object schema
+      operationId: createCustomObjectSchema
+      tags:
+        - Object Schema
+      requestBody:
+        description: Payload to create a custom object schema
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "components.yaml#/components/schemas/SchemaRequestBody"
+                
+      responses:
+        '200':
+          description: Successfully created the custom object schema.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request due to invalid input.
+        '401':
+          description: Unauthorized access.
+        '500':
+          description: Internal server error.

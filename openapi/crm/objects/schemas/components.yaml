@@ -1,0 +1,152 @@
+components:
+  schemas:
+    SchemaRequestBody:
+      type: object
+      properties:
+        secondaryDisplayProperties:
+          type: array
+          items:
+            type: string
+          description: Secondary display properties for the custom object.
+        requiredProperties:
+          type: array
+          items:
+            type: string
+          description: Properties that are required for the custom object.
+        searchableProperties:
+          type: array
+          items:
+            type: string
+          description: Properties that are searchable for the custom object.
+        name:
+          type: string
+          description: Name of the custom object.
+        associatedObjects:
+          type: array
+          items:
+            type: string
+          description: Objects that can be associated with the custom object.
+        properties:
+          $ref: "components.yaml#/components/schemas/SchemaProperties"
+        labels:
+          schema:
+            $ref: "components.yaml#/components/schemas/SchemaLabels"
+        primaryDisplayProperty:
+          type: string
+          description: Primary display property of the custom object.
+        description:
+          type: string
+          description: Description of the custom object.
+      required:
+        - requiredProperties
+        - name
+        - associatedObjects
+        - properties
+        - labels
+        - primaryDisplayProperty
+    SchemaLabels:
+      type: object
+      properties:
+        plural:
+          type: string
+          description: Plural label of the custom object.
+        singular:
+          type: string
+          description: Singular label of the custom object.
+    SchemaProperties:
+      type: array
+      items:
+        type: object
+        properties:
+          hidden:
+            type: boolean
+            description: Whether the property is hidden.
+          optionSortStrategy:
+            type: string
+            description: Controls how the property options will be sorted in the HubSpot UI.
+          displayOrder:
+            type: integer
+            description: Display order of the property.
+          description:
+            type: string
+            description: Description of the property.
+          showCurrencySymbol:
+            type: boolean
+            description: Whether to show a currency symbol.
+          label:
+            type: string
+            description: Label of the property.
+          type:
+            type: string
+            description: Type of the property.
+          formField:
+            type: boolean
+            description: Indicates if the property is a form field.
+          groupName:
+            type: string
+            description: Group name of the property.
+          referencedObjectType:
+            type: string
+            description: Referenced object type for the property.
+          textDisplayHint:
+            type: string
+            description: Display hint for text fields.
+          name:
+            type: string
+            description: Name of the property.
+          options:
+            schema:
+              $ref: "components.yaml#/components/schemas/SchemaPropertiesOptions"
+          searchableInGlobalSearch:
+            type: boolean
+            description: Indicates if the property is searchable in global search.
+          numberDisplayHint:
+            type: string
+            description: Display hint for number fields.
+          hasUniqueValue:
+            type: boolean
+            description: Indicates if the property must have unique values.
+          fieldType:
+            type: string
+            description: Field type of the property.
+          isPrimaryDisplayLabel:
+            type: boolean
+            description: Indicates if this property is the primary display label.
+      required:
+        - label
+        - type
+        - name
+    SchemaPropertiesOptions:
+      type: array
+      items:
+        type: object
+        properties:
+          hidden:
+            type: boolean
+            description: Whether the option is hidden.
+          displayOrder:
+            type: integer
+            description: Display order of the option.
+          description:
+            type: string
+            description: Description of the option.
+          label:
+            type: string
+            description: Label of the option.
+          value:
+            type: string
+            description: Value of the option.
+      required:
+        - hidden
+        - displayOrder
+        - label
+        - value
+  securitySchemes:
+  oauth2:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://app.hubspot.com/oauth/authorize
+        tokenUrl: https://api.hubapi.com/oauth/v1/token
+        scopes:
+          crm.schemas.custom.read: Grants access to schemas
