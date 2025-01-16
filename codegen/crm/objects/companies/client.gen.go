@@ -99,9 +99,9 @@ type ClientInterface interface {
 	CreateCompany(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchCompanyWithBody request with any body
-	SearchCompanyWithBody(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchCompany(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchCompany(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteCompanyById request
 	DeleteCompanyById(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -151,8 +151,8 @@ func (c *Client) CreateCompany(ctx context.Context, body CreateCompanyJSONReques
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchCompanyWithBody(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchCompanyRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) SearchCompanyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchCompanyRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +163,8 @@ func (c *Client) SearchCompanyWithBody(ctx context.Context, params *SearchCompan
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchCompany(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchCompanyRequest(c.Server, params, body)
+func (c *Client) SearchCompany(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchCompanyRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -393,18 +393,18 @@ func NewCreateCompanyRequestWithBody(server string, contentType string, body io.
 }
 
 // NewSearchCompanyRequest calls the generic SearchCompany builder with application/json body
-func NewSearchCompanyRequest(server string, params *SearchCompanyParams, body SearchCompanyJSONRequestBody) (*http.Request, error) {
+func NewSearchCompanyRequest(server string, body SearchCompanyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchCompanyRequestWithBody(server, params, "application/json", bodyReader)
+	return NewSearchCompanyRequestWithBody(server, "application/json", bodyReader)
 }
 
 // NewSearchCompanyRequestWithBody generates requests for SearchCompany with any type of body
-func NewSearchCompanyRequestWithBody(server string, params *SearchCompanyParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchCompanyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -420,24 +420,6 @@ func NewSearchCompanyRequestWithBody(server string, params *SearchCompanyParams,
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -703,9 +685,9 @@ type ClientWithResponsesInterface interface {
 	CreateCompanyWithResponse(ctx context.Context, body CreateCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCompanyResponse, error)
 
 	// SearchCompanyWithBodyWithResponse request with any body
-	SearchCompanyWithBodyWithResponse(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+	SearchCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
 
-	SearchCompanyWithResponse(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
+	SearchCompanyWithResponse(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error)
 
 	// DeleteCompanyByIdWithResponse request
 	DeleteCompanyByIdWithResponse(ctx context.Context, companyId string, reqEditors ...RequestEditorFn) (*DeleteCompanyByIdResponse, error)
@@ -919,16 +901,16 @@ func (c *ClientWithResponses) CreateCompanyWithResponse(ctx context.Context, bod
 }
 
 // SearchCompanyWithBodyWithResponse request with arbitrary body returning *SearchCompanyResponse
-func (c *ClientWithResponses) SearchCompanyWithBodyWithResponse(ctx context.Context, params *SearchCompanyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
-	rsp, err := c.SearchCompanyWithBody(ctx, params, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchCompanyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
+	rsp, err := c.SearchCompanyWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchCompanyResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchCompanyWithResponse(ctx context.Context, params *SearchCompanyParams, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
-	rsp, err := c.SearchCompany(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) SearchCompanyWithResponse(ctx context.Context, body SearchCompanyJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchCompanyResponse, error) {
+	rsp, err := c.SearchCompany(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

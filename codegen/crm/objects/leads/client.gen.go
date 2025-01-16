@@ -99,9 +99,9 @@ type ClientInterface interface {
 	CreateLead(ctx context.Context, body CreateLeadJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchLeadsWithBody request with any body
-	SearchLeadsWithBody(ctx context.Context, params *SearchLeadsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchLeadsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchLeads(ctx context.Context, params *SearchLeadsParams, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchLeads(ctx context.Context, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteLeadById request
 	DeleteLeadById(ctx context.Context, leadId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -151,8 +151,8 @@ func (c *Client) CreateLead(ctx context.Context, body CreateLeadJSONRequestBody,
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchLeadsWithBody(ctx context.Context, params *SearchLeadsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchLeadsRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) SearchLeadsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchLeadsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +163,8 @@ func (c *Client) SearchLeadsWithBody(ctx context.Context, params *SearchLeadsPar
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchLeads(ctx context.Context, params *SearchLeadsParams, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchLeadsRequest(c.Server, params, body)
+func (c *Client) SearchLeads(ctx context.Context, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchLeadsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -393,18 +393,18 @@ func NewCreateLeadRequestWithBody(server string, contentType string, body io.Rea
 }
 
 // NewSearchLeadsRequest calls the generic SearchLeads builder with application/json body
-func NewSearchLeadsRequest(server string, params *SearchLeadsParams, body SearchLeadsJSONRequestBody) (*http.Request, error) {
+func NewSearchLeadsRequest(server string, body SearchLeadsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchLeadsRequestWithBody(server, params, "application/json", bodyReader)
+	return NewSearchLeadsRequestWithBody(server, "application/json", bodyReader)
 }
 
 // NewSearchLeadsRequestWithBody generates requests for SearchLeads with any type of body
-func NewSearchLeadsRequestWithBody(server string, params *SearchLeadsParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchLeadsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -420,24 +420,6 @@ func NewSearchLeadsRequestWithBody(server string, params *SearchLeadsParams, con
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -703,9 +685,9 @@ type ClientWithResponsesInterface interface {
 	CreateLeadWithResponse(ctx context.Context, body CreateLeadJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateLeadResponse, error)
 
 	// SearchLeadsWithBodyWithResponse request with any body
-	SearchLeadsWithBodyWithResponse(ctx context.Context, params *SearchLeadsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error)
+	SearchLeadsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error)
 
-	SearchLeadsWithResponse(ctx context.Context, params *SearchLeadsParams, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error)
+	SearchLeadsWithResponse(ctx context.Context, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error)
 
 	// DeleteLeadByIdWithResponse request
 	DeleteLeadByIdWithResponse(ctx context.Context, leadId string, reqEditors ...RequestEditorFn) (*DeleteLeadByIdResponse, error)
@@ -919,16 +901,16 @@ func (c *ClientWithResponses) CreateLeadWithResponse(ctx context.Context, body C
 }
 
 // SearchLeadsWithBodyWithResponse request with arbitrary body returning *SearchLeadsResponse
-func (c *ClientWithResponses) SearchLeadsWithBodyWithResponse(ctx context.Context, params *SearchLeadsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error) {
-	rsp, err := c.SearchLeadsWithBody(ctx, params, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchLeadsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error) {
+	rsp, err := c.SearchLeadsWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchLeadsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchLeadsWithResponse(ctx context.Context, params *SearchLeadsParams, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error) {
-	rsp, err := c.SearchLeads(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) SearchLeadsWithResponse(ctx context.Context, body SearchLeadsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchLeadsResponse, error) {
+	rsp, err := c.SearchLeads(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

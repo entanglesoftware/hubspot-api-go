@@ -8,7 +8,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -35,8 +34,6 @@ func TestSearchTickets(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Make the API call
-
-	ticketByEmailParam := tickets.SearchTicketsParams{}
 
 	propertyName := "subject"
 	operator := "EQ"
@@ -94,7 +91,7 @@ func TestSearchTickets(t *testing.T) {
 
 	ct := hsClient.Crm().Tickets()
 
-	response, err := ct.SearchTicketsWithBodyWithResponse(context.Background(), &ticketByEmailParam, contentType, bodyReader)
+	response, err := ct.SearchTicketsWithBodyWithResponse(context.Background(), contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

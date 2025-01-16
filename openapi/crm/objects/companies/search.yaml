@@ -7,14 +7,6 @@ search:
       operationId: searchCompany
       tags:
         - Company
-      parameters:
-        - name: hapikey
-          in: query
-          description: HubSpot API key
-          required: true
-          schema:
-            type: string
-            example: "YOUR_API_KEY"
       requestBody:
         required: true
         content:

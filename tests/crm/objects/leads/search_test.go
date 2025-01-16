@@ -8,7 +8,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -35,8 +34,6 @@ func TestSearchLeads(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Make the API call
-
-	leadByEmailParam := leads.SearchLeadsParams{}
 
 	propertyName := "hs_pipeline_stage"
 	operator := "EQ"
@@ -94,7 +91,7 @@ func TestSearchLeads(t *testing.T) {
 
 	ct := hsClient.Crm().Leads()
 
-	response, err := ct.SearchLeadsWithBodyWithResponse(context.Background(), &leadByEmailParam, contentType, bodyReader)
+	response, err := ct.SearchLeadsWithBodyWithResponse(context.Background(), contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

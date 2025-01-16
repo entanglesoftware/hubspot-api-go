@@ -99,9 +99,9 @@ type ClientInterface interface {
 	CreateTicket(ctx context.Context, body CreateTicketJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchTicketsWithBody request with any body
-	SearchTicketsWithBody(ctx context.Context, params *SearchTicketsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchTicketsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchTickets(ctx context.Context, params *SearchTicketsParams, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchTickets(ctx context.Context, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteTicketById request
 	DeleteTicketById(ctx context.Context, ticketId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -151,8 +151,8 @@ func (c *Client) CreateTicket(ctx context.Context, body CreateTicketJSONRequestB
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchTicketsWithBody(ctx context.Context, params *SearchTicketsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchTicketsRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) SearchTicketsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchTicketsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +163,8 @@ func (c *Client) SearchTicketsWithBody(ctx context.Context, params *SearchTicket
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchTickets(ctx context.Context, params *SearchTicketsParams, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchTicketsRequest(c.Server, params, body)
+func (c *Client) SearchTickets(ctx context.Context, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchTicketsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -393,18 +393,18 @@ func NewCreateTicketRequestWithBody(server string, contentType string, body io.R
 }
 
 // NewSearchTicketsRequest calls the generic SearchTickets builder with application/json body
-func NewSearchTicketsRequest(server string, params *SearchTicketsParams, body SearchTicketsJSONRequestBody) (*http.Request, error) {
+func NewSearchTicketsRequest(server string, body SearchTicketsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchTicketsRequestWithBody(server, params, "application/json", bodyReader)
+	return NewSearchTicketsRequestWithBody(server, "application/json", bodyReader)
 }
 
 // NewSearchTicketsRequestWithBody generates requests for SearchTickets with any type of body
-func NewSearchTicketsRequestWithBody(server string, params *SearchTicketsParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchTicketsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -420,24 +420,6 @@ func NewSearchTicketsRequestWithBody(server string, params *SearchTicketsParams,
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -703,9 +685,9 @@ type ClientWithResponsesInterface interface {
 	CreateTicketWithResponse(ctx context.Context, body CreateTicketJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTicketResponse, error)
 
 	// SearchTicketsWithBodyWithResponse request with any body
-	SearchTicketsWithBodyWithResponse(ctx context.Context, params *SearchTicketsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error)
+	SearchTicketsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error)
 
-	SearchTicketsWithResponse(ctx context.Context, params *SearchTicketsParams, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error)
+	SearchTicketsWithResponse(ctx context.Context, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error)
 
 	// DeleteTicketByIdWithResponse request
 	DeleteTicketByIdWithResponse(ctx context.Context, ticketId string, reqEditors ...RequestEditorFn) (*DeleteTicketByIdResponse, error)
@@ -919,16 +901,16 @@ func (c *ClientWithResponses) CreateTicketWithResponse(ctx context.Context, body
 }
 
 // SearchTicketsWithBodyWithResponse request with arbitrary body returning *SearchTicketsResponse
-func (c *ClientWithResponses) SearchTicketsWithBodyWithResponse(ctx context.Context, params *SearchTicketsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error) {
-	rsp, err := c.SearchTicketsWithBody(ctx, params, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchTicketsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error) {
+	rsp, err := c.SearchTicketsWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchTicketsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchTicketsWithResponse(ctx context.Context, params *SearchTicketsParams, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error) {
-	rsp, err := c.SearchTickets(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) SearchTicketsWithResponse(ctx context.Context, body SearchTicketsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchTicketsResponse, error) {
+	rsp, err := c.SearchTickets(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

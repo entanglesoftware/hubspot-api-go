@@ -99,9 +99,9 @@ type ClientInterface interface {
 	CreateDeal(ctx context.Context, body CreateDealJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchDealsWithBody request with any body
-	SearchDealsWithBody(ctx context.Context, params *SearchDealsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchDealsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchDeals(ctx context.Context, params *SearchDealsParams, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchDeals(ctx context.Context, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteDealById request
 	DeleteDealById(ctx context.Context, dealId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -151,8 +151,8 @@ func (c *Client) CreateDeal(ctx context.Context, body CreateDealJSONRequestBody,
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchDealsWithBody(ctx context.Context, params *SearchDealsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchDealsRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) SearchDealsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchDealsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +163,8 @@ func (c *Client) SearchDealsWithBody(ctx context.Context, params *SearchDealsPar
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchDeals(ctx context.Context, params *SearchDealsParams, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchDealsRequest(c.Server, params, body)
+func (c *Client) SearchDeals(ctx context.Context, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchDealsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -393,18 +393,18 @@ func NewCreateDealRequestWithBody(server string, contentType string, body io.Rea
 }
 
 // NewSearchDealsRequest calls the generic SearchDeals builder with application/json body
-func NewSearchDealsRequest(server string, params *SearchDealsParams, body SearchDealsJSONRequestBody) (*http.Request, error) {
+func NewSearchDealsRequest(server string, body SearchDealsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchDealsRequestWithBody(server, params, "application/json", bodyReader)
+	return NewSearchDealsRequestWithBody(server, "application/json", bodyReader)
 }
 
 // NewSearchDealsRequestWithBody generates requests for SearchDeals with any type of body
-func NewSearchDealsRequestWithBody(server string, params *SearchDealsParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchDealsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -420,24 +420,6 @@ func NewSearchDealsRequestWithBody(server string, params *SearchDealsParams, con
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "hapikey", runtime.ParamLocationQuery, params.Hapikey); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -703,9 +685,9 @@ type ClientWithResponsesInterface interface {
 	CreateDealWithResponse(ctx context.Context, body CreateDealJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDealResponse, error)
 
 	// SearchDealsWithBodyWithResponse request with any body
-	SearchDealsWithBodyWithResponse(ctx context.Context, params *SearchDealsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error)
+	SearchDealsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error)
 
-	SearchDealsWithResponse(ctx context.Context, params *SearchDealsParams, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error)
+	SearchDealsWithResponse(ctx context.Context, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error)
 
 	// DeleteDealByIdWithResponse request
 	DeleteDealByIdWithResponse(ctx context.Context, dealId string, reqEditors ...RequestEditorFn) (*DeleteDealByIdResponse, error)
@@ -919,16 +901,16 @@ func (c *ClientWithResponses) CreateDealWithResponse(ctx context.Context, body C
 }
 
 // SearchDealsWithBodyWithResponse request with arbitrary body returning *SearchDealsResponse
-func (c *ClientWithResponses) SearchDealsWithBodyWithResponse(ctx context.Context, params *SearchDealsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error) {
-	rsp, err := c.SearchDealsWithBody(ctx, params, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchDealsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error) {
+	rsp, err := c.SearchDealsWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchDealsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchDealsWithResponse(ctx context.Context, params *SearchDealsParams, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error) {
-	rsp, err := c.SearchDeals(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) SearchDealsWithResponse(ctx context.Context, body SearchDealsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchDealsResponse, error) {
+	rsp, err := c.SearchDeals(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
