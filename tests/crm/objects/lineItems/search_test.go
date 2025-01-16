@@ -1,4 +1,4 @@
-package contacts_test
+package lineItems_test
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
-func TestSearchContacts(t *testing.T) {
+func TestSearchLineItems(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -35,9 +35,9 @@ func TestSearchContacts(t *testing.T) {
 
 	// Make the API call
 
-	propertyName := "lastname"
+	propertyName := "hs_product_id"
 	operator := "EQ"
-	value := "Doe"
+	value := "18080770487"
 	limit := 10
 
 	filters := []struct {
@@ -89,9 +89,9 @@ func TestSearchContacts(t *testing.T) {
 
 	contentType := "application/json"
 
-	ct := hsClient.Crm().Contacts()
+	ct := hsClient.Crm().LineItems()
 
-	response, err := ct.SearchContactsWithBodyWithResponse(context.Background(), contentType, bodyReader)
+	response, err := ct.SearchLineItemsWithBodyWithResponse(context.Background(), contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -107,7 +107,6 @@ func TestSearchContacts(t *testing.T) {
 	if result.Total == 0 {
 		t.Fatalf("Response contains no results")
 	}
-	t.Logf("%+v\n", result.Total)
 
 	if response.StatusCode() == 200 {
 		if response.JSON200 == nil || response.JSON200.Results == nil {

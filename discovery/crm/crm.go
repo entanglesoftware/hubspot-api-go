@@ -11,6 +11,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
 )
@@ -102,4 +103,12 @@ func (d *CrmDiscovery) Leads() *leads.ClientWithResponses {
 		client, _ := objects.NewLeadsDiscovery(config)
 		return client.Leads
 	}).(*leads.ClientWithResponses)
+}
+
+// LineItems retrieves the LineItemsDiscovery client.
+func (d *CrmDiscovery) LineItems() *lineItems.ClientWithResponses {
+	return d.getClient("lineItems", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewLineItemsDiscovery(config)
+		return client.LineItems
+	}).(*lineItems.ClientWithResponses)
 }

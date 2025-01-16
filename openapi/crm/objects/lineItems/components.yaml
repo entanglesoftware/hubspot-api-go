@@ -1,0 +1,240 @@
+components:
+  schemas:
+    LineItemsResponse:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Paging"
+        results:
+          type: array
+          x-go-type-skip-optional-pointer: true
+          items:
+            $ref: "#/components/schemas/LineItemResponse"
+    
+    LineItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the lineItem.
+          x-go-type-skip-optional-pointer: true
+        createdAt:
+          type: string
+          format: date-time
+          description: When the lineItem was created.
+          x-go-type-skip-optional-pointer: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the lineItem was last updated.
+          x-go-type-skip-optional-pointer: true
+        archived:
+          type: boolean
+          description: Indicates if the lineItem is archived.
+          x-go-type-skip-optional-pointer: true
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the lineItem was archived.
+          x-go-type-skip-optional-pointer: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: A key-value map of the lineItem's properties.
+          x-go-type-skip-optional-pointer: true
+        propertiesWithHistory:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/PropertyHistory"
+          description: A map of the lineItem's properties including historical values.
+          x-go-type-skip-optional-pointer: true
+        associations:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ObjectAssociationsResponse"
+          description: A map of associated objects.
+          x-go-type-skip-optional-pointer: true
+    
+    Paging:
+      type: object
+      x-go-type-skip-optional-pointer: true
+      properties:
+        next:
+          $ref: "#/components/schemas/PagingNext"
+
+    PagingNext:
+      type: object
+      x-go-type-skip-optional-pointer: true
+      properties:
+        link:
+          type: string
+          description: The link for the next page of results.
+          x-go-type-skip-optional-pointer: true
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+          x-go-type-skip-optional-pointer: true
+    
+    ObjectAssociationsResponse:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Paging"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationResponse"
+
+    AssociationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the associated object.
+        type:
+          type: string
+          description: The type of association.
+    
+    PropertyHistory:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          description: The source ID of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceType:
+          type: string
+          description: The source type of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceLabel:
+          type: string
+          description: The source label for the historical property.
+          x-go-type-skip-optional-pointer: true
+        updatedByUserId:
+          type: integer
+          description: The user ID who updated the property.
+          x-go-type-skip-optional-pointer: true
+        value:
+          type: string
+          description: The historical value of the property.
+          x-go-type-skip-optional-pointer: true
+        timestamp:
+          type: string
+          format: date-time
+          description: When the property value was set.
+          x-go-type-skip-optional-pointer: true
+    FilterGroups:
+      type: array
+      items:
+        type: object
+        properties:
+          Filters:
+            type: array
+            items:
+              $ref: "components.yaml#/components/schemas/Filter"
+
+    Filter:
+      type: object
+      properties:
+        highValue:
+          type: string
+          description: A high-value filter criterion.
+        propertyName:
+          type: string
+          description: The property name to filter by.
+        values:
+          type: array
+          items:
+            type: string
+          description: List of values to match for the property.
+        value:
+          type: string
+          description: A single value to match for the property.
+        operator:
+          type: string
+          description: defines model for Filter.Operator
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+  parameters:
+    Properties:
+        name: properties
+        in: query
+        description: |
+          Comma-separated list of properties to include in the response.
+          If a specified property is not present, it will be ignored.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        examples:
+          defaultProperties:
+            summary: Example properties
+            value: ["lineItemname", "lineItemstage", "pipeline"]
+    PropertiesWithHistory:
+      name: propertiesWithHistory
+      in: query
+      description: |
+        Comma-separated list of properties to include with their historical values.
+        Historical data reduces the maximum number of objects returned per request.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultPropertiesWithHistory:
+          summary: Example properties with history
+          value: ["lineItemname", "lineItemstage","pipeline"]
+    Associations:
+      name: associations
+      in: query
+      description: |
+        Comma-separated list of object types to retrieve associated IDs for.
+        Nonexistent associations will be ignored.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultAssociations:
+          summary: Example associations
+          value: ["lineItems", "lineItems"]
+    Archived:
+      name: archived
+      in: query
+      description: Include only archived results.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+              crm.objects.line_items.read: Grants access to lineItems

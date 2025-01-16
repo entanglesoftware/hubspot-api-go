@@ -15,3 +15,5 @@ resources:
     enabled: true
   - name: leads
     enabled: true
+  - name: lineItems
+    enabled: true

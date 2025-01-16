@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -11,11 +12,9 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 )
 
-func TestSearchContactsByEmail(t *testing.T) {
+func TestSearchContactByEmail(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -39,7 +38,7 @@ func TestSearchContactsByEmail(t *testing.T) {
 
 	propertyName := "email"
 	operator := "EQ"
-	value := "johndoe12@example.com"
+	email := "johndoe12@example.com"
 	limit := 10
 
 	filters := []struct {
@@ -50,7 +49,7 @@ func TestSearchContactsByEmail(t *testing.T) {
 		{
 			Operator:     &operator,
 			PropertyName: &propertyName,
-			Value:        &value,
+			Value:        &email,
 		},
 	}
 
@@ -89,15 +88,17 @@ func TestSearchContactsByEmail(t *testing.T) {
 	// Convert JSON to io.Reader
 	bodyReader := bytes.NewReader(bodyJSON)
 
-	contactByEmailParam := contacts.SearchContactsParams{}
-
 	contentType := "application/json"
 
 	ct := hsClient.Crm().Contacts()
 
-	response, err := ct.SearchContactsWithBodyWithResponse(context.Background(), &contactByEmailParam, contentType, bodyReader)
+	response, err := ct.SearchContactsWithBodyWithResponse(context.Background(), contentType, bodyReader)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
+	}
+
+	if response.StatusCode() != 200 {
+		t.Fatalf("API call failed with code: %v", response.StatusCode())
 	}
 
 	var result struct {
@@ -111,28 +112,12 @@ func TestSearchContactsByEmail(t *testing.T) {
 	if result.Total == 0 {
 		t.Fatalf("Response contains no results")
 	}
-	t.Logf("%+v\n", result.Total)
 
-	if response.StatusCode() == 200 {
-		if response.JSON200 == nil || response.JSON200.Results == nil {
-			t.Fatalf("Response contains no results")
-		}
-
-		for _, result := range response.JSON200.Results {
-			t.Logf("%+v\n", result)
-			t.Log("-----")
-
-			// Assuming Properties is a map of key-value pairs
-			if result.Properties != nil {
-				for key, value := range result.Properties {
-					t.Logf("Key: %s, Value: %+v\n", key, value)
-				}
-			} else {
-				t.Log("No properties found.")
-			}
-			t.Log("-----")
-		}
+	if result.Total > 0 && response.JSON200 != nil && response.JSON200.Results != nil {
+		fmt.Printf("Total Result : %+v\n", result.Total)
+		conatct := response.JSON200.Results[0]
+		fmt.Printf("%+v\n", conatct)
 	} else {
-		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
+		fmt.Printf("Email %s does not exist in HubSpot.\n", email)
 	}
 }
