@@ -60,3 +60,153 @@ paths:
           description: Unauthorized access.
         '500':
           description: Internal server error.
+  /crm-object-schemas/v3/schemas/{objectType}:
+    get:
+      summary: Get CRM Object Schema
+      description: Retrieve the schema for a specific CRM object type.
+      operationId: getExistingObjectSchema
+      parameters:
+        - name: objectType
+          in: path
+          description: The type of the object (e.g., `contact`, `company`, etc.).
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved the CRM object schema.
+          content:
+                application/json:
+                  schema:
+                    type: object
+    patch:
+      summary: Update a CRM object schema
+      description: Update the schema of a CRM object in HubSpot.
+      operationId: updateSchema
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of the object to update.
+          schema:
+            type: string
+      requestBody:
+        description: Payload to update a custom object schema
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                secondaryDisplayProperties:
+                  type: array
+                  items:
+                    type: string
+                requiredProperties:
+                  type: array
+                  items:
+                    type: string
+                searchableProperties:
+                  type: array
+                  items:
+                    type: string
+                clearDescription:
+                  type: boolean
+                primaryDisplayProperty:
+                  type: string
+                description:
+                  type: string
+                restorable:
+                  type: boolean
+                labels:
+                  type: object
+                  properties:
+                    plural:
+                      type: string
+                      description: Plural label of the custom object.
+                    singular:
+                      type: string
+                      description: Singular label of the custom object.
+      responses:
+        '200':
+          description: Successfully created the custom object schema.
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      summary: Delete CRM Object Schema
+      description: Deletes a CRM object schema by its objectType.
+      operationId: deleteSchema
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of the object schema to delete.
+          schema:
+            type: string
+        - name: archived
+          in: query
+          required: false
+          description: Whether the object schema is archived.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: No Content. The product was successfully deleted.
+  /crm-object-schemas/v3/schemas/{objectType}/associations:
+    post:
+      summary: Create association between object schemas
+      operationId: createAssociation
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of object schema to associate with.
+          schema:
+            type: string
+      requestBody:
+        description: Association data to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromObjectTypeId:
+                  type: string
+                  example: "2-123456"
+                name:
+                  type: string
+                  example: "my_object_to_contact"
+                toObjectTypeId:
+                  type: string
+                  example: "contact"
+              required:
+                - fromObjectTypeId
+                - toObjectTypeId
+      responses:
+        '201':
+          description: Association successfully created.
+  /crm-object-schemas/v3/schemas/{objectType}/associations/{associationIdentifier}:
+    delete:
+      summary: Delete an association in HubSpot CRM schema
+      description: Delete the association by object type and association identifier.
+      operationId: deleteAssociation
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of object (e.g., "contacts", "deals")
+          schema:
+            type: string
+        - name: associationIdentifier
+          in: path
+          required: true
+          description: The identifier for the association to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted the association

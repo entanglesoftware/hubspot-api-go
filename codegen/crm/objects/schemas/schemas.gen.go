@@ -28,8 +28,45 @@ type GetObjectSchemasParams struct {
 	Archived bool `form:"archived" json:"archived"`
 }
 
+// DeleteSchemaParams defines parameters for DeleteSchema.
+type DeleteSchemaParams struct {
+	// Archived Whether the object schema is archived.
+	Archived *bool `form:"archived,omitempty" json:"archived,omitempty"`
+}
+
+// UpdateSchemaJSONBody defines parameters for UpdateSchema.
+type UpdateSchemaJSONBody struct {
+	ClearDescription *bool   `json:"clearDescription,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	Labels           *struct {
+		// Plural Plural label of the custom object.
+		Plural *string `json:"plural,omitempty"`
+
+		// Singular Singular label of the custom object.
+		Singular *string `json:"singular,omitempty"`
+	} `json:"labels,omitempty"`
+	PrimaryDisplayProperty     *string   `json:"primaryDisplayProperty,omitempty"`
+	RequiredProperties         *[]string `json:"requiredProperties,omitempty"`
+	Restorable                 *bool     `json:"restorable,omitempty"`
+	SearchableProperties       *[]string `json:"searchableProperties,omitempty"`
+	SecondaryDisplayProperties *[]string `json:"secondaryDisplayProperties,omitempty"`
+}
+
+// CreateAssociationJSONBody defines parameters for CreateAssociation.
+type CreateAssociationJSONBody struct {
+	FromObjectTypeId string  `json:"fromObjectTypeId"`
+	Name             *string `json:"name,omitempty"`
+	ToObjectTypeId   string  `json:"toObjectTypeId"`
+}
+
 // CreateCustomObjectSchemaJSONRequestBody defines body for CreateCustomObjectSchema for application/json ContentType.
 type CreateCustomObjectSchemaJSONRequestBody = SchemaRequestBody
+
+// UpdateSchemaJSONRequestBody defines body for UpdateSchema for application/json ContentType.
+type UpdateSchemaJSONRequestBody UpdateSchemaJSONBody
+
+// CreateAssociationJSONRequestBody defines body for CreateAssociation for application/json ContentType.
+type CreateAssociationJSONRequestBody CreateAssociationJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -39,6 +76,21 @@ type ServerInterface interface {
 	// Create a custom object schema
 	// (POST /crm-object-schemas/v3/schemas)
 	CreateCustomObjectSchema(ctx echo.Context) error
+	// Delete CRM Object Schema
+	// (DELETE /crm-object-schemas/v3/schemas/{objectType})
+	DeleteSchema(ctx echo.Context, objectType string, params DeleteSchemaParams) error
+	// Get CRM Object Schema
+	// (GET /crm-object-schemas/v3/schemas/{objectType})
+	GetExistingObjectSchema(ctx echo.Context, objectType string) error
+	// Update a CRM object schema
+	// (PATCH /crm-object-schemas/v3/schemas/{objectType})
+	UpdateSchema(ctx echo.Context, objectType string) error
+	// Create association between object schemas
+	// (POST /crm-object-schemas/v3/schemas/{objectType}/associations)
+	CreateAssociation(ctx echo.Context, objectType string) error
+	// Delete an association in HubSpot CRM schema
+	// (DELETE /crm-object-schemas/v3/schemas/{objectType}/associations/{associationIdentifier})
+	DeleteAssociation(ctx echo.Context, objectType string, associationIdentifier string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -77,6 +129,113 @@ func (w *ServerInterfaceWrapper) CreateCustomObjectSchema(ctx echo.Context) erro
 	return err
 }
 
+// DeleteSchema converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteSchema(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.schemas.custom.read"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteSchemaParams
+	// ------------- Optional query parameter "archived" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "archived", ctx.QueryParams(), &params.Archived)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter archived: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteSchema(ctx, objectType, params)
+	return err
+}
+
+// GetExistingObjectSchema converts echo context to params.
+func (w *ServerInterfaceWrapper) GetExistingObjectSchema(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.schemas.custom.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetExistingObjectSchema(ctx, objectType)
+	return err
+}
+
+// UpdateSchema converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateSchema(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.schemas.custom.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateSchema(ctx, objectType)
+	return err
+}
+
+// CreateAssociation converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateAssociation(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.schemas.custom.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateAssociation(ctx, objectType)
+	return err
+}
+
+// DeleteAssociation converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteAssociation(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	// ------------- Path parameter "associationIdentifier" -------------
+	var associationIdentifier string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "associationIdentifier", ctx.Param("associationIdentifier"), &associationIdentifier, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter associationIdentifier: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.schemas.custom.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteAssociation(ctx, objectType, associationIdentifier)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -107,32 +266,46 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/crm-object-schemas/v3/schemas", wrapper.GetObjectSchemas)
 	router.POST(baseURL+"/crm-object-schemas/v3/schemas", wrapper.CreateCustomObjectSchema)
+	router.DELETE(baseURL+"/crm-object-schemas/v3/schemas/:objectType", wrapper.DeleteSchema)
+	router.GET(baseURL+"/crm-object-schemas/v3/schemas/:objectType", wrapper.GetExistingObjectSchema)
+	router.PATCH(baseURL+"/crm-object-schemas/v3/schemas/:objectType", wrapper.UpdateSchema)
+	router.POST(baseURL+"/crm-object-schemas/v3/schemas/:objectType/associations", wrapper.CreateAssociation)
+	router.DELETE(baseURL+"/crm-object-schemas/v3/schemas/:objectType/associations/:associationIdentifier", wrapper.DeleteAssociation)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/6xXUW/bNhD+KwS3R9fO2u3Fb62HtQa61oib7SEwBlo6WywoUjmSTrXA/304UrIli3Fs",
-	"ZE9RSN53H+++u6OfeGbKymjQzvLpE7dZAaUIn8eNf5ZhdYGmAnQSwrZ0UIaPqrecg81QVk4aPfiX/378",
-	"j5kNcwWwxroe8xF3dQV8yq1Dqbd8P+K5tJUS9VfMARNocZcZ2j6DJ7WDLSABbiSo/FtYPkX7g7YYmVxE",
-	"bWOwDCZDpLnOZSYcWCb7QExaJhhZskCkA7w2RoHQhLxF46svokxw/EhbTIvyMo6FsHdaPnj4SygP1xAt",
-	"vXWsEDtgPgCwHSHYNOFC5jkksv13Aa4AHIQgnk9jSbtAWQqsm+R+FmtQLzKXtucgOgwwrJEQUwSU9qnS",
-	"PoLri+Ksk8n6cmmatC/XgM2FP0ntnpd6IbUjAbFoE2Vkk6gm2C4NuqVD4WBbD2FnRjs0yrLCPPbTFK0t",
-	"e5RKsTUwa9BBzqQOxz759bIyjt3Nz7ju9BP6+hlhw6edrjKuRal+mhwXJk3zmZy2m68N3n4/4ggbQNAZ",
-	"5F/X3yFz6WK+PZxiJhyLhU2RezEdFgRmhVgrmOuPyqyFWoaVKwv9CENR2wagZjEtQ1uYx5lHol0v63Jt",
-	"1JmSMoyOM8GyxoLZYJKGdvDDXacvsjinLpcM+7fLuufBnsfk8JDXBy8Rcj69bwqyOdSU1+pgIxBFTSaD",
-	"AXULDx6s+2DyejiYhLUmk8K1whlOK95sMFcIxzKhSfhHM/YoXRGulnnrTNkoi+53mIXPxOnI+drxOHA1",
-	"8BCC9dpa+xxB9hc1s5c5Vb0e3hRyov8sTpr0sf1c7qmb4+beyYuee8509Ld4/jXDj3tRIgKBtXaH3vIK",
-	"cRxbxrUsOs3mf+GRGZ0PEphks2zPniaR+L2ay0ljSCSpEewoUd89dRwK5Vl1rgZdidxLvTHDW79fzMPl",
-	"NuCyQuotiypjGzRlOx1JrtIpAmznZRQee7+Y8xHfAdqItnsXpyZoUUk+5e/GN+MbIipcEaI0ybB8E1m9",
-	"afW8ezfpPNa34FJT0KGEHbDZ7Z/tHGxsekxHTOpM+ZwuQjqSO8jbg5QtCpAgzHlOj1BwMcLLxj0RRVGC",
-	"A7R8en9mZkU3kHQi6eyDB6zbnJIK4jnelYFDD6NOs4MfoqwozHHjdPrtV2RsK6Nt1O/bm5v480Y7iLNQ",
-	"VJWiQS6Nnny3sTMf8fstBsF65fq/gE60MQx3p3UdJ95A6Qn1ndSazzKwduMVa28UDK0vSdAxN8F7TBBr",
-	"M0SN0thw134uZwjCwSyUZzepTcA7w/TicF3Vg7sTO3HhhaiVETlJJwtMw4On00ua+A70sX9lzq9Ihaob",
-	"bvmw1R3Svx/xXyOFPswHkbMm0Cz3EGtkJ5Skp3blXWP5y9DyTgvvCoPyX8iZCGTC4d9SbubaAerw/sQd",
-	"IANEg+MT7cxeiLATWypv3tMWX4XgWMg8Shrx90/cELO3dDTDctyWeEQdI4icr6goI5fYMTwqPuWFc5Wd",
-	"TiaikuPCr+lPZsoJ36/2/wUAAP//b47Q2qgQAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

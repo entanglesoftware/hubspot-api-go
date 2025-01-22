@@ -96,6 +96,25 @@ type ClientInterface interface {
 	CreateCustomObjectSchemaWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateCustomObjectSchema(ctx context.Context, body CreateCustomObjectSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteSchema request
+	DeleteSchema(ctx context.Context, objectType string, params *DeleteSchemaParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetExistingObjectSchema request
+	GetExistingObjectSchema(ctx context.Context, objectType string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateSchemaWithBody request with any body
+	UpdateSchemaWithBody(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateSchema(ctx context.Context, objectType string, body UpdateSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAssociationWithBody request with any body
+	CreateAssociationWithBody(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAssociation(ctx context.Context, objectType string, body CreateAssociationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAssociation request
+	DeleteAssociation(ctx context.Context, objectType string, associationIdentifier string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetObjectSchemas(ctx context.Context, params *GetObjectSchemasParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -124,6 +143,90 @@ func (c *Client) CreateCustomObjectSchemaWithBody(ctx context.Context, contentTy
 
 func (c *Client) CreateCustomObjectSchema(ctx context.Context, body CreateCustomObjectSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateCustomObjectSchemaRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteSchema(ctx context.Context, objectType string, params *DeleteSchemaParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteSchemaRequest(c.Server, objectType, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetExistingObjectSchema(ctx context.Context, objectType string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetExistingObjectSchemaRequest(c.Server, objectType)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateSchemaWithBody(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSchemaRequestWithBody(c.Server, objectType, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateSchema(ctx context.Context, objectType string, body UpdateSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSchemaRequest(c.Server, objectType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAssociationWithBody(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAssociationRequestWithBody(c.Server, objectType, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAssociation(ctx context.Context, objectType string, body CreateAssociationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAssociationRequest(c.Server, objectType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAssociation(ctx context.Context, objectType string, associationIdentifier string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAssociationRequest(c.Server, objectType, associationIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +322,231 @@ func NewCreateCustomObjectSchemaRequestWithBody(server string, contentType strin
 	return req, nil
 }
 
+// NewDeleteSchemaRequest generates requests for DeleteSchema
+func NewDeleteSchemaRequest(server string, objectType string, params *DeleteSchemaParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm-object-schemas/v3/schemas/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Archived != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "archived", runtime.ParamLocationQuery, *params.Archived); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetExistingObjectSchemaRequest generates requests for GetExistingObjectSchema
+func NewGetExistingObjectSchemaRequest(server string, objectType string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm-object-schemas/v3/schemas/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateSchemaRequest calls the generic UpdateSchema builder with application/json body
+func NewUpdateSchemaRequest(server string, objectType string, body UpdateSchemaJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateSchemaRequestWithBody(server, objectType, "application/json", bodyReader)
+}
+
+// NewUpdateSchemaRequestWithBody generates requests for UpdateSchema with any type of body
+func NewUpdateSchemaRequestWithBody(server string, objectType string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm-object-schemas/v3/schemas/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateAssociationRequest calls the generic CreateAssociation builder with application/json body
+func NewCreateAssociationRequest(server string, objectType string, body CreateAssociationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAssociationRequestWithBody(server, objectType, "application/json", bodyReader)
+}
+
+// NewCreateAssociationRequestWithBody generates requests for CreateAssociation with any type of body
+func NewCreateAssociationRequestWithBody(server string, objectType string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm-object-schemas/v3/schemas/%s/associations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteAssociationRequest generates requests for DeleteAssociation
+func NewDeleteAssociationRequest(server string, objectType string, associationIdentifier string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "associationIdentifier", runtime.ParamLocationPath, associationIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm-object-schemas/v3/schemas/%s/associations/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -269,6 +597,25 @@ type ClientWithResponsesInterface interface {
 	CreateCustomObjectSchemaWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCustomObjectSchemaResponse, error)
 
 	CreateCustomObjectSchemaWithResponse(ctx context.Context, body CreateCustomObjectSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCustomObjectSchemaResponse, error)
+
+	// DeleteSchemaWithResponse request
+	DeleteSchemaWithResponse(ctx context.Context, objectType string, params *DeleteSchemaParams, reqEditors ...RequestEditorFn) (*DeleteSchemaResponse, error)
+
+	// GetExistingObjectSchemaWithResponse request
+	GetExistingObjectSchemaWithResponse(ctx context.Context, objectType string, reqEditors ...RequestEditorFn) (*GetExistingObjectSchemaResponse, error)
+
+	// UpdateSchemaWithBodyWithResponse request with any body
+	UpdateSchemaWithBodyWithResponse(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSchemaResponse, error)
+
+	UpdateSchemaWithResponse(ctx context.Context, objectType string, body UpdateSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSchemaResponse, error)
+
+	// CreateAssociationWithBodyWithResponse request with any body
+	CreateAssociationWithBodyWithResponse(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAssociationResponse, error)
+
+	CreateAssociationWithResponse(ctx context.Context, objectType string, body CreateAssociationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAssociationResponse, error)
+
+	// DeleteAssociationWithResponse request
+	DeleteAssociationWithResponse(ctx context.Context, objectType string, associationIdentifier string, reqEditors ...RequestEditorFn) (*DeleteAssociationResponse, error)
 }
 
 type GetObjectSchemasResponse struct {
@@ -317,6 +664,113 @@ func (r CreateCustomObjectSchemaResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteSchemaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteSchemaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteSchemaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetExistingObjectSchemaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetExistingObjectSchemaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetExistingObjectSchemaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateSchemaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateSchemaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateSchemaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateAssociationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAssociationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAssociationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteAssociationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAssociationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAssociationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetObjectSchemasWithResponse request returning *GetObjectSchemasResponse
 func (c *ClientWithResponses) GetObjectSchemasWithResponse(ctx context.Context, params *GetObjectSchemasParams, reqEditors ...RequestEditorFn) (*GetObjectSchemasResponse, error) {
 	rsp, err := c.GetObjectSchemas(ctx, params, reqEditors...)
@@ -341,6 +795,67 @@ func (c *ClientWithResponses) CreateCustomObjectSchemaWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseCreateCustomObjectSchemaResponse(rsp)
+}
+
+// DeleteSchemaWithResponse request returning *DeleteSchemaResponse
+func (c *ClientWithResponses) DeleteSchemaWithResponse(ctx context.Context, objectType string, params *DeleteSchemaParams, reqEditors ...RequestEditorFn) (*DeleteSchemaResponse, error) {
+	rsp, err := c.DeleteSchema(ctx, objectType, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteSchemaResponse(rsp)
+}
+
+// GetExistingObjectSchemaWithResponse request returning *GetExistingObjectSchemaResponse
+func (c *ClientWithResponses) GetExistingObjectSchemaWithResponse(ctx context.Context, objectType string, reqEditors ...RequestEditorFn) (*GetExistingObjectSchemaResponse, error) {
+	rsp, err := c.GetExistingObjectSchema(ctx, objectType, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetExistingObjectSchemaResponse(rsp)
+}
+
+// UpdateSchemaWithBodyWithResponse request with arbitrary body returning *UpdateSchemaResponse
+func (c *ClientWithResponses) UpdateSchemaWithBodyWithResponse(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSchemaResponse, error) {
+	rsp, err := c.UpdateSchemaWithBody(ctx, objectType, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateSchemaResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateSchemaWithResponse(ctx context.Context, objectType string, body UpdateSchemaJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSchemaResponse, error) {
+	rsp, err := c.UpdateSchema(ctx, objectType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateSchemaResponse(rsp)
+}
+
+// CreateAssociationWithBodyWithResponse request with arbitrary body returning *CreateAssociationResponse
+func (c *ClientWithResponses) CreateAssociationWithBodyWithResponse(ctx context.Context, objectType string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAssociationResponse, error) {
+	rsp, err := c.CreateAssociationWithBody(ctx, objectType, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAssociationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAssociationWithResponse(ctx context.Context, objectType string, body CreateAssociationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAssociationResponse, error) {
+	rsp, err := c.CreateAssociation(ctx, objectType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAssociationResponse(rsp)
+}
+
+// DeleteAssociationWithResponse request returning *DeleteAssociationResponse
+func (c *ClientWithResponses) DeleteAssociationWithResponse(ctx context.Context, objectType string, associationIdentifier string, reqEditors ...RequestEditorFn) (*DeleteAssociationResponse, error) {
+	rsp, err := c.DeleteAssociation(ctx, objectType, associationIdentifier, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAssociationResponse(rsp)
 }
 
 // ParseGetObjectSchemasResponse parses an HTTP response from a GetObjectSchemasWithResponse call
@@ -392,6 +907,106 @@ func ParseCreateCustomObjectSchemaResponse(rsp *http.Response) (*CreateCustomObj
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseDeleteSchemaResponse parses an HTTP response from a DeleteSchemaWithResponse call
+func ParseDeleteSchemaResponse(rsp *http.Response) (*DeleteSchemaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteSchemaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetExistingObjectSchemaResponse parses an HTTP response from a GetExistingObjectSchemaWithResponse call
+func ParseGetExistingObjectSchemaResponse(rsp *http.Response) (*GetExistingObjectSchemaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetExistingObjectSchemaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateSchemaResponse parses an HTTP response from a UpdateSchemaWithResponse call
+func ParseUpdateSchemaResponse(rsp *http.Response) (*UpdateSchemaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateSchemaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAssociationResponse parses an HTTP response from a CreateAssociationWithResponse call
+func ParseCreateAssociationResponse(rsp *http.Response) (*CreateAssociationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAssociationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAssociationResponse parses an HTTP response from a DeleteAssociationWithResponse call
+func ParseDeleteAssociationResponse(rsp *http.Response) (*DeleteAssociationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAssociationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

@@ -1,4 +1,4 @@
-package deals_test
+package schemas_test
 
 import (
 	"bytes"
@@ -12,6 +12,90 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
+
+func TestGetSchemas(t *testing.T) {
+	// Fetch the access token from the environment
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
+
+	// Initialize the configuration
+	config := configuration.Configuration{
+		AccessToken:            token,
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+
+	hsClient := hubspot.NewClient(config)
+
+	// Make the API call
+	ticketParams := schemas.GetObjectSchemasParams{}
+
+	ct := hsClient.Crm().SchemaItems()
+
+	response, err := ct.GetObjectSchemasWithResponse(context.Background(), &ticketParams)
+	if err != nil {
+		t.Fatalf("API call failed: %v", err)
+	}
+
+	if response.StatusCode() == 200 {
+		if response.JSON200 == nil || response.JSON200.Results == nil {
+			t.Fatalf("Response contains no results")
+		}
+
+		for _, result := range *response.JSON200.Results {
+			t.Log("-----\n")
+			t.Logf("%+v\n", result)
+			t.Log("-----\n")
+		}
+	} else {
+		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
+	}
+}
+
+func TestGetExistingObjectSchema(t *testing.T) {
+	// Fetch the access token from the environment
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
+
+	// Initialize the configuration
+	config := configuration.Configuration{
+		AccessToken:            token,
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+
+	hsClient := hubspot.NewClient(config)
+
+	// Make the API call
+	objectType := "contacts"
+
+	ct := hsClient.Crm().SchemaItems()
+
+	response, err := ct.GetExistingObjectSchemaWithResponse(context.Background(), objectType)
+	if err != nil {
+		t.Fatalf("API call failed: %v", err)
+	}
+
+	if response.StatusCode() == 200 {
+		if response.JSON200 == nil {
+			t.Fatalf("Response contains no results")
+		}
+
+		for _, result := range *response.JSON200 {
+			t.Log("-----\n")
+			t.Logf("%+v\n", result)
+			t.Log("-----\n")
+		}
+	} else {
+		t.Fatalf("Test Failed with status code %d: %v", response.StatusCode(), response)
+	}
+}
 
 // TestCreateSchema tests the creation of a schema in HubSpot CRM
 func TestCreateSchema(t *testing.T) {
