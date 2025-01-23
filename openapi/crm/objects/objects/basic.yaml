@@ -1,0 +1,304 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Objects API
+  description: API for fetching objects from HubSpot
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['objects']
+paths:
+  /crm/v3/objects/{objectType}:
+    get:
+      summary: Get CRM Objects
+      description: Retrieve CRM objects from HubSpot with optional query parameters.
+      operationId: getObjects
+      parameters:
+        - name: objectType
+          in: path
+          description: The type of the object (e.g., `contact`, `company`, etc.).
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Number of objects to retrieve.
+        - name: archived
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Include archived objects.
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: Create an object in HubSpot CRM
+      description: Creates an object (such as a lead) in HubSpot CRM with associations and properties.
+      operationId: createObject
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of the object being created (e.g., "leads", "contacts").
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of lead properties.
+                  additionalProperties:
+                    type: string
+                associations:
+                  type: array
+                  description: List of associations for the lead.
+                  items:
+                    type: object
+                    properties:
+                      types:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            associationCategory:
+                              type: string
+                              description: Category of the association.
+                              enum:
+                                - Search
+                                - HUBSPOT_DEFINED
+                                - USER_DEFINED
+                                - INTEGRATOR_DEFINED
+                            associationTypeId:
+                              type: integer
+                              format: int32
+                              description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ObjectResponse"
+  /crm/v3/objects/{objectType}/{objectId}:
+    get:
+      summary: Retrieve object details with associations and properties
+      description: Read an Object identified by objectType and objectId with optional query parameters.
+      operationId: getObjectByTypeAndId
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: Type of the object (e.g., deals, contacts).
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          description: Unique ID of the object.
+          schema:
+            type: string
+        - name: propertiesWithHistory
+          in: query
+          required: false
+          description: Properties to fetch with history.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: associations
+          in: query
+          required: false
+          description: Associations to include in the response.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: archived
+          in: query
+          required: false
+          description: Whether to include archived objects.
+          schema:
+            type: boolean
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to use for ID lookups.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ObjectResponse"
+    patch:
+      summary: Update a CRM object
+      operationId: updateObject
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of object to update (e.g., "contacts").
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          description: The ID of the object to update.
+          schema:
+            type: string
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to identify the object (e.g., "email").
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
+                properties:
+                  type: object
+                  description: Key-value pairs representing the deal properties to update.
+                  additionalProperties:
+                    type: string
+                    description: Value of the property to update.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the object.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the updated object.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the updated object.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the object was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the object was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the object was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the object's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+    delete:
+      summary: Delete an object by objectType and objectId
+      description: Delete a specific CRM object using its type and ID.
+      operationId: deleteObject
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of the object (e.g., "contacts", "deals").
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          description: The ID of the object to delete.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Object successfully deleted
+  /crm/v3/objects/{objectType}/search:
+    post:
+      summary: Search HubSpot CRM objects
+      description: Search for CRM objects based on specified filters and query parameters.
+      operationId: searchObjects
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of object to search for.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filterGroups:
+                  $ref: "components.yaml#/components/schemas/FilterGroups"
+                properties:
+                  type: array
+                  items:
+                    type: string
+                limit:
+                  type: integer
+                  example: 1
+                query:
+                  type: string
+                after:
+                  type: string
+                sorts:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Lead object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/ObjectsResponse"
+          
+              

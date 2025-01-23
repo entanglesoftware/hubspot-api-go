@@ -19,3 +19,5 @@ resources:
     enabled: true
   - name: schemas
     enabled: true
+  - name: objects
+    enabled: true
