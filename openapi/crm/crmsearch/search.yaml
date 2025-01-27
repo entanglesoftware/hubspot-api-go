@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: HubSpot CRM Search API
+  description: API for searching CRM objects in HubSpot
+  version: 1.0.0
+
+servers:
+  - url: https://api.hubapi.com
+    description: HubSpot API server
+
+paths:
+  /crm/v3/objects/{objectType}/search:
+    post:
+      operationId: crmSearch
+      summary: Search CRM objects
+      description: Use this endpoint to search for HubSpot CRM objects (e.g., contacts, companies, deals).
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of object to search (e.g., `contacts`, `companies`, `deals`).
+          schema:
+            type: string
+            enum:
+              - contacts
+              - companies
+      requestBody:
+        description: Search criteria for filtering CRM objects.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
+      responses:
+        '200':
+          description: A list of matching CRM objects.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        '400':
+          description: Bad request.
+        '401':
+          description: Unauthorized - Invalid or missing API key.
+        '404':
+          description: Not Found - Invalid object type.
+
+components:
+  schemas:
+    SearchRequest:
+      type: object
+      properties:
+        filterGroups:
+          type: array
+          description: A list of filter groups for the search query.
+          items:
+            $ref: "#/components/schemas/FilterGroup"
+        sorts:
+          type: array
+          description: A list of sorting options for the search query.
+          items:
+            $ref: "#/components/schemas/Sort"
+        properties:
+          type: array
+          description: A list of properties to include in the response.
+          items:
+            type: string
+        limit:
+          type: integer
+          description: The number of results to return per page.
+        after:
+          type: string
+          description: A pagination token for retrieving the next page of results.
+
+    FilterGroup:
+      type: object
+      description: A group of filters applied to the search.
+      properties:
+        filters:
+          type: array
+          description: A list of individual filters.
+          items:
+            $ref: "#/components/schemas/Filter"
+
+    Filter:
+      type: object
+      description: A filter applied to a property in the search.
+      properties:
+        propertyName:
+          type: string
+          description: The name of the property to filter on.
+        operator:
+          type: string
+          description: The filter operator.
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+        value:
+          type: string
+          description: The value to filter by.
+
+    Sort:
+      type: object
+      description: Defines a sorting option for the search.
+      properties:
+        propertyName:
+          type: string
+          description: The property to sort by.
+        direction:
+          type: string
+          description: The direction of sorting.
+          enum:
+            - ASCENDING
+            - DESCENDING
+
+    SearchResponse:
+      type: object
+      description: The response from the CRM Search API.
+      properties:
+        results:
+          type: array
+          description: A list of CRM objects matching the search criteria.
+          items:
+            $ref: "#/components/schemas/CRMObject"
+        paging:
+          type: object
+          description: Pagination details for the response.
+          properties:
+            next:
+              type: object
+              description: Information about the next page of results.
+              properties:
+                after:
+                  type: string
+                  description: The token for the next page.
+
+    CRMObject:
+      type: object
+      description: Represents a generic CRM object returned by the API.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the CRM object.
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+            description: A map of property names and their values for the CRM object.
+        createdAt:
+          type: string
+          format: date-time
+          description: The timestamp when the CRM object was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The timestamp when the CRM object was last updated.
+        archived:
+          type: boolean
+          description: Indicates whether the CRM object is archived.

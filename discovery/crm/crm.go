@@ -72,7 +72,7 @@ func (d *CrmDiscovery) Products() *products.ClientWithResponses {
 	}).(*products.ClientWithResponses)
 }
 
-// Products retrieves the ProductsDiscovery client.
+// Companies retrieves the CompaniesDiscovery client.
 func (d *CrmDiscovery) Companies() *companies.ClientWithResponses {
 	return d.getClient("companies", func(config *configuration.Configuration) interface{} {
 		client, _ := objects.NewCompaniesDiscovery(config)
