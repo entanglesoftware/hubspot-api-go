@@ -51,10 +51,13 @@ type Filter struct {
 // FilterOperator defines model for Filter.Operator
 type FilterOperator string
 
-// FilterGroups defines model for FilterGroups.
-type FilterGroups = []struct {
-	Filters *[]Filter `json:"Filters,omitempty"`
+// FilterGroup defines model for FilterGroup.
+type FilterGroup struct {
+	Filters *[]Filter `json:"filters,omitempty"`
 }
+
+// FilterGroups defines model for FilterGroups.
+type FilterGroups = []FilterGroup
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {

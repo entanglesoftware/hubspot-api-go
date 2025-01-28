@@ -130,12 +130,15 @@ components:
     FilterGroups:
       type: array
       items:
-        type: object
-        properties:
-          Filters:
-            type: array
-            items:
-              $ref: "components.yaml#/components/schemas/Filter"
+        $ref: "components.yaml#/components/schemas/FilterGroup"
+
+    FilterGroup:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: "components.yaml#/components/schemas/Filter"
 
     Filter:
       type: object
