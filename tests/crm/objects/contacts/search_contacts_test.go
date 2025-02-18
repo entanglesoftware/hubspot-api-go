@@ -1,12 +1,12 @@
 package contacts_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
@@ -36,62 +36,24 @@ func TestSearchContacts(t *testing.T) {
 	// Make the API call
 
 	propertyName := "lastname"
-	operator := "EQ"
 	value := "Doe"
 	limit := 10
 
-	filters := []struct {
-		Operator     *string `json:"operator"`
-		PropertyName *string `json:"propertyName"`
-		Value        *string `json:"value"`
-	}{
-		{
-			Operator:     &operator,
-			PropertyName: &propertyName,
-			Value:        &value,
-		},
+	body := contacts.SearchContactsJSONRequestBody{
+		Limit: &limit,
+		FilterGroups: []contacts.FilterGroups{{
+			Filters: []contacts.Filter{{
+				Operator:     contacts.FilterOperator("EQ"),
+				PropertyName: propertyName,
+				Value:        value,
+			}},
+		}},
 	}
-
-	filterGroups := []struct {
-		Filters *[]struct {
-			Operator     *string `json:"operator"`
-			PropertyName *string `json:"propertyName"`
-			Value        *string `json:"value"`
-		} `json:"filters"`
-	}{
-		{
-			Filters: &filters,
-		},
-	}
-
-	body := struct {
-		Limit        *int `json:"limit"`
-		FilterGroups *[]struct {
-			Filters *[]struct {
-				Operator     *string `json:"operator"`
-				PropertyName *string `json:"propertyName"`
-				Value        *string `json:"value"`
-			} `json:"filters"`
-		} `json:"filterGroups"`
-	}{
-		Limit:        &limit,
-		FilterGroups: &filterGroups,
-	}
-
-	// Convert body to JSON
-	bodyJSON, err := json.Marshal(body)
-	if err != nil {
-		log.Fatalf("Error marshalling body: %v", err)
-	}
-
-	// Convert JSON to io.Reader
-	bodyReader := bytes.NewReader(bodyJSON)
-
-	contentType := "application/json"
 
 	ct := hsClient.Crm().Contacts()
 
-	response, err := ct.SearchContactsWithBodyWithResponse(context.Background(), contentType, bodyReader)
+	response, err := ct.SearchContactsWithResponse(context.Background(), body)
+
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

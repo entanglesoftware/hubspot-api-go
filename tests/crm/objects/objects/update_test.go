@@ -1,11 +1,8 @@
 package objects_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 
@@ -37,7 +34,13 @@ func TestUpdateObject(t *testing.T) {
 	// Make the API call
 	objectParams := objects.UpdateObjectParams{}
 
-	objectBody := objects.UpdateObjectJSONBody{
+	ct := hsClient.Crm().Objects()
+
+	objectType := "contacts"
+
+	objectId := "100260047027"
+
+	body := objects.UpdateObjectJSONRequestBody{
 		Properties: map[string]string{
 			"firstname": "John",
 			"lastname":  "Doe",
@@ -45,21 +48,7 @@ func TestUpdateObject(t *testing.T) {
 		},
 	}
 
-	// Serialize the ticket properties to JSON
-	body, err := json.Marshal(objectBody)
-	if err != nil {
-		log.Fatalf("Error serializing ticket properties: %v", err)
-	}
-
-	ct := hsClient.Crm().Objects()
-
-	objectType := "contacts"
-
-	objectId := "87481797267"
-
-	contentType := "application/json"
-
-	response, err := ct.UpdateObjectWithBodyWithResponse(context.Background(), objectType, objectId, &objectParams, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateObjectWithResponse(context.Background(), objectType, objectId, &objectParams, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

@@ -1,10 +1,7 @@
 package contacts_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -33,28 +30,19 @@ func TestUpdateContact(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Contact
-	contact := contacts.CreateContactJSONBody{
-		Properties: map[string]string{
-			"firstname": "John",
-			"lastname":  "Doe",
-			"email":     "johndoe57hy@example.com",
-		},
-	}
-
-	contactId := "87481797267"
-
-	// Serialize the contact properties to JSON
-	body, err := json.Marshal(contact)
-	if err != nil {
-		log.Fatalf("Error serializing contact properties: %v", err)
-	}
-
-	contentType := "application/json"
+	contactId := "87969316513"
 
 	ct := hsClient.Crm().Contacts()
 
-	response, err := ct.UpdateContactWithBodyWithResponse(context.Background(), contactId, contentType, bytes.NewReader(body))
+	body := contacts.UpdateContactJSONRequestBody{
+		Properties: map[string]string{
+			"firstname": "John Update",
+			"lastname":  "Doe new",
+			"email":     "johndoe1211122@example.com",
+		},
+	}
+
+	response, err := ct.UpdateContactWithResponse(context.Background(), contactId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

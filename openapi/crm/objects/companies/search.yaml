@@ -14,13 +14,16 @@ search:
             schema:
               type: object
               properties:
-                schema:
-                  $ref: "components.yaml#/components/schemas/FilterGroups"
+                filterGroups:
+                  type: array
+                  items:
+                    $ref: "components.yaml#/components/schemas/FilterGroups"
+                  x-go-type-skip-optional-pointer: true
                 properties:
                   type: array
                   items:
                     type: string
-                    example: ["name", "hs_sku", "description"]
+                    example: ["name", "domain"]
                 limit:
                   type: integer
                   example: 1

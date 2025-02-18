@@ -16,10 +16,12 @@ merge:
                   type: string
                   description: ID of the contact to merge into the primary contact.
                   example: "12345"
+                  x-go-type-skip-optional-pointer: true
                 primaryObjectId:
                   type: string
                   description: ID of the primary contact that will remain after the merge.
                   example: "67890"
+                  x-go-type-skip-optional-pointer: true
               required:
                 - objectIdToMerge
                 - primaryObjectId

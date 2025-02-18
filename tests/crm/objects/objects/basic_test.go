@@ -89,7 +89,7 @@ func TestGetObject(t *testing.T) {
 
 	objectType := "contacts"
 
-	objectId := "87481797267"
+	objectId := "100260047027"
 
 	response, err := ct.GetObjectByTypeAndIdWithResponse(context.Background(), objectType, objectId, &objectParams)
 	if err != nil {

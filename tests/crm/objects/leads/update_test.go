@@ -1,10 +1,7 @@
 package leads_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -34,29 +31,21 @@ func TestUpdateLead(t *testing.T) {
 	hsClient.SetAccessToken(token)
 
 	// Initialize a variable of type Lead
-	hs_lead_name := "Update Lead"
+	hs_lead_name := "Update Lead New"
 	hs_pipeline_stage := "attempting-stage-id"
 
-	lead := leads.UpdateLeadJSONBody{
+	leadId := "396777411872"
+
+	ct := hsClient.Crm().Leads()
+
+	body := leads.UpdateLeadJSONRequestBody{
 		Properties: map[string]string{
 			"hs_lead_name":      hs_lead_name,
 			"hs_pipeline_stage": hs_pipeline_stage,
 		},
 	}
 
-	leadId := "396777411872"
-
-	// Serialize the lead properties to JSON
-	body, err := json.Marshal(lead)
-	if err != nil {
-		log.Fatalf("Error serializing lead properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Leads()
-
-	response, err := ct.UpdateLeadWithBodyWithResponse(context.Background(), leadId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateLeadWithResponse(context.Background(), leadId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

@@ -1,13 +1,12 @@
 package lineItems_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -35,63 +34,24 @@ func TestSearchLineItems(t *testing.T) {
 
 	// Make the API call
 
-	propertyName := "hs_product_id"
-	operator := "EQ"
-	value := "18080770487"
+	propertyName := "hs_object_id"
+	value := "27907650998"
 	limit := 10
-
-	filters := []struct {
-		Operator     *string `json:"operator"`
-		PropertyName *string `json:"propertyName"`
-		Value        *string `json:"value"`
-	}{
-		{
-			Operator:     &operator,
-			PropertyName: &propertyName,
-			Value:        &value,
-		},
-	}
-
-	filterGroups := []struct {
-		Filters *[]struct {
-			Operator     *string `json:"operator"`
-			PropertyName *string `json:"propertyName"`
-			Value        *string `json:"value"`
-		} `json:"filters"`
-	}{
-		{
-			Filters: &filters,
-		},
-	}
-
-	body := struct {
-		Limit        *int `json:"limit"`
-		FilterGroups *[]struct {
-			Filters *[]struct {
-				Operator     *string `json:"operator"`
-				PropertyName *string `json:"propertyName"`
-				Value        *string `json:"value"`
-			} `json:"filters"`
-		} `json:"filterGroups"`
-	}{
-		Limit:        &limit,
-		FilterGroups: &filterGroups,
-	}
-
-	// Convert body to JSON
-	bodyJSON, err := json.Marshal(body)
-	if err != nil {
-		log.Fatalf("Error marshalling body: %v", err)
-	}
-
-	// Convert JSON to io.Reader
-	bodyReader := bytes.NewReader(bodyJSON)
-
-	contentType := "application/json"
 
 	ct := hsClient.Crm().LineItems()
 
-	response, err := ct.SearchLineItemsWithBodyWithResponse(context.Background(), contentType, bodyReader)
+	body := lineItems.SearchLineItemsJSONRequestBody{
+		Limit: &limit,
+		FilterGroups: []lineItems.FilterGroups{{
+			Filters: []lineItems.Filter{{
+				Operator:     lineItems.FilterOperator("EQ"),
+				PropertyName: propertyName,
+				Value:        value,
+			}},
+		}},
+	}
+
+	response, err := ct.SearchLineItemsWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

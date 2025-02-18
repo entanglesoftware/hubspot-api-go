@@ -1,13 +1,11 @@
 package contacts_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
@@ -32,23 +30,15 @@ func TestGDPRDeleteContact(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Define the payload
-	payload := map[string]string{
-		"idProperty": "email",
-		"objectId":   "example2@example.com",
-	}
-
-	// Convert the payload to JSON
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		log.Fatalf("Error serializing contact properties: %v", err)
-	}
-
 	ct := hsClient.Crm().Contacts()
 
-	contentType := "application/json"
+	body := contacts.GdprDeleteContactJSONRequestBody{
+		IdProperty: "email",
+		ObjectId:   "example2@example.com",
+	}
 
-	response, err := ct.GdprDeleteContactWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(payloadBytes))
+	response, err := ct.GdprDeleteContactWithResponse(context.Background(), body)
+
 	if err != nil {
 		t.Fatalf("API call failed: %v", response)
 	}

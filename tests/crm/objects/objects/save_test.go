@@ -1,9 +1,7 @@
 package objects_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -36,8 +34,11 @@ func TestSaveObject(t *testing.T) {
 	associationCategory := "HUBSPOT_DEFINED"
 	id := "28106025611"
 
-	// Make the API call
-	reqBody := objects.CreateObjectJSONRequestBody{
+	ct := hsClient.Crm().Objects()
+
+	objectType := "leads"
+
+	body := objects.CreateObjectJSONRequestBody{
 		Associations: &[]struct {
 			To *struct {
 				Id *string "json:\"id,omitempty\""
@@ -64,21 +65,9 @@ func TestSaveObject(t *testing.T) {
 				},
 			},
 		},
-		Properties: &map[string]string{},
 	}
 
-	body, err := json.Marshal(reqBody)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-
-	ct := hsClient.Crm().Objects()
-
-	objectType := "leads"
-
-	contentType := "application/json"
-
-	response, err := ct.CreateObjectWithBodyWithResponse(context.Background(), objectType, contentType, bytes.NewBuffer(body))
+	response, err := ct.CreateObjectWithResponse(context.Background(), objectType, body)
 	if err != nil {
 		t.Fatalf("Error serializing lead properties: %v", err)
 	}

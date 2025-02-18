@@ -1,13 +1,11 @@
 package contacts_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 )
@@ -32,23 +30,14 @@ func TestMergeContacts(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Define the payload
-	payload := map[string]string{
-		"objectIdToMerge": "87484939431",
-		"primaryObjectId": "83910492845",
-	}
-
-	// Convert the payload to JSON
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		log.Fatalf("Error serializing contact properties: %v", err)
-	}
-
 	ct := hsClient.Crm().Contacts()
 
-	contentType := "application/json"
+	body := contacts.MergeContactsJSONRequestBody{
+		ObjectIdToMerge: "87484939431",
+		PrimaryObjectId: "83910492845",
+	}
 
-	response, err := ct.MergeContactsWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(payloadBytes))
+	response, err := ct.MergeContactsWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", response)
 	}

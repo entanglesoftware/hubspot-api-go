@@ -93,27 +93,27 @@ type CompanySearchResponse struct {
 // Filter defines model for Filter.
 type Filter struct {
 	// HighValue A high-value filter criterion.
-	HighValue *string `json:"highValue,omitempty"`
+	HighValue string `json:"highValue,omitempty"`
 
 	// Operator defines model for Filter.Operator
-	Operator *FilterOperator `json:"operator,omitempty"`
+	Operator FilterOperator `json:"operator,omitempty"`
 
 	// PropertyName The property name to filter by.
-	PropertyName *string `json:"propertyName,omitempty"`
+	PropertyName string `json:"propertyName,omitempty"`
 
 	// Value A single value to match for the property.
-	Value *string `json:"value,omitempty"`
+	Value string `json:"value,omitempty"`
 
 	// Values List of values to match for the property.
-	Values *[]string `json:"values,omitempty"`
+	Values []string `json:"values,omitempty"`
 }
 
 // FilterOperator defines model for Filter.Operator
 type FilterOperator string
 
 // FilterGroups defines model for FilterGroups.
-type FilterGroups = []struct {
-	Filters *[]Filter `json:"Filters,omitempty"`
+type FilterGroups struct {
+	Filters []Filter `json:"filters,omitempty"`
 }
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
@@ -158,11 +158,11 @@ type PropertyHistory struct {
 
 // SearchParams defines model for SearchParams.
 type SearchParams struct {
-	After      *int          `json:"after,omitempty"`
-	Limit      *int          `json:"limit,omitempty"`
-	Properties *[]string     `json:"properties,omitempty"`
-	Query      *string       `json:"query,omitempty"`
-	Schema     *FilterGroups `json:"schema,omitempty"`
+	After      *int         `json:"after,omitempty"`
+	Limit      *int         `json:"limit,omitempty"`
+	Properties *[]string    `json:"properties,omitempty"`
+	Query      *string      `json:"query,omitempty"`
+	Schema     FilterGroups `json:"schema,omitempty"`
 
 	// Sorts Use a sorting rule in the request body to see results in a specific order (ascending or descending). Only one sorting rule can be applied to any search.
 	Sorts *[]Sort `json:"sorts,omitempty"`

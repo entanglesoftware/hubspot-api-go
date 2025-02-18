@@ -1,13 +1,12 @@
 package companies_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -36,62 +35,22 @@ func TestSearchCompanies(t *testing.T) {
 	// Make the API call
 
 	propertyName := "domain"
-	operator := "EQ"
 	value := "example22.com"
 	limit := 10
-
-	filters := []struct {
-		Operator     *string `json:"operator"`
-		PropertyName *string `json:"propertyName"`
-		Value        *string `json:"value"`
-	}{
-		{
-			Operator:     &operator,
-			PropertyName: &propertyName,
-			Value:        &value,
-		},
+	companyBody := companies.SearchCompanyJSONRequestBody{
+		Limit: &limit,
+		FilterGroups: []companies.FilterGroups{{
+			Filters: []companies.Filter{{
+				Operator:     companies.FilterOperator("EQ"),
+				PropertyName: propertyName,
+				Value:        value,
+			}},
+		}},
 	}
-
-	filterGroups := []struct {
-		Filters *[]struct {
-			Operator     *string `json:"operator"`
-			PropertyName *string `json:"propertyName"`
-			Value        *string `json:"value"`
-		} `json:"filters"`
-	}{
-		{
-			Filters: &filters,
-		},
-	}
-
-	body := struct {
-		Limit        *int `json:"limit"`
-		FilterGroups *[]struct {
-			Filters *[]struct {
-				Operator     *string `json:"operator"`
-				PropertyName *string `json:"propertyName"`
-				Value        *string `json:"value"`
-			} `json:"filters"`
-		} `json:"filterGroups"`
-	}{
-		Limit:        &limit,
-		FilterGroups: &filterGroups,
-	}
-
-	// Convert body to JSON
-	bodyJSON, err := json.Marshal(body)
-	if err != nil {
-		log.Fatalf("Error marshalling body: %v", err)
-	}
-
-	// Convert JSON to io.Reader
-	bodyReader := bytes.NewReader(bodyJSON)
-
-	contentType := "application/json"
 
 	ct := hsClient.Crm().Companies()
 
-	response, err := ct.SearchCompanyWithBodyWithResponse(context.Background(), contentType, bodyReader)
+	response, err := ct.SearchCompanyWithResponse(context.Background(), companyBody)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

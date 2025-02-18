@@ -1,10 +1,7 @@
 package leads_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -142,10 +139,11 @@ func TestSaveLead(t *testing.T) {
 	associationTypeId := int32(580)
 	associationCategory := "HUBSPOT_DEFINED"
 	id := "28106025611"
-	// Initialize a variable of type Lead
-	lead := leads.CreateLeadJSONBody{
+
+	ct := hsClient.Crm().Leads()
+	body := leads.CreateLeadJSONRequestBody{
 		Properties: map[string]string{
-			"hs_lead_name":      "New Lead 1",
+			"hs_lead_name":      "New Lead Demo 1",
 			"hs_pipeline_stage": "connected-stage-id",
 		},
 		Associations: []struct {
@@ -176,17 +174,7 @@ func TestSaveLead(t *testing.T) {
 		},
 	}
 
-	// Serialize the lead properties to JSON
-	body, err := json.Marshal(lead)
-	if err != nil {
-		log.Fatalf("Error serializing lead properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Leads()
-
-	response, err := ct.CreateLeadWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateLeadWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

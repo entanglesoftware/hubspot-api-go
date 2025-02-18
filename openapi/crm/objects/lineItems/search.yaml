@@ -15,7 +15,10 @@ search:
               type: object
               properties:
                 filterGroups:
-                  $ref: "components.yaml#/components/schemas/FilterGroups"
+                  type: array
+                  items:
+                    $ref: "components.yaml#/components/schemas/FilterGroups"
+                  x-go-type-skip-optional-pointer: true
                 properties:
                   type: array
                   items:

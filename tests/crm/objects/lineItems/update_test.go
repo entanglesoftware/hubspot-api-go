@@ -1,10 +1,7 @@
 package lineItems_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -37,26 +34,18 @@ func TestUpdateLineItem(t *testing.T) {
 	quantity := "5"
 	amount := "220"
 
-	ticket := lineItems.UpdateLineItemJSONBody{
+	ticketId := "27907650998"
+
+	ct := hsClient.Crm().LineItems()
+
+	body := lineItems.UpdateLineItemJSONRequestBody{
 		Properties: map[string]string{
 			"quantity": quantity,
 			"amount":   amount,
 		},
 	}
 
-	ticketId := "27907650925"
-
-	// Serialize the ticket properties to JSON
-	body, err := json.Marshal(ticket)
-	if err != nil {
-		log.Fatalf("Error serializing ticket properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().LineItems()
-
-	response, err := ct.UpdateLineItemWithBodyWithResponse(context.Background(), ticketId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateLineItemWithResponse(context.Background(), ticketId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

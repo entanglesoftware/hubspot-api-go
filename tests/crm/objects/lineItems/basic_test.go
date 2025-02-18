@@ -1,10 +1,7 @@
 package lineItems_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -136,26 +133,17 @@ func TestSaveLineItem(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type LineItem
-	LineItem := lineItems.CreateLineItemJSONBody{
+	ct := hsClient.Crm().LineItems()
+
+	body := lineItems.CreateLineItemJSONRequestBody{
 		Properties: map[string]string{
 			"hs_product_id": "18080770487",
-			"quantity":      "4",
-			"amount":        "550",
+			"quantity":      "10",
+			"amount":        "2000",
 		},
 	}
 
-	// Serialize the LineItem properties to JSON
-	body, err := json.Marshal(LineItem)
-	if err != nil {
-		log.Fatalf("Error serializing LineItem properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().LineItems()
-
-	response, err := ct.CreateLineItemWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateLineItemWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
