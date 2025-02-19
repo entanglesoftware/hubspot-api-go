@@ -1,10 +1,7 @@
 package schemas_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -132,6 +129,7 @@ func TestCreateSchema(t *testing.T) {
 		Name: "new_object",
 		AssociatedObjects: []string{
 			"contact",
+			"company",
 		},
 		PrimaryDisplayProperty: "email",
 		Properties: schemas.SchemaProperties{
@@ -149,16 +147,8 @@ func TestCreateSchema(t *testing.T) {
 		},
 	}
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(schema)
-	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
-	}
-
-	contentType := "application/json"
-
 	// Make the API call to create the schema
-	response, err := hsClient.Crm().SchemaItems().CreateCustomObjectSchemaWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := hsClient.Crm().SchemaItems().CreateCustomObjectSchemaWithResponse(context.Background(), schema)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

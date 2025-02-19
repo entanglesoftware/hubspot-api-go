@@ -1,11 +1,8 @@
 package schemas_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 
@@ -33,8 +30,8 @@ func TestUpdateSchema(t *testing.T) {
 	hsClient := hubspot.NewClient(config)
 
 	// Define the schema payload
-	pluralLabel := "My New1 objects"
-	singularLabel := "My New1 object"
+	pluralLabel := "My New1 Company objects"
+	singularLabel := "My New1 Company object"
 
 	schema := schemas.UpdateSchemaJSONRequestBody{
 		Labels: &struct {
@@ -46,18 +43,10 @@ func TestUpdateSchema(t *testing.T) {
 		},
 	}
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(schema)
-	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	objectType := "2-39502275"
+	objectType := "2-40910856"
 
 	// Make the API call to create the schema
-	response, err := hsClient.Crm().SchemaItems().UpdateSchemaWithBodyWithResponse(context.Background(), objectType, contentType, bytes.NewReader(body))
+	response, err := hsClient.Crm().SchemaItems().UpdateSchemaWithResponse(context.Background(), objectType, schema)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

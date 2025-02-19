@@ -1,10 +1,7 @@
 package deals_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -39,7 +36,11 @@ func TestUpdateDeal(t *testing.T) {
 	pipeline := "default"
 	dealname := "New Deal Name"
 
-	deal := deals.UpdateDealJSONBody{
+	dealId := "33612177707"
+
+	ct := hsClient.Crm().Deals()
+
+	body := deals.UpdateDealJSONRequestBody{
 		Properties: map[string]string{
 			"pipeline":  pipeline,
 			"dealstage": dealstage,
@@ -48,19 +49,7 @@ func TestUpdateDeal(t *testing.T) {
 		},
 	}
 
-	dealId := "31738621965"
-
-	// Serialize the deal properties to JSON
-	body, err := json.Marshal(deal)
-	if err != nil {
-		log.Fatalf("Error serializing deal properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Deals()
-
-	response, err := ct.UpdateDealWithBodyWithResponse(context.Background(), dealId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateDealWithResponse(context.Background(), dealId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

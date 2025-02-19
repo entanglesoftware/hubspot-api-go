@@ -1,13 +1,12 @@
 package products_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
@@ -36,62 +35,23 @@ func TestSearchProducts(t *testing.T) {
 	// Make the API call
 
 	propertyName := "name"
-	operator := "EQ"
-	value := "Product3"
+	value := "Product 12345"
 	limit := 10
-
-	filters := []struct {
-		Operator     *string `json:"operator"`
-		PropertyName *string `json:"propertyName"`
-		Value        *string `json:"value"`
-	}{
-		{
-			Operator:     &operator,
-			PropertyName: &propertyName,
-			Value:        &value,
-		},
-	}
-
-	filterGroups := []struct {
-		Filters *[]struct {
-			Operator     *string `json:"operator"`
-			PropertyName *string `json:"propertyName"`
-			Value        *string `json:"value"`
-		} `json:"filters"`
-	}{
-		{
-			Filters: &filters,
-		},
-	}
-
-	body := struct {
-		Limit        *int `json:"limit"`
-		FilterGroups *[]struct {
-			Filters *[]struct {
-				Operator     *string `json:"operator"`
-				PropertyName *string `json:"propertyName"`
-				Value        *string `json:"value"`
-			} `json:"filters"`
-		} `json:"filterGroups"`
-	}{
-		Limit:        &limit,
-		FilterGroups: &filterGroups,
-	}
-
-	// Convert body to JSON
-	bodyJSON, err := json.Marshal(body)
-	if err != nil {
-		log.Fatalf("Error marshalling body: %v", err)
-	}
-
-	// Convert JSON to io.Reader
-	bodyReader := bytes.NewReader(bodyJSON)
-
-	contentType := "application/json"
 
 	ct := hsClient.Crm().Products()
 
-	response, err := ct.SearchProductsWithBodyWithResponse(context.Background(), contentType, bodyReader)
+	body := products.SearchProductsJSONRequestBody{
+		Limit: &limit,
+		FilterGroups: []products.FilterGroups{{
+			Filters: []products.Filter{{
+				Operator:     products.FilterOperator("EQ"),
+				PropertyName: propertyName,
+				Value:        value,
+			}},
+		}},
+	}
+
+	response, err := ct.SearchProductsWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

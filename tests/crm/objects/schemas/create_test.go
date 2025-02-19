@@ -1,10 +1,7 @@
 package schemas_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -43,18 +40,10 @@ func TestCreateAssociation(t *testing.T) {
 		ToObjectTypeId:   toObjectTypeId,
 	}
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(association)
-	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
-	}
-
-	contentType := "application/json"
-
 	objectType := "contacts"
 
 	// Make the API call to create the association
-	response, err := hsClient.Crm().SchemaItems().CreateAssociationWithBodyWithResponse(context.Background(), objectType, contentType, bytes.NewReader(body))
+	response, err := hsClient.Crm().SchemaItems().CreateAssociationWithResponse(context.Background(), objectType, association)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

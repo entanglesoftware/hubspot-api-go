@@ -1,10 +1,7 @@
 package products_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -38,7 +35,11 @@ func TestUpdateProduct(t *testing.T) {
 	price := "234"
 	hs_sku := "sku"
 
-	product := products.UpdateProductJSONBody{
+	productId := "20156772701"
+
+	ct := hsClient.Crm().Products()
+
+	body := products.UpdateProductJSONRequestBody{
 		Properties: map[string]string{
 			"hs_sku": hs_sku,
 			"name":   name,
@@ -46,19 +47,7 @@ func TestUpdateProduct(t *testing.T) {
 		},
 	}
 
-	productId := "17897571951"
-
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(product)
-	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Products()
-
-	response, err := ct.UpdateProductWithBodyWithResponse(context.Background(), productId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateProductWithResponse(context.Background(), productId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

@@ -1,10 +1,7 @@
 package tickets_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -136,8 +133,9 @@ func TestSaveTicket(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Ticket
-	ticket := tickets.CreateTicketJSONBody{
+	ct := hsClient.Crm().Tickets()
+
+	body := tickets.CreateTicketJSONRequestBody{
 		Properties: map[string]string{
 			"subject":           "New Ticket 1",
 			"hs_pipeline_stage": "1",
@@ -145,17 +143,7 @@ func TestSaveTicket(t *testing.T) {
 		},
 	}
 
-	// Serialize the ticket properties to JSON
-	body, err := json.Marshal(ticket)
-	if err != nil {
-		log.Fatalf("Error serializing ticket properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Tickets()
-
-	response, err := ct.CreateTicketWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateTicketWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

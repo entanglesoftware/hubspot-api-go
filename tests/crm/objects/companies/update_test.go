@@ -1,10 +1,7 @@
 package companies_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -34,27 +31,19 @@ func TestUpdateCompany(t *testing.T) {
 	hsClient.SetAccessToken(token)
 	domain := "newdomain.com"
 	name := "New Name"
-	// Initialize a variable of type Company
-	company := companies.UpdateCompanyJSONBody{
+
+	companyId := "28481339557"
+
+	body := companies.UpdateCompanyJSONRequestBody{
 		Properties: map[string]string{
 			"domain": domain,
 			"name":   name,
 		},
 	}
 
-	companyId := "28189124426"
-
-	// Serialize the company properties to JSON
-	body, err := json.Marshal(company)
-	if err != nil {
-		log.Fatalf("Error serializing company properties: %v", err)
-	}
-
-	contentType := "application/json"
-
 	ct := hsClient.Crm().Companies()
 
-	response, err := ct.UpdateCompanyWithBodyWithResponse(context.Background(), companyId, contentType, bytes.NewReader(body))
+	response, err := ct.UpdateCompanyWithResponse(context.Background(), companyId, body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

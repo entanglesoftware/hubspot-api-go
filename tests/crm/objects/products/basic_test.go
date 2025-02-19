@@ -1,10 +1,7 @@
 package products_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"log"
 	"os"
 	"testing"
 
@@ -96,7 +93,7 @@ func TestGetProductById(t *testing.T) {
 
 	ct := hsClient.Crm().Products()
 
-	response, err := ct.GetProductByIdWithResponse(context.Background(), "17897571956", &productByIdParam)
+	response, err := ct.GetProductByIdWithResponse(context.Background(), "20159988656", &productByIdParam)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -134,26 +131,17 @@ func TestSaveProduct(t *testing.T) {
 	// Initialize the client
 	hsClient.SetAccessToken(token)
 
-	// Initialize a variable of type Product
-	product := products.CreateProductJSONBody{
+	ct := hsClient.Crm().Products()
+
+	body := products.CreateProductJSONRequestBody{
 		Properties: map[string]string{
-			"name":   "Product 1",
+			"name":   "Product 12345",
 			"price":  "345",
-			"hs_sku": "p7",
+			"hs_sku": "p10",
 		},
 	}
 
-	// Serialize the product properties to JSON
-	body, err := json.Marshal(product)
-	if err != nil {
-		log.Fatalf("Error serializing product properties: %v", err)
-	}
-
-	contentType := "application/json"
-
-	ct := hsClient.Crm().Products()
-
-	response, err := ct.CreateProductWithBodyWithResponse(context.Background(), contentType, bytes.NewReader(body))
+	response, err := ct.CreateProductWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
