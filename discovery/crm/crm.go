@@ -4,10 +4,12 @@ import (
 	"sync"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/commerce"
 	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
@@ -129,4 +131,12 @@ func (d *CrmDiscovery) Objects() *customObject.ClientWithResponses {
 		client, _ := objects.NewObjectsDiscovery(config)
 		return client.Objects
 	}).(*customObject.ClientWithResponses)
+}
+
+// Quotes retrieves the QuotesDiscovery client.
+func (d *CrmDiscovery) Quotes() *quotes.ClientWithResponses {
+	return d.getClient("quotes", func(config *configuration.Configuration) interface{} {
+		client, _ := commerce.NewQuotesDiscovery(config)
+		return client.Quotes
+	}).(*quotes.ClientWithResponses)
 }

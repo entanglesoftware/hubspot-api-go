@@ -56,6 +56,9 @@ func main() {
 		if filepath.Base(path) == "generator.yaml" {
 			processGeneratorFile(path)
 		}
+		if filepath.Base(path) == "commerce_code_generator.yaml" {
+			processGeneratorFile(path)
+		}
 		return nil
 	})
 	if err != nil {
