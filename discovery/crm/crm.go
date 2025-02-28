@@ -9,6 +9,7 @@ import (
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
@@ -139,4 +140,12 @@ func (d *CrmDiscovery) Quotes() *quotes.ClientWithResponses {
 		client, _ := commerce.NewQuotesDiscovery(config)
 		return client.Quotes
 	}).(*quotes.ClientWithResponses)
+}
+
+// Invoices retrieves the InvoicesDiscovery client.
+func (d *CrmDiscovery) Invoices() *invoices.ClientWithResponses {
+	return d.getClient("invoices", func(config *configuration.Configuration) interface{} {
+		client, _ := commerce.NewInvoicesDiscovery(config)
+		return client.Invoices
+	}).(*invoices.ClientWithResponses)
 }

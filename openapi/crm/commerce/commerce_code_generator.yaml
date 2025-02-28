@@ -3,3 +3,5 @@ package: commerce
 resources:
   - name: quotes
     enabled: true
+  - name: invoices
+    enabled: true

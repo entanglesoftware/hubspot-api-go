@@ -1,0 +1,263 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Invoices API
+  description: API for fetching invoices from HubSpot
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.objects.invoices.write','crm.schemas.invoices.write','crm.objects.invoices.read']
+paths:
+  /crm/v3/objects/invoices:
+    get:
+      summary: Retrieve a list of invoices
+      description: Fetches invoices with pagination and properties.
+      operationId: getInvoices
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 50
+        - name: after
+          in: query
+          description: Cursor token for the next page of results.
+          required: false
+          schema:
+            type: string
+          example: "MjA1MA=="
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Paginated list of invoices.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/InvoicesResponse"
+    post:
+      summary: Create a new invoice
+      description: Create a new invoice in the HubSpot CRM.
+      tags:
+        - Invoices
+      operationId: createInvoice
+      requestBody:
+        description: Invoice details to create a new invoice.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of invoice properties.
+                  additionalProperties:
+                    type: string
+                associations:
+                  type: array
+                  description: List of associations for the invoice.
+                  items:
+                    type: object
+                    properties:
+                      types:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            associationCategory:
+                              type: string
+                              description: Category of the association.
+                              enum:
+                                - Search
+                                - HUBSPOT_DEFINED
+                                - USER_DEFINED
+                                - INTEGRATOR_DEFINED
+                            associationTypeId:
+                              type: integer
+                              format: int32
+                              description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+                objectWriteTraceId:
+                  type: string
+                  description: Trace ID for object write operations.
+              required:
+                - properties
+              example:
+                properties:
+                  hs_title: "Invoice Name"
+                  hs_currency: "USD"
+      responses:
+        "201":
+          description: Invoice created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the created invoice.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the created invoice.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the invoice's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+
+  /crm/v3/objects/invoices/{invoiceId}:
+    get:
+      summary: Get Invoice Details
+      description: Retrieve invoice details, including associations and additional metadata.
+      operationId: getInvoiceById
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: The ID of the invoice to retrieve.
+          schema:
+            type: integer
+            format: int64
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to use as the ID.
+          schema:
+            type: string
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: invoice object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/InvoiceResponse"
+    patch:
+      summary: Update a invoice
+      description: Updates the details of a invoice in HubSpot CRM.
+      operationId: updateInvoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: The unique identifier of the invoice to update.
+          schema:
+            type: string
+      requestBody:
+        description: Invoice details to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
+                properties:
+                  type: object
+                  description: Key-value pairs representing the deal properties to update.
+                  additionalProperties:
+                    type: string
+                    description: Value of the property to update.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the invoice.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the updated invoice.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the updated invoice.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the invoice was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the invoice's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+    delete:
+      summary: Delete a invoice
+      description: Deletes a invoice from HubSpot using the provided invoice ID.
+      operationId: deleteInvoiceById
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: The unique ID of the invoice to delete.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content. The invoice was successfully deleted.
+  /crm/v3/objects/invoices/search:
+    $ref: './search.yaml#/search'

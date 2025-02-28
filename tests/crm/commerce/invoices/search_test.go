@@ -1,4 +1,4 @@
-package quotes_test
+package invoices_test
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 )
 
-func TestSearchQuotes(t *testing.T) {
+func TestSearchInvoices(t *testing.T) {
 	// Fetch the access token from the environment
 	token := os.Getenv("HS_ACCESS_TOKEN")
 
@@ -35,23 +35,23 @@ func TestSearchQuotes(t *testing.T) {
 	// Make the API call
 
 	propertyName := "hs_title"
-	value := "Quotes 2"
+	value := "Invoices 2"
 	limit := 10
 
-	ct := hsClient.Crm().Quotes()
+	ct := hsClient.Crm().Invoices()
 
-	body := quotes.SearchQuotesJSONRequestBody{
+	body := invoices.SearchInvoicesJSONRequestBody{
 		Limit: &limit,
-		FilterGroups: []quotes.FilterGroups{{
-			Filters: []quotes.Filter{{
-				Operator:     quotes.FilterOperator("EQ"),
+		FilterGroups: []invoices.FilterGroups{{
+			Filters: []invoices.Filter{{
+				Operator:     invoices.FilterOperator("EQ"),
 				PropertyName: propertyName,
 				Value:        value,
 			}},
 		}},
 	}
 
-	response, err := ct.SearchQuotesWithResponse(context.Background(), body)
+	response, err := ct.SearchInvoicesWithResponse(context.Background(), body)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
