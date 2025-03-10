@@ -5,3 +5,5 @@ resources:
     enabled: true
   - name: invoices
     enabled: true
+  - name: discounts
+    enabled: true

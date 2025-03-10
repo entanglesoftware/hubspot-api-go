@@ -1,0 +1,263 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Discounts API
+  description: API for fetching discounts from HubSpot
+  version: v3
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.objects.discounts.write','crm.schemas.discounts.write','crm.objects.discounts.read']
+paths:
+  /crm/v3/objects/discounts:
+    get:
+      summary: Retrieve a list of discounts
+      description: Fetches discounts with pagination and properties.
+      operationId: getDiscounts
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 50
+        - name: after
+          in: query
+          description: Cursor token for the next page of results.
+          required: false
+          schema:
+            type: string
+          example: "MjA1MA=="
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: Paginated list of discounts.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/DiscountsResponse"
+    post:
+      summary: Create a new discount
+      description: Create a new discount in the HubSpot CRM.
+      tags:
+        - Discounts
+      operationId: createDiscount
+      requestBody:
+        description: Discount details to create a new discount.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of discount properties.
+                  additionalProperties:
+                    type: string
+                associations:
+                  type: array
+                  description: List of associations for the discount.
+                  items:
+                    type: object
+                    properties:
+                      types:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            associationCategory:
+                              type: string
+                              description: Category of the association.
+                              enum:
+                                - Search
+                                - HUBSPOT_DEFINED
+                                - USER_DEFINED
+                                - INTEGRATOR_DEFINED
+                            associationTypeId:
+                              type: integer
+                              format: int32
+                              description: ID of the association type.
+                      to:
+                        type: object
+                        description: Target object details for the association.
+                        properties:
+                          id:
+                            type: string
+                            description: Target object ID.
+                objectWriteTraceId:
+                  type: string
+                  description: Trace ID for object write operations.
+              required:
+                - properties
+              example:
+                properties:
+                  hs_title: "Discount Name"
+                  hs_currency: "USD"
+      responses:
+        "201":
+          description: Discount created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the created discount.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the created discount.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the discount's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+
+  /crm/v3/objects/discounts/{discountId}:
+    get:
+      summary: Get Discount Details
+      description: Retrieve discount details, including associations and additional metadata.
+      operationId: getDiscountById
+      parameters:
+        - name: discountId
+          in: path
+          required: true
+          description: The ID of the discount to retrieve.
+          schema:
+            type: integer
+            format: int64
+        - name: idProperty
+          in: query
+          required: false
+          description: The property to use as the ID.
+          schema:
+            type: string
+        - $ref: 'components.yaml#/components/parameters/Properties'
+        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
+        - $ref: 'components.yaml#/components/parameters/Associations'
+        - $ref: 'components.yaml#/components/parameters/Archived'
+      responses:
+        "200":
+          description: discount object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/DiscountResponse"
+    patch:
+      summary: Update a discount
+      description: Updates the details of a discount in HubSpot CRM.
+      operationId: updateDiscount
+      parameters:
+        - name: discountId
+          in: path
+          required: true
+          description: The unique identifier of the discount to update.
+          schema:
+            type: string
+      requestBody:
+        description: Discount details to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectWriteTraceId:
+                  type: string
+                  description: Unique trace ID for the operation.
+                properties:
+                  type: object
+                  description: Key-value pairs representing the deal properties to update.
+                  additionalProperties:
+                    type: string
+                    description: Value of the property to update.
+              required:
+                - properties
+      responses:
+        '200':
+          description: Successfully updated the discount.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique ID of the updated discount.
+                    x-go-type-skip-optional-pointer: true
+                  properties:
+                    type: object
+                    description: Properties of the updated discount.
+                    x-go-type-skip-optional-pointer: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was created.
+                    x-go-type-skip-optional-pointer: true
+                  archived:
+                    type: boolean
+                    description: Whether the customer is archived or not.
+                    x-go-type-skip-optional-pointer: true
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was archived.
+                    x-go-type-skip-optional-pointer: true
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the discount was last updated.
+                    x-go-type-skip-optional-pointer: true
+                  propertiesWithHistory:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: "components.yaml#/components/schemas/PropertyHistory"
+                    description: A map of the discount's properties including historical values.
+                    x-go-type-skip-optional-pointer: true
+    delete:
+      summary: Delete a discount
+      description: Deletes a discount from HubSpot using the provided discount ID.
+      operationId: deleteDiscountById
+      parameters:
+        - name: discountId
+          in: path
+          required: true
+          description: The unique ID of the discount to delete.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content. The discount was successfully deleted.
+  /crm/v3/objects/discounts/search:
+    $ref: './search.yaml#/search'
