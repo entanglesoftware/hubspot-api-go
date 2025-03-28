@@ -43,9 +43,6 @@ type DiscountAssociations struct {
 	Tickets  ObjectAssociationsResponse `json:"tickets,omitempty"`
 }
 
-// DiscountProperties defines model for DiscountProperties.
-type DiscountProperties = []interface{}
-
 // DiscountResponse defines model for DiscountResponse.
 type DiscountResponse struct {
 	// Archived Indicates if the discount is archived.
@@ -68,26 +65,10 @@ type DiscountResponse struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-// DiscountSearchResponse defines model for DiscountSearchResponse.
-type DiscountSearchResponse struct {
-	Archived   *bool              `json:"archived,omitempty"`
-	CreatedAt  *time.Time         `json:"createdAt,omitempty"`
-	Id         *string            `json:"id,omitempty"`
-	Properties DiscountProperties `json:"properties,omitempty"`
-	UpdatedAt  *time.Time         `json:"updatedAt,omitempty"`
-}
-
 // DiscountsResponse defines model for DiscountsResponse.
 type DiscountsResponse struct {
 	Paging  *Paging            `json:"paging,omitempty"`
 	Results []DiscountResponse `json:"results,omitempty"`
-}
-
-// DiscountsSearchResponse defines model for DiscountsSearchResponse.
-type DiscountsSearchResponse struct {
-	Paging  *Paging                   `json:"paging,omitempty"`
-	Results *[]DiscountSearchResponse `json:"results,omitempty"`
-	Total   *int                      `json:"total,omitempty"`
 }
 
 // Filter defines model for Filter.

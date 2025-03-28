@@ -1,0 +1,43 @@
+search:
+  post:
+      summary: Search for taxes by email
+      description: |
+        Queries the HubSpot CRM for taxes based on the `hs_object_id` property.
+      operationId: searchTaxes
+      tags:
+        - Tax
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filterGroups:
+                  type: array
+                  items:
+                    $ref: "components.yaml#/components/schemas/FilterGroups"
+                  x-go-type-skip-optional-pointer: true
+                properties:
+                  type: array
+                  items:
+                    type: string
+                    example: ["hs_object_id", "hs_createdate"]
+                limit:
+                  type: integer
+                  example: 1
+                query:
+                  type: string
+                after:
+                  type: string
+                sorts:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Tax object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/TaxesResponse"

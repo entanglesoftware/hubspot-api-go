@@ -7,3 +7,5 @@ resources:
     enabled: true
   - name: discounts
     enabled: true
+  - name: taxes
+    enabled: true

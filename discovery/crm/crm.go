@@ -12,6 +12,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/taxes"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
@@ -157,4 +158,12 @@ func (d *CrmDiscovery) Discounts() *discounts.ClientWithResponses {
 		client, _ := commerce.NewDiscountsDiscovery(config)
 		return client.Discounts
 	}).(*discounts.ClientWithResponses)
+}
+
+// Taxes retrieves the TaxesDiscovery client.
+func (d *CrmDiscovery) Taxes() *taxes.ClientWithResponses {
+	return d.getClient("taxes", func(config *configuration.Configuration) interface{} {
+		client, _ := commerce.NewTaxesDiscovery(config)
+		return client.Taxes
+	}).(*taxes.ClientWithResponses)
 }

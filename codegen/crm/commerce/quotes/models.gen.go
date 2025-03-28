@@ -109,9 +109,6 @@ type QuoteAssociations struct {
 	Tickets  ObjectAssociationsResponse `json:"tickets,omitempty"`
 }
 
-// QuoteProperties defines model for QuoteProperties.
-type QuoteProperties = []interface{}
-
 // QuoteResponse defines model for QuoteResponse.
 type QuoteResponse struct {
 	// Archived Indicates if the quote is archived.
@@ -134,26 +131,10 @@ type QuoteResponse struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-// QuoteSearchResponse defines model for QuoteSearchResponse.
-type QuoteSearchResponse struct {
-	Archived   *bool           `json:"archived,omitempty"`
-	CreatedAt  *time.Time      `json:"createdAt,omitempty"`
-	Id         *string         `json:"id,omitempty"`
-	Properties QuoteProperties `json:"properties,omitempty"`
-	UpdatedAt  *time.Time      `json:"updatedAt,omitempty"`
-}
-
 // QuotesResponse defines model for QuotesResponse.
 type QuotesResponse struct {
 	Paging  *Paging         `json:"paging,omitempty"`
 	Results []QuoteResponse `json:"results,omitempty"`
-}
-
-// QuotesSearchResponse defines model for QuotesSearchResponse.
-type QuotesSearchResponse struct {
-	Paging  *Paging                `json:"paging,omitempty"`
-	Results *[]QuoteSearchResponse `json:"results,omitempty"`
-	Total   *int                   `json:"total,omitempty"`
 }
 
 // SearchParams defines model for SearchParams.
