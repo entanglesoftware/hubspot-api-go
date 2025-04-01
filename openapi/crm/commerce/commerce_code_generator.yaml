@@ -9,3 +9,5 @@ resources:
     enabled: true
   - name: taxes
     enabled: true
+  - name: orders
+    enabled: true
