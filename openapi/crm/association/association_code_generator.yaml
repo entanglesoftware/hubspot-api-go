@@ -1,0 +1,5 @@
+generator: 1.0.0
+package: association
+resources:
+  - name: details
+    enabled: true

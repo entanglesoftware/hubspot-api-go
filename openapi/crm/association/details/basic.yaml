@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Associations API
+  description: API for fetching associations between objects in HubSpot
+  version: v1
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.objects.services.read']
+paths:
+  /crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}:
+    get:
+      summary: Retrieve associations between objects
+      description: Fetches associations between the specified object and another object type with pagination support.
+      operationId: getAssociationsDetails
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          description: The type of the source object.
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          description: The unique identifier of the source object.
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          description: The type of the target object to retrieve associations for.
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: false
+          description: Cursor token for pagination, used to retrieve the next set of results.
+          schema:
+            type: string
+          example: "123"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of associations to return.
+          schema:
+            type: integer
+            default: 500
+        - name: authorization
+          in: header
+          required: true
+          description: Bearer token for authentication.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved associations.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/AssociationsResponse"
+  /crm/v4/objects/{objectType}/{objectId}/associations/{toObjectType}/{toObjectId}:
+    put:
+      summary: Associate two objects in HubSpot CRM
+      operationId: createAssociationsDetails
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  associationCategory:
+                    type: string
+                    enum:
+                      - HUBSPOT_DEFINED
+                      - USER_DEFINED
+                      - INTEGRATOR_DEFINED
+                    x-go-type-skip-optional-pointer: true
+                  associationTypeId:
+                    type: integer
+                    x-go-type-skip-optional-pointer: true
+              x-go-type-skip-optional-pointer: true
+      responses:
+        "201":
+          description: Successful association
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/CreateAssociationsDetailResponse"
+    delete:
+      summary: Delete association between objects
+      description: |
+        Deletes an association between two objects in HubSpot CRM.
+        Requires authentication via a Bearer token.
+      operationId: deleteAssociation
+      tags:
+        - Association
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Association successfully deleted.
+  /crm/v4/objects/{fromObjectType}/{fromObjectId}/associations/default/{toObjectType}/{toObjectId}:
+    put:
+      summary: Associate two objects in HubSpot CRM
+      operationId: createDefaultAssociationsDetails
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fromObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful association
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/CreateDefaultAssociationsDetailResponse"

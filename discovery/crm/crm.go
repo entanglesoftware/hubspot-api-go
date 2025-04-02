@@ -4,11 +4,13 @@ import (
 	"sync"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/association"
 	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/commerce"
 	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/orders"
@@ -175,4 +177,12 @@ func (d *CrmDiscovery) Orders() *orders.ClientWithResponses {
 		client, _ := commerce.NewOrdersDiscovery(config)
 		return client.Orders
 	}).(*orders.ClientWithResponses)
+}
+
+// Details retrieves the DetailsDiscovery client.
+func (d *CrmDiscovery) Details() *details.ClientWithResponses {
+	return d.getClient("details", func(config *configuration.Configuration) interface{} {
+		client, _ := association.NewDetailsDiscovery(config)
+		return client.Details
+	}).(*details.ClientWithResponses)
 }

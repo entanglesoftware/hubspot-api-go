@@ -1,0 +1,135 @@
+components:
+  schemas:
+    Paging:
+      type: object
+      properties:
+        next:
+          $ref: "#/components/schemas/PagingNext"
+      x-go-type-skip-optional-pointer: true
+    PagingNext:
+      type: object
+      properties:
+        link:
+          type: string
+          description: The link for the next page of results.
+          x-go-type-skip-optional-pointer: true
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+          x-go-type-skip-optional-pointer: true
+    AssociationsResponse:
+      type: object
+      properties:
+        paging:
+          $ref: "#/components/schemas/Paging"
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationResponse"
+      x-go-type-skip-optional-pointer: true
+    AssociationResponse:
+      type: object
+      properties:
+        toObjectId:
+          oneOf:
+            - type: string
+            - type: integer
+          description: ID of the associated object.
+          x-go-type-skip-optional-pointer: true
+        associationTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationTypes"
+          x-go-type-skip-optional-pointer: true
+      x-go-type-skip-optional-pointer: true
+    AssociationTypes:
+      type: object
+      properties:
+        typeId:
+          type: integer
+          description: ID of the association type.
+          x-go-type-skip-optional-pointer: true
+        label:
+          type: string
+          description: Label of the association type.
+          x-go-type-skip-optional-pointer: true
+        category:
+          type: string
+          description: Category of the association type.
+          x-go-type-skip-optional-pointer: true
+      x-go-type-skip-optional-pointer: true
+    CreateAssociationsDetailResponse:
+      type: object
+      x-go-type-skip-optional-pointer: true
+      properties:
+        fromObjectTypeId:
+          type: string
+          x-go-type-skip-optional-pointer: true
+        fromObjectId:
+          type: integer
+          x-go-type-skip-optional-pointer: true
+        toObjectTypeId:
+          type: string
+          x-go-type-skip-optional-pointer: true
+        toObjectId:
+          type: integer
+          x-go-type-skip-optional-pointer: true
+        labels:
+          type: array
+          items:
+            type: string
+            x-go-type-skip-optional-pointer: true
+          x-go-type-skip-optional-pointer: true
+    CreateDefaultAssociationsDetailResponse:
+      type: object
+      x-go-type-skip-optional-pointer: true
+      properties:
+        status:
+          type: string
+          x-go-type-skip-optional-pointer: true
+        results:
+          type: array
+          x-go-type-skip-optional-pointer: true
+          items:
+            type: object
+            x-go-type-skip-optional-pointer: true
+            properties:
+              from:
+                type: object
+                x-go-type-skip-optional-pointer: true
+                properties:
+                  id:
+                    type: string
+                    x-go-type-skip-optional-pointer: true
+              to:
+                type: object
+                x-go-type-skip-optional-pointer: true
+                properties:
+                  id:
+                    type: string
+                    x-go-type-skip-optional-pointer: true
+              associationSpec:
+                type: object
+                x-go-type-skip-optional-pointer: true
+                properties:
+                  associationCategory:
+                    type: string
+                    x-go-type-skip-optional-pointer: true
+                  associationTypeId:
+                    type: integer
+                    x-go-type-skip-optional-pointer: true
+        startedAt:
+          type: string
+          x-go-type-skip-optional-pointer: true
+        completedAt:
+          type: string
+          x-go-type-skip-optional-pointer: true
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.services.read : Grants access to associations
