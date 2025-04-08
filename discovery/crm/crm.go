@@ -11,6 +11,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
+	associationSchema "github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/schemas"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/orders"
@@ -185,4 +186,12 @@ func (d *CrmDiscovery) Details() *details.ClientWithResponses {
 		client, _ := association.NewDetailsDiscovery(config)
 		return client.Details
 	}).(*details.ClientWithResponses)
+}
+
+// Schemas retrieves the SchemasDiscovery client.
+func (d *CrmDiscovery) Schemas() *associationSchema.ClientWithResponses {
+	return d.getClient("schemas", func(config *configuration.Configuration) interface{} {
+		client, _ := association.NewSchemasDiscovery(config)
+		return client.Schemas
+	}).(*associationSchema.ClientWithResponses)
 }

@@ -3,3 +3,5 @@ package: association
 resources:
   - name: details
     enabled: true
+  - name: schemas
+    enabled: true

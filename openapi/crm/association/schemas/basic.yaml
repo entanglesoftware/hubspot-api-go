@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Associations API
+  description: API for fetching associations schema between objects in HubSpot
+  version: v1
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.objects.services.read']
+paths:
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/labels:
+    get:
+      summary: Returns all association types between two object types
+      description: Fetches associations schema between the specified object and another object type with pagination support.
+      operationId: getAssociationsSchema
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          description: The type of the source object.
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          description: The unique identifier of the source object.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved associations schema.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/AssociationsResponse"
+    post:
+      summary: Create a user defined association definition
+      description: Creates a new association label between two HubSpot CRM object types.
+      operationId: createAssociationSchema
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The object type from which the association originates.
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The object type to which the association points.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inverseLabel:
+                  type: string
+                  description: Label for the reverse association.
+                name:
+                  type: string
+                  description: Internal name of the association label.
+                label:
+                  type: string
+                  description: Display label for the association.
+              required:
+                - inverseLabel
+                - name
+                - label
+      responses:
+        "200":
+          description: Successfully retrieved associations schema.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/AssociationsResponse"
+    put:
+      summary: Update a user defined association definition
+      description: Creates or updates an association label using the given `associationTypeId`, `label`, and `inverseLabel`.
+      operationId: updateAssociationSchema
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The object type from which the association originates.
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The object type to which the association points.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inverseLabel:
+                  type: string
+                  description: The label shown on the associated record (inverse direction)
+                associationTypeId:
+                  type: integer
+                  description: The ID of the association type
+                label:
+                  type: string
+                  description: The label shown on the source record
+              required:
+                - inverseLabel
+                - associationTypeId
+                - label
+      responses:
+        "204":
+          description: Association schema updated successfully deleted.
+  /crm/v4/associations/{fromObjectType}/{toObjectType}/labels/{associationTypeId}:
+    delete:
+      summary: Deletes an association definition
+      operationId: deleteAssociationsSchema
+      parameters:
+        - name: fromObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toObjectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: associationTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Association schema updated successfully deleted.

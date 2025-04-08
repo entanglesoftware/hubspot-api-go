@@ -1,0 +1,38 @@
+components:
+  schemas:
+    AssociationsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationTypes"
+          x-go-type-skip-optional-pointer: true
+      x-go-type-skip-optional-pointer: true
+
+    AssociationTypes:
+      type: object
+      properties:
+        typeId:
+          type: integer
+          description: ID of the association type.
+          x-go-type-skip-optional-pointer: true
+        label:
+          type: string
+          description: Label of the association type.
+          x-go-type-skip-optional-pointer: true
+        category:
+          type: string
+          description: Category of the association type.
+          x-go-type-skip-optional-pointer: true
+      x-go-type-skip-optional-pointer: true
+
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.services.read : Grants access to associations
