@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: HubSpot Marketing & CRM API
+  description: API for fetching campaign details and associations between objects in HubSpot.
+  version: v1
+servers:
+  - url: https://api.hubapi.com/
+security:
+  - oauth2: ['crm.objects.services.read', 'marketing.events.read']
+
+paths:
+  /marketing/v3/campaigns/{campaignGuid}:
+    get:
+      summary: Retrieve campaign details
+      description: Fetches campaign details with specified properties from HubSpot Marketing API.
+      operationId: getCampaignDetails
+      parameters:
+        - name: campaignGuid
+          in: path
+          required: true
+          description: The unique identifier of the campaign.
+          schema:
+            type: string
+        - name: properties
+          in: query
+          required: false
+          description: Properties to include in the campaign response.
+          schema:
+            type: array
+            items:
+              type: string
+          explode: true
+        - name: startDate
+          in: query
+          required: false
+          description: Start date filter for the campaign data.
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          description: End date filter for the campaign data.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved campaign details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/campaignDetailsResponse"
+                
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.services.read: Read access to CRM object associations
+            marketing.events.read: Read access to marketing events

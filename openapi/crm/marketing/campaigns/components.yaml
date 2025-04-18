@@ -1,0 +1,57 @@
+components:
+  schemas:
+    Paging:
+      type: object
+      properties:
+        next:
+          $ref: "#/components/schemas/PagingNext"
+      x-go-type-skip-optional-pointer: true
+    PagingNext:
+      type: object
+      properties:
+        link:
+          type: string
+          description: The link for the next page of results.
+          x-go-type-skip-optional-pointer: true
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+          x-go-type-skip-optional-pointer: true
+    campaignDetailsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        properties:
+          type: object
+        assets:
+          type: object
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              metrics:
+                type: object
+
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.services.read : Grants access to associations
