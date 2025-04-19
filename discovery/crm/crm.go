@@ -1,6 +1,7 @@
 package crm
 
 import (
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/properties"
 	"sync"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
@@ -129,4 +130,12 @@ func (d *CrmDiscovery) Objects() *customObject.ClientWithResponses {
 		client, _ := objects.NewObjectsDiscovery(config)
 		return client.Objects
 	}).(*customObject.ClientWithResponses)
+}
+
+// Properties retrieves the LeadsDiscovery client.
+func (d *CrmDiscovery) Properties() *properties.ClientWithResponses {
+	return d.getClient("properties", func(config *configuration.Configuration) interface{} {
+		client, _ := NewPropertiesDiscovery(config)
+		return client.Properties
+	}).(*properties.ClientWithResponses)
 }

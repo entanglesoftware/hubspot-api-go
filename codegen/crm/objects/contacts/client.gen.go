@@ -98,6 +98,11 @@ type ClientInterface interface {
 
 	CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// BatchUpsertContactsWithBody request with any body
+	BatchUpsertContactsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BatchUpsertContacts(ctx context.Context, body BatchUpsertContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GdprDeleteContactWithBody request with any body
 	GdprDeleteContactWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -151,6 +156,30 @@ func (c *Client) CreateContactWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateContact(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateContactRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchUpsertContactsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchUpsertContactsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchUpsertContacts(ctx context.Context, body BatchUpsertContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchUpsertContactsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -431,6 +460,46 @@ func NewCreateContactRequestWithBody(server string, contentType string, body io.
 	}
 
 	operationPath := fmt.Sprintf("/crm/v3/objects/contacts")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBatchUpsertContactsRequest calls the generic BatchUpsertContacts builder with application/json body
+func NewBatchUpsertContactsRequest(server string, body BatchUpsertContactsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBatchUpsertContactsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewBatchUpsertContactsRequestWithBody generates requests for BatchUpsertContacts with any type of body
+func NewBatchUpsertContactsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/contacts/batch/upsert")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -790,6 +859,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateContactWithResponse(ctx context.Context, body CreateContactJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateContactResponse, error)
 
+	// BatchUpsertContactsWithBodyWithResponse request with any body
+	BatchUpsertContactsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchUpsertContactsResponse, error)
+
+	BatchUpsertContactsWithResponse(ctx context.Context, body BatchUpsertContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchUpsertContactsResponse, error)
+
 	// GdprDeleteContactWithBodyWithResponse request with any body
 	GdprDeleteContactWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GdprDeleteContactResponse, error)
 
@@ -864,6 +938,7 @@ type CreateContactResponse struct {
 		// UpdatedAt Timestamp when the contact was last updated.
 		UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	}
+	JSON400 *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -876,6 +951,32 @@ func (r CreateContactResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateContactResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BatchUpsertContactsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BatchUpsertResponse
+	JSON207      *BatchUpsertResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON409      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r BatchUpsertContactsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BatchUpsertContactsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -929,6 +1030,7 @@ type SearchContactsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *ContactsResponse
+	JSON400      *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -1015,6 +1117,7 @@ type UpdateContactResponse struct {
 		// UpdatedAt Timestamp when the contact was last updated.
 		UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	}
+	JSON400 *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -1057,6 +1160,23 @@ func (c *ClientWithResponses) CreateContactWithResponse(ctx context.Context, bod
 		return nil, err
 	}
 	return ParseCreateContactResponse(rsp)
+}
+
+// BatchUpsertContactsWithBodyWithResponse request with arbitrary body returning *BatchUpsertContactsResponse
+func (c *ClientWithResponses) BatchUpsertContactsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchUpsertContactsResponse, error) {
+	rsp, err := c.BatchUpsertContactsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchUpsertContactsResponse(rsp)
+}
+
+func (c *ClientWithResponses) BatchUpsertContactsWithResponse(ctx context.Context, body BatchUpsertContactsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchUpsertContactsResponse, error) {
+	rsp, err := c.BatchUpsertContacts(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchUpsertContactsResponse(rsp)
 }
 
 // GdprDeleteContactWithBodyWithResponse request with arbitrary body returning *GdprDeleteContactResponse
@@ -1213,6 +1333,67 @@ func ParseCreateContactResponse(rsp *http.Response) (*CreateContactResponse, err
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBatchUpsertContactsResponse parses an HTTP response from a BatchUpsertContactsWithResponse call
+func ParseBatchUpsertContactsResponse(rsp *http.Response) (*BatchUpsertContactsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BatchUpsertContactsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BatchUpsertResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 207:
+		var dest BatchUpsertResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON207 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	}
 
 	return response, nil
@@ -1280,6 +1461,13 @@ func ParseSearchContactsResponse(rsp *http.Response) (*SearchContactsResponse, e
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 
@@ -1369,6 +1557,13 @@ func ParseUpdateContactResponse(rsp *http.Response) (*UpdateContactResponse, err
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 

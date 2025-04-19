@@ -30,6 +30,32 @@ type AssociationResponse struct {
 	Type *string `json:"type,omitempty"`
 }
 
+// BatchError defines model for BatchError.
+type BatchError struct {
+	// Error Error message
+	Error *string `json:"error,omitempty"`
+
+	// Id The ID of the failed record
+	Id *string `json:"id,omitempty"`
+
+	// Status Error status code
+	Status *string `json:"status,omitempty"`
+}
+
+// BatchUpsertInput defines model for BatchUpsertInput.
+type BatchUpsertInput struct {
+	Contacts []ContactUpsertData `json:"inputs"`
+}
+
+// BatchUpsertResponse defines model for BatchUpsertResponse.
+type BatchUpsertResponse struct {
+	Errors  *[]BatchError      `json:"errors,omitempty"`
+	Results *[]ContactResponse `json:"results,omitempty"`
+
+	// Status Overall batch operation status
+	Status *string `json:"status,omitempty"`
+}
+
 // ContactResponse defines model for ContactResponse.
 type ContactResponse struct {
 	// Archived Indicates if the contact is archived.
@@ -57,10 +83,47 @@ type ContactResponse struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
+// ContactUpsertData defines model for ContactUpsertData.
+type ContactUpsertData struct {
+	ID                 string            `json:"id"`
+	IDProperty         *string           `json:"idProperty,omitempty"`
+	ObjectWriteTraceID *string           `json:"objectWriteTraceId,omitempty"`
+	Properties         map[string]string `json:"properties"`
+}
+
+// ContactUpsertInput defines model for ContactUpsertInput.
+type ContactUpsertInput = ContactUpsertData
+
 // ContactsResponse defines model for ContactsResponse.
 type ContactsResponse struct {
 	Paging  *Paging           `json:"paging,omitempty"`
 	Results []ContactResponse `json:"results,omitempty"`
+}
+
+// Error defines model for Error.
+type Error struct {
+	Category      *string            `json:"category,omitempty"`
+	Context       *ErrorContext      `json:"context,omitempty"`
+	CorrelationId *string            `json:"correlationId,omitempty"`
+	Errors        *[]ErrorDetail     `json:"errors,omitempty"`
+	Links         *map[string]string `json:"links,omitempty"`
+	Message       *string            `json:"message,omitempty"`
+	SubCategory   *string            `json:"subCategory,omitempty"`
+}
+
+// ErrorContext defines model for ErrorContext.
+type ErrorContext struct {
+	InvalidPropertyName *[]string `json:"invalidPropertyName,omitempty"`
+	MissingScopes       *[]string `json:"missingScopes,omitempty"`
+}
+
+// ErrorDetail defines model for ErrorDetail.
+type ErrorDetail struct {
+	Code        *string                 `json:"code,omitempty"`
+	Context     *map[string]interface{} `json:"context,omitempty"`
+	In          *string                 `json:"in,omitempty"`
+	Message     *string                 `json:"message,omitempty"`
+	SubCategory *string                 `json:"subCategory,omitempty"`
 }
 
 // Filter defines model for Filter.
@@ -86,7 +149,7 @@ type FilterOperator string
 
 // FilterGroups defines model for FilterGroups.
 type FilterGroups = []struct {
-	Filters *[]Filter `json:"Filters,omitempty"`
+	Filters *[]Filter `json:"filters,omitempty"`
 }
 
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
@@ -129,3 +192,6 @@ type PropertyHistory struct {
 	// Value The historical value of the property.
 	Value string `json:"value,omitempty"`
 }
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error

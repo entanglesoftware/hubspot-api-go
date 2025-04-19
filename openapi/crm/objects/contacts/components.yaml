@@ -77,6 +77,72 @@ components:
           description: A map of associated objects.
           x-go-type-skip-optional-pointer: true
 
+    ContactUpsertData:
+      type: object
+      properties:
+        id:
+          type: string
+          x-go-name: ID
+        idProperty:
+          type: string
+          x-go-name: IDProperty
+        objectWriteTraceId:
+          type: string
+          x-go-name: ObjectWriteTraceID
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - id
+        - properties
+
+    # Then modify ContactUpsertInput to reference it
+    ContactUpsertInput:
+      $ref: "#/components/schemas/ContactUpsertData"
+
+    # Then define BatchUpsertRequest that uses ContactUpsertInput
+    BatchUpsertInput:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactUpsertData"  # Changed from ContactUpsertInput
+          x-go-name: Contacts
+      required:
+        - inputs
+
+    # Then define BatchUpsertResponse
+    BatchUpsertResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactResponse"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchError"
+        status:
+          type: string
+          description: Overall batch operation status
+
+    # Then define BatchError
+    BatchError:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the failed record
+        error:
+          type: string
+          description: Error message
+        status:
+          type: string
+          description: Error status code
+
     PropertyHistory:
       type: object
       properties:
@@ -131,7 +197,7 @@ components:
       items:
         type: object
         properties:
-          Filters:
+          filters:
             type: array
             items:
               $ref: "components.yaml#/components/schemas/Filter"
@@ -167,6 +233,64 @@ components:
             - NOT_HAS_PROPERTY
             - CONTAINS_TOKEN
             - NOT_CONTAINS_TOKEN
+
+    Error:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        context:
+          $ref: "#/components/schemas/ErrorContext"
+        correlationId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+        category:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes:
+          type: array
+          items:
+            type: string
+        invalidPropertyName:
+          type: array
+          items:
+            type: string
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        code:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+        message:
+          type: string
+
+  responses:
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
   securitySchemes:
     oauth2:
       type: oauth2

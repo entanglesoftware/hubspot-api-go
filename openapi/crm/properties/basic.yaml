@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: HubSpot CRM Properties API
+  version: 1.0.0
+  description: API for managing CRM properties
+servers:
+  - url: https://api.hubapi.com
+paths:
+  /crm/v3/properties/{objectType}:
+    get:
+      tags: [Properties]
+      summary: Get existing properties
+      description: Retrieve paginated list of existing properties for an object type
+      operationId: getProperties
+      parameters:
+        - name: objectType
+          in: path
+          schema:
+            $ref: "components.yaml#/components/schemas/ObjectType"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/PropertyCollectionResponse"
+        '400':
+          $ref: "components.yaml#/components/responses/400Error"
+        '401':
+          $ref: "components.yaml#/components/responses/401Error"
+
+  /crm/v3/properties/{objectType}/batch/create:
+    post:
+      tags: [Properties]
+      summary: Batch create properties
+      description: Create multiple properties in a single request
+      operationId: batchCreateProperties
+      parameters:
+        - name: objectType
+          in: path
+          schema:
+            $ref: "components.yaml#/components/schemas/ObjectType"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "components.yaml#/components/schemas/BatchPropertyInput"
+      responses:
+        '201':
+          description: Properties created
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/BatchPropertyResponse"
+        '207':
+          description: Partial success
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/BatchPropertyResponse"
+        '400':
+          $ref: "components.yaml#/components/responses/400Error"
+        '401':
+          $ref: "components.yaml#/components/responses/401Error"
+        '403':
+          $ref: "components.yaml#/components/responses/403Error"
