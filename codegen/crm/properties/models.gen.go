@@ -177,6 +177,46 @@ type PropertyOption struct {
 	Value string `json:"value"`
 }
 
+// PropertyUpdateInput defines model for PropertyUpdateInput.
+type PropertyUpdateInput struct {
+	// Archived Whether the property is archived
+	Archived *bool `json:"archived,omitempty"`
+
+	// CalculationFormula FHIRPath formula for calculated properties
+	CalculationFormula *string `json:"calculationFormula,omitempty"`
+
+	// Description A description of the property
+	Description *string `json:"description,omitempty"`
+
+	// DisplayOrder The order this property appears in the UI
+	DisplayOrder *int `json:"displayOrder,omitempty"`
+
+	// ExternalOptions Whether options are fetched externally
+	ExternalOptions *bool       `json:"externalOptions,omitempty"`
+	FieldType       interface{} `json:"fieldType"`
+
+	// FormField Whether the property should be available in forms
+	FormField *bool `json:"formField,omitempty"`
+
+	// GroupName The internal name of the property group
+	GroupName *string `json:"groupName,omitempty"`
+
+	// HasUniqueValue Whether property values must be unique
+	HasUniqueValue *bool `json:"hasUniqueValue,omitempty"`
+
+	// Hidden Whether the property should be hidden from UI
+	Hidden *bool `json:"hidden,omitempty"`
+
+	// Label Display label
+	Label   string            `json:"label"`
+	Name    interface{}       `json:"name"`
+	Options *[]PropertyOption `json:"options,omitempty"`
+
+	// ReferencedObjectType For reference properties, the referenced object type
+	ReferencedObjectType *string     `json:"referencedObjectType,omitempty"`
+	Type                 interface{} `json:"type"`
+}
+
 // N400Error defines model for 400Error.
 type N400Error = Error
 
