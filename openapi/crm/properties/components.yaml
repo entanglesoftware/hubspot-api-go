@@ -103,6 +103,20 @@ components:
           maximum: 2147483647
       required: [label, value]
 
+    PropertyUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/Property"
+        - type: object
+          properties:
+            # Override required fields to make them optional for updates
+            name:
+              not: { }  # Explicitly exclude name from updates
+            type:
+              not: { }  # Explicitly exclude type from updates
+            fieldType:
+              not: { }  # Explicitly exclude fieldType from updates
+          required: [ label ]  # Only label is required for updates
+
     BatchPropertyInput:
       type: object
       properties:

@@ -21,6 +21,9 @@ import (
 // BatchCreatePropertiesJSONRequestBody defines body for BatchCreateProperties for application/json ContentType.
 type BatchCreatePropertiesJSONRequestBody = BatchPropertyInput
 
+// UpdatePropertyJSONRequestBody defines body for UpdateProperty for application/json ContentType.
+type UpdatePropertyJSONRequestBody = PropertyUpdateInput
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get existing properties
@@ -29,6 +32,9 @@ type ServerInterface interface {
 	// Batch create properties
 	// (POST /crm/v3/properties/{objectType}/batch/create)
 	BatchCreateProperties(ctx echo.Context, objectType ObjectType) error
+	// Update a property
+	// (PATCH /crm/v3/properties/{objectType}/{propertyName})
+	UpdateProperty(ctx echo.Context, objectType ObjectType, propertyName string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -68,6 +74,30 @@ func (w *ServerInterfaceWrapper) BatchCreateProperties(ctx echo.Context) error {
 	return err
 }
 
+// UpdateProperty converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateProperty(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "objectType" -------------
+	var objectType ObjectType
+
+	err = runtime.BindStyledParameterWithOptions("simple", "objectType", ctx.Param("objectType"), &objectType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter objectType: %s", err))
+	}
+
+	// ------------- Path parameter "propertyName" -------------
+	var propertyName string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "propertyName", ctx.Param("propertyName"), &propertyName, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter propertyName: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateProperty(ctx, objectType, propertyName)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -98,40 +128,43 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/crm/v3/properties/:objectType", wrapper.GetProperties)
 	router.POST(baseURL+"/crm/v3/properties/:objectType/batch/create", wrapper.BatchCreateProperties)
+	router.PATCH(baseURL+"/crm/v3/properties/:objectType/:propertyName", wrapper.UpdateProperty)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -96,6 +96,11 @@ type ClientInterface interface {
 	BatchCreatePropertiesWithBody(ctx context.Context, objectType ObjectType, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	BatchCreateProperties(ctx context.Context, objectType ObjectType, body BatchCreatePropertiesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdatePropertyWithBody request with any body
+	UpdatePropertyWithBody(ctx context.Context, objectType ObjectType, propertyName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateProperty(ctx context.Context, objectType ObjectType, propertyName string, body UpdatePropertyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetProperties(ctx context.Context, objectType ObjectType, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -124,6 +129,30 @@ func (c *Client) BatchCreatePropertiesWithBody(ctx context.Context, objectType O
 
 func (c *Client) BatchCreateProperties(ctx context.Context, objectType ObjectType, body BatchCreatePropertiesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewBatchCreatePropertiesRequest(c.Server, objectType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePropertyWithBody(ctx context.Context, objectType ObjectType, propertyName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePropertyRequestWithBody(c.Server, objectType, propertyName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateProperty(ctx context.Context, objectType ObjectType, propertyName string, body UpdatePropertyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePropertyRequest(c.Server, objectType, propertyName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -215,6 +244,60 @@ func NewBatchCreatePropertiesRequestWithBody(server string, objectType ObjectTyp
 	return req, nil
 }
 
+// NewUpdatePropertyRequest calls the generic UpdateProperty builder with application/json body
+func NewUpdatePropertyRequest(server string, objectType ObjectType, propertyName string, body UpdatePropertyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdatePropertyRequestWithBody(server, objectType, propertyName, "application/json", bodyReader)
+}
+
+// NewUpdatePropertyRequestWithBody generates requests for UpdateProperty with any type of body
+func NewUpdatePropertyRequestWithBody(server string, objectType ObjectType, propertyName string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "objectType", runtime.ParamLocationPath, objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "propertyName", runtime.ParamLocationPath, propertyName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/properties/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -265,6 +348,11 @@ type ClientWithResponsesInterface interface {
 	BatchCreatePropertiesWithBodyWithResponse(ctx context.Context, objectType ObjectType, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchCreatePropertiesResponse, error)
 
 	BatchCreatePropertiesWithResponse(ctx context.Context, objectType ObjectType, body BatchCreatePropertiesJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchCreatePropertiesResponse, error)
+
+	// UpdatePropertyWithBodyWithResponse request with any body
+	UpdatePropertyWithBodyWithResponse(ctx context.Context, objectType ObjectType, propertyName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePropertyResponse, error)
+
+	UpdatePropertyWithResponse(ctx context.Context, objectType ObjectType, propertyName string, body UpdatePropertyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePropertyResponse, error)
 }
 
 type GetPropertiesResponse struct {
@@ -317,6 +405,31 @@ func (r BatchCreatePropertiesResponse) StatusCode() int {
 	return 0
 }
 
+type UpdatePropertyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Property
+	JSON400      *N400Error
+	JSON401      *N401Error
+	JSON403      *N403Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdatePropertyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdatePropertyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetPropertiesWithResponse request returning *GetPropertiesResponse
 func (c *ClientWithResponses) GetPropertiesWithResponse(ctx context.Context, objectType ObjectType, reqEditors ...RequestEditorFn) (*GetPropertiesResponse, error) {
 	rsp, err := c.GetProperties(ctx, objectType, reqEditors...)
@@ -341,6 +454,23 @@ func (c *ClientWithResponses) BatchCreatePropertiesWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseBatchCreatePropertiesResponse(rsp)
+}
+
+// UpdatePropertyWithBodyWithResponse request with arbitrary body returning *UpdatePropertyResponse
+func (c *ClientWithResponses) UpdatePropertyWithBodyWithResponse(ctx context.Context, objectType ObjectType, propertyName string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePropertyResponse, error) {
+	rsp, err := c.UpdatePropertyWithBody(ctx, objectType, propertyName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePropertyResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdatePropertyWithResponse(ctx context.Context, objectType ObjectType, propertyName string, body UpdatePropertyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePropertyResponse, error) {
+	rsp, err := c.UpdateProperty(ctx, objectType, propertyName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePropertyResponse(rsp)
 }
 
 // ParseGetPropertiesResponse parses an HTTP response from a GetPropertiesWithResponse call
@@ -410,6 +540,53 @@ func ParseBatchCreatePropertiesResponse(rsp *http.Response) (*BatchCreatePropert
 			return nil, err
 		}
 		response.JSON207 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest N403Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdatePropertyResponse parses an HTTP response from a UpdatePropertyWithResponse call
+func ParseUpdatePropertyResponse(rsp *http.Response) (*UpdatePropertyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdatePropertyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Property
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest N400Error
