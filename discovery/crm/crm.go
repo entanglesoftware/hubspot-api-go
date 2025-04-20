@@ -1,22 +1,14 @@
 package crm
 
 import (
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/properties"
 	"sync"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/association"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/commerce"
 	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
-	associationSchema "github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/orders"
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/taxes"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
@@ -140,58 +132,10 @@ func (d *CrmDiscovery) Objects() *customObject.ClientWithResponses {
 	}).(*customObject.ClientWithResponses)
 }
 
-// Quotes retrieves the QuotesDiscovery client.
-func (d *CrmDiscovery) Quotes() *quotes.ClientWithResponses {
-	return d.getClient("quotes", func(config *configuration.Configuration) interface{} {
-		client, _ := commerce.NewQuotesDiscovery(config)
-		return client.Quotes
-	}).(*quotes.ClientWithResponses)
-}
-
-// Invoices retrieves the InvoicesDiscovery client.
-func (d *CrmDiscovery) Invoices() *invoices.ClientWithResponses {
-	return d.getClient("invoices", func(config *configuration.Configuration) interface{} {
-		client, _ := commerce.NewInvoicesDiscovery(config)
-		return client.Invoices
-	}).(*invoices.ClientWithResponses)
-}
-
-// Discounts retrieves the DiscountsDiscovery client.
-func (d *CrmDiscovery) Discounts() *discounts.ClientWithResponses {
-	return d.getClient("discounts", func(config *configuration.Configuration) interface{} {
-		client, _ := commerce.NewDiscountsDiscovery(config)
-		return client.Discounts
-	}).(*discounts.ClientWithResponses)
-}
-
-// Taxes retrieves the TaxesDiscovery client.
-func (d *CrmDiscovery) Taxes() *taxes.ClientWithResponses {
-	return d.getClient("taxes", func(config *configuration.Configuration) interface{} {
-		client, _ := commerce.NewTaxesDiscovery(config)
-		return client.Taxes
-	}).(*taxes.ClientWithResponses)
-}
-
-// Orders retrieves the OrdersDiscovery client.
-func (d *CrmDiscovery) Orders() *orders.ClientWithResponses {
-	return d.getClient("orders", func(config *configuration.Configuration) interface{} {
-		client, _ := commerce.NewOrdersDiscovery(config)
-		return client.Orders
-	}).(*orders.ClientWithResponses)
-}
-
-// Details retrieves the DetailsDiscovery client.
-func (d *CrmDiscovery) Details() *details.ClientWithResponses {
-	return d.getClient("details", func(config *configuration.Configuration) interface{} {
-		client, _ := association.NewDetailsDiscovery(config)
-		return client.Details
-	}).(*details.ClientWithResponses)
-}
-
-// Schemas retrieves the SchemasDiscovery client.
-func (d *CrmDiscovery) Schemas() *associationSchema.ClientWithResponses {
-	return d.getClient("schemas", func(config *configuration.Configuration) interface{} {
-		client, _ := association.NewSchemasDiscovery(config)
-		return client.Schemas
-	}).(*associationSchema.ClientWithResponses)
+// Properties retrieves the LeadsDiscovery client.
+func (d *CrmDiscovery) Properties() *properties.ClientWithResponses {
+	return d.getClient("properties", func(config *configuration.Configuration) interface{} {
+		client, _ := NewPropertiesDiscovery(config)
+		return client.Properties
+	}).(*properties.ClientWithResponses)
 }

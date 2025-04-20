@@ -196,6 +196,8 @@ paths:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
                     description: A map of the contact's properties including historical values.
                     x-go-type-skip-optional-pointer: true
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
 
   /crm/v3/objects/contacts/{contactId}:
     get:
@@ -280,9 +282,6 @@ paths:
             schema:
               type: object
               properties:
-                objectWriteTraceId:
-                  type: string
-                  description: Unique trace ID for the operation.
                 properties:
                   type: object
                   description: Key-value pairs representing the deal properties to update.
@@ -334,6 +333,9 @@ paths:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
                     description: A map of the contact's properties including historical values.
                     x-go-type-skip-optional-pointer: true
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+
     delete:
       summary: Delete a contact
       description: Deletes a contact from HubSpot using the provided contact ID.
@@ -348,6 +350,43 @@ paths:
       responses:
         '204':
           description: No Content. The contact was successfully deleted.
+
+  /crm/v3/objects/contacts/batch/upsert:
+    post:
+      summary: Batch upsert contacts
+      description: |
+        Perform a batch upsert on contact objects. 
+        Upsert will look for an existing contact with the specified ID property and either:
+        - Update the existing contact if found
+        - Create a new contact if not found
+      tags:
+        - Contacts
+      operationId: batchUpsertContacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "components.yaml#/components/schemas/BatchUpsertInput"
+      responses:
+        "200":
+          description: Batch upsert results
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/BatchUpsertResponse"
+        "207":
+          description: Multi-status response (some operations may have failed)
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/BatchUpsertResponse"
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+        "401":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+        "409":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+
   /crm/v3/objects/contacts/search:
     $ref: './contact-search.yaml#/search'
   /crm/v3/objects/contacts/gdpr-delete:

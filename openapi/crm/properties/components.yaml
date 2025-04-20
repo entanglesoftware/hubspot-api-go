@@ -1,0 +1,249 @@
+components:
+  schemas:
+    ObjectType:
+      type: string
+      enum:
+        - companies
+        - contacts
+        - deals
+      x-go-name: ObjectType
+      x-enum-varnames:
+        - ObjectTypeCompanies
+        - ObjectTypeContacts
+        - ObjectTypeDeals
+
+    Property:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Internal property name (must be lowercase with underscores)
+          example: my_contact_property
+        label:
+          type: string
+          description: Display label
+          example: "My Contact Property"
+        type:
+          type: string
+          enum: [string, number, datetime, enumeration, bool]
+          description: The data type of the property
+          example: enumeration
+        fieldType:
+          type: string
+          enum: [text, textarea, date, datetime, checkbox, select, radio, number, file]
+          description: Controls how the property appears in forms
+          example: select
+        groupName:
+          type: string
+          description: The internal name of the property group
+          example: contactinformation
+        hidden:
+          type: boolean
+          description: Whether the property should be hidden from UI
+          default: false
+        formField:
+          type: boolean
+          description: Whether the property should be available in forms
+          default: true
+        displayOrder:
+          type: integer
+          description: The order this property appears in the UI
+          minimum: -2147483648
+          maximum: 2147483647
+        description:
+          type: string
+          description: A description of the property
+        referencedObjectType:
+          type: string
+          description: For reference properties, the referenced object type
+        calculationFormula:
+          type: string
+          description: FHIRPath formula for calculated properties
+        hasUniqueValue:
+          type: boolean
+          description: Whether property values must be unique
+          default: false
+        externalOptions:
+          type: boolean
+          description: Whether options are fetched externally
+          default: false
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/PropertyOption"
+        archived:
+          type: boolean
+          description: Whether the property is archived
+          default: false
+      required: [name, label, type, fieldType]
+
+    PropertyOption:
+      type: object
+      properties:
+        label:
+          type: string
+          description: The user-facing label for the option
+          example: "Option A"
+        value:
+          type: string
+          description: The internal value for the option
+          example: "A"
+        description:
+          type: string
+          description: A description of the option
+          example: "Choice number one"
+        hidden:
+          type: boolean
+          description: Whether the option should be hidden
+          default: false
+        displayOrder:
+          type: integer
+          description: The order this option appears in dropdowns
+          minimum: -2147483648
+          maximum: 2147483647
+      required: [label, value]
+
+    PropertyUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/Property"
+        - type: object
+          properties:
+            # Override required fields to make them optional for updates
+            name:
+              not: { }  # Explicitly exclude name from updates
+            type:
+              not: { }  # Explicitly exclude type from updates
+            fieldType:
+              not: { }  # Explicitly exclude fieldType from updates
+          required: [ label ]  # Only label is required for updates
+
+    BatchPropertyInput:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+          maxItems: 100
+          description: Batch of properties to create
+          example:
+            - name: "custom_property"
+              label: "Custom Property"
+              type: "string"
+              fieldType: "text"
+              groupName: "contactinformation"
+      required: [inputs]
+
+    PropertyCollectionResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+        paging:
+          $ref: "#/components/schemas/Paging"
+
+    BatchPropertyResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchError"
+        status:
+          type: string
+          enum: [COMPLETE, PENDING]
+
+    Paging:
+      type: object
+      properties:
+        next:
+          $ref: "#/components/schemas/PagingNext"
+
+    PagingNext:
+      type: object
+      properties:
+        after:
+          type: string
+        link:
+          type: string
+
+    BatchError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+
+    Error:
+      type: object
+      properties:
+        subCategory: { type: string }
+        context: { $ref: "#/components/schemas/ErrorContext" }
+        correlationId: { type: string }
+        links:
+          type: object
+          additionalProperties: { type: string }
+        message: { type: string }
+        category: { type: string }
+        errors:
+          type: array
+          items: { $ref: "#/components/schemas/ErrorDetail" }
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes: { type: array, items: { type: string } }
+        invalidPropertyName: { type: array, items: { type: string } }
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory: { type: string }
+        code: { type: string }
+        in: { type: string }
+        context: { type: object }
+        message: { type: string }
+
+  responses:
+    400Error:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    401Error:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    403Error:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.schemas.custom.read: Read custom properties
+            crm.schemas.custom.write: Write custom properties
+
+security:
+  - oauth2: [crm.schemas.custom.read, crm.schemas.custom.write]

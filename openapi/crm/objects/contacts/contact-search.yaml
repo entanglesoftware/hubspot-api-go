@@ -42,3 +42,5 @@ search:
             application/json:
               schema:
                 $ref: "components.yaml#/components/schemas/ContactsResponse"
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
