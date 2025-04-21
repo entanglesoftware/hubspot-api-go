@@ -260,5 +260,29 @@ paths:
       responses:
         '204':
           description: No Content. The product was successfully deleted.
+
+  /crm/v3/objects/products/batch/upsert:
+    post:
+      summary: Batch create or update products
+      description: Creates or updates multiple products in a single batch request
+      operationId: batchUpsertProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "components.yaml#/components/schemas/BatchProductsUpsertRequest"
+      responses:
+        "200":
+          description: Batch operation completed
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/BatchProductsResponse"
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+      security:
+        - oauth2: [ 'e-commerce' ]
+
   /crm/v3/objects/products/search:
     $ref: './search.yaml#/search'

@@ -14,6 +14,8 @@ const (
 	ObjectTypeCompanies ObjectType = "companies"
 	ObjectTypeContacts  ObjectType = "contacts"
 	ObjectTypeDeals     ObjectType = "deals"
+	ObjectTypeOrders    ObjectType = "orders"
+	ObjectTypeProducts  ObjectType = "products"
 )
 
 // Defines values for PropertyFieldType.

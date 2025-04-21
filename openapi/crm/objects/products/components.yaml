@@ -173,6 +173,139 @@ components:
             - NOT_CONTAINS_TOKEN
           x-go-type-skip-optional-pointer: true
 
+
+    BatchInputItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product to update (optional for creates)
+        idProperty:
+          type: string
+          description: The name of a property whose values are unique for this object
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+        associations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationRequest"
+      required:
+        - id
+        - properties
+
+    BatchProductsUpsertRequest:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchInputItem"
+      required:
+        - inputs
+
+    BatchProductsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ PENDING, PROCESSING, COMPLETE ]
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductResponse"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorItem"  # Define this separately
+
+    AssociationRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationType"
+        to:
+          $ref: "#/components/schemas/AssociationTarget"
+
+    ErrorItem:
+      type: object
+      properties:
+        errorType:
+          type: string
+        message:
+          type: string
+        context:
+          type: object
+
+    AssociationType:
+      type: object
+      properties:
+        associationCategory:
+          type: string
+          enum: [ HUBSPOT_DEFINED, USER_DEFINED, INTEGRATOR_DEFINED ]
+          x-enum-varnames:
+            - AssociationCategoryHubspotDefined
+            - AssociationCategoryUserDefined
+            - AssociationCategoryIntegratorDefined
+
+    AssociationTarget:
+      type: object
+      properties:
+        id:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        context:
+          $ref: "#/components/schemas/ErrorContext"
+        correlationId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+        category:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes:
+          type: array
+          items:
+            type: string
+        invalidPropertyName:
+          type: array
+          items:
+            type: string
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        code:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+        message:
+          type: string
+
   parameters:
     Properties:
         name: properties
@@ -234,6 +367,14 @@ components:
         type: boolean
         default: false
       example: false
+
+  responses:
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
 
   securitySchemes:
     oauth2:

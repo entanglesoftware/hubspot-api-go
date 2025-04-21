@@ -98,6 +98,11 @@ type ClientInterface interface {
 
 	CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// BatchUpsertProductsWithBody request with any body
+	BatchUpsertProductsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BatchUpsertProducts(ctx context.Context, body BatchUpsertProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SearchProductsWithBody request with any body
 	SearchProductsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -141,6 +146,30 @@ func (c *Client) CreateProductWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateProductRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchUpsertProductsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchUpsertProductsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchUpsertProducts(ctx context.Context, body BatchUpsertProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchUpsertProductsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -373,6 +402,46 @@ func NewCreateProductRequestWithBody(server string, contentType string, body io.
 	}
 
 	operationPath := fmt.Sprintf("/crm/v3/objects/products")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBatchUpsertProductsRequest calls the generic BatchUpsertProducts builder with application/json body
+func NewBatchUpsertProductsRequest(server string, body BatchUpsertProductsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBatchUpsertProductsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewBatchUpsertProductsRequestWithBody generates requests for BatchUpsertProducts with any type of body
+func NewBatchUpsertProductsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/products/batch/upsert")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -684,6 +753,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
 
+	// BatchUpsertProductsWithBodyWithResponse request with any body
+	BatchUpsertProductsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchUpsertProductsResponse, error)
+
+	BatchUpsertProductsWithResponse(ctx context.Context, body BatchUpsertProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchUpsertProductsResponse, error)
+
 	// SearchProductsWithBodyWithResponse request with any body
 	SearchProductsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error)
 
@@ -760,6 +834,29 @@ func (r CreateProductResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BatchUpsertProductsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BatchProductsResponse
+	JSON400      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r BatchUpsertProductsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BatchUpsertProductsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -900,6 +997,23 @@ func (c *ClientWithResponses) CreateProductWithResponse(ctx context.Context, bod
 	return ParseCreateProductResponse(rsp)
 }
 
+// BatchUpsertProductsWithBodyWithResponse request with arbitrary body returning *BatchUpsertProductsResponse
+func (c *ClientWithResponses) BatchUpsertProductsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchUpsertProductsResponse, error) {
+	rsp, err := c.BatchUpsertProductsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchUpsertProductsResponse(rsp)
+}
+
+func (c *ClientWithResponses) BatchUpsertProductsWithResponse(ctx context.Context, body BatchUpsertProductsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchUpsertProductsResponse, error) {
+	rsp, err := c.BatchUpsertProducts(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchUpsertProductsResponse(rsp)
+}
+
 // SearchProductsWithBodyWithResponse request with arbitrary body returning *SearchProductsResponse
 func (c *ClientWithResponses) SearchProductsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchProductsResponse, error) {
 	rsp, err := c.SearchProductsWithBody(ctx, contentType, body, reqEditors...)
@@ -1019,6 +1133,39 @@ func ParseCreateProductResponse(rsp *http.Response) (*CreateProductResponse, err
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBatchUpsertProductsResponse parses an HTTP response from a BatchUpsertProductsWithResponse call
+func ParseBatchUpsertProductsResponse(rsp *http.Response) (*BatchUpsertProductsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BatchUpsertProductsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BatchProductsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 
