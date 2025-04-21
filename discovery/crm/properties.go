@@ -28,3 +28,11 @@ func NewPropertiesDiscovery(config *configuration.Configuration) (*PropertiesDis
 		Properties: propertiesClient,
 	}, nil
 }
+
+// Properties retrieve the PropertiesDiscovery client.
+func (d *CrmDiscovery) Properties() *properties.ClientWithResponses {
+	return d.getClient("properties", func(config *configuration.Configuration) interface{} {
+		client, _ := NewPropertiesDiscovery(config)
+		return client.Properties
+	}).(*properties.ClientWithResponses)
+}
