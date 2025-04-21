@@ -6,11 +6,15 @@ components:
         - companies
         - contacts
         - deals
+        - orders
+        - products
       x-go-name: ObjectType
       x-enum-varnames:
         - ObjectTypeCompanies
         - ObjectTypeContacts
         - ObjectTypeDeals
+        - ObjectTypeOrders
+        - ObjectTypeProducts
 
     Property:
       type: object

@@ -5,6 +5,8 @@ info:
   description: API for managing CRM properties
 servers:
   - url: https://api.hubapi.com
+security:
+  - oauth2: ['crm.schemas.contacts.write']
 paths:
   /crm/v3/properties/{objectType}:
     get:

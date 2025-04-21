@@ -7,6 +7,20 @@ import (
 	"time"
 )
 
+// Defines values for AssociationTypeAssociationCategory.
+const (
+	AssociationCategoryHubspotDefined    AssociationTypeAssociationCategory = "HUBSPOT_DEFINED"
+	AssociationCategoryIntegratorDefined AssociationTypeAssociationCategory = "INTEGRATOR_DEFINED"
+	AssociationCategoryUserDefined       AssociationTypeAssociationCategory = "USER_DEFINED"
+)
+
+// Defines values for BatchProductsResponseStatus.
+const (
+	COMPLETE   BatchProductsResponseStatus = "COMPLETE"
+	PENDING    BatchProductsResponseStatus = "PENDING"
+	PROCESSING BatchProductsResponseStatus = "PROCESSING"
+)
+
 // Defines values for FilterOperator.
 const (
 	CONTAINSTOKEN    FilterOperator = "CONTAINS_TOKEN"
@@ -21,6 +35,12 @@ const (
 	NOTHASPROPERTY   FilterOperator = "NOT_HAS_PROPERTY"
 )
 
+// AssociationRequest defines model for AssociationRequest.
+type AssociationRequest struct {
+	To    *AssociationTarget `json:"to,omitempty"`
+	Types *[]AssociationType `json:"types,omitempty"`
+}
+
 // AssociationResponse defines model for AssociationResponse.
 type AssociationResponse struct {
 	// Id The ID of the associated object.
@@ -28,6 +48,79 @@ type AssociationResponse struct {
 
 	// Type The type of association.
 	Type *string `json:"type,omitempty"`
+}
+
+// AssociationTarget defines model for AssociationTarget.
+type AssociationTarget struct {
+	Id *string `json:"id,omitempty"`
+}
+
+// AssociationType defines model for AssociationType.
+type AssociationType struct {
+	AssociationCategory *AssociationTypeAssociationCategory `json:"associationCategory,omitempty"`
+}
+
+// AssociationTypeAssociationCategory defines model for AssociationType.AssociationCategory.
+type AssociationTypeAssociationCategory string
+
+// BatchInputItem defines model for BatchInputItem.
+type BatchInputItem struct {
+	Associations *[]AssociationRequest `json:"associations,omitempty"`
+
+	// Id The ID of the product to update (optional for creates)
+	Id string `json:"id"`
+
+	// IdProperty The name of a property whose values are unique for this object
+	IdProperty *string           `json:"idProperty,omitempty"`
+	Properties map[string]string `json:"properties"`
+}
+
+// BatchProductsResponse defines model for BatchProductsResponse.
+type BatchProductsResponse struct {
+	Errors  *[]ErrorItem                 `json:"errors,omitempty"`
+	Results *[]ProductResponse           `json:"results,omitempty"`
+	Status  *BatchProductsResponseStatus `json:"status,omitempty"`
+}
+
+// BatchProductsResponseStatus defines model for BatchProductsResponse.Status.
+type BatchProductsResponseStatus string
+
+// BatchProductsUpsertRequest defines model for BatchProductsUpsertRequest.
+type BatchProductsUpsertRequest struct {
+	Inputs []BatchInputItem `json:"inputs"`
+}
+
+// Error defines model for Error.
+type Error struct {
+	Category      *string            `json:"category,omitempty"`
+	Context       *ErrorContext      `json:"context,omitempty"`
+	CorrelationId *string            `json:"correlationId,omitempty"`
+	Errors        *[]ErrorDetail     `json:"errors,omitempty"`
+	Links         *map[string]string `json:"links,omitempty"`
+	Message       *string            `json:"message,omitempty"`
+	SubCategory   *string            `json:"subCategory,omitempty"`
+}
+
+// ErrorContext defines model for ErrorContext.
+type ErrorContext struct {
+	InvalidPropertyName *[]string `json:"invalidPropertyName,omitempty"`
+	MissingScopes       *[]string `json:"missingScopes,omitempty"`
+}
+
+// ErrorDetail defines model for ErrorDetail.
+type ErrorDetail struct {
+	Code        *string                 `json:"code,omitempty"`
+	Context     *map[string]interface{} `json:"context,omitempty"`
+	In          *string                 `json:"in,omitempty"`
+	Message     *string                 `json:"message,omitempty"`
+	SubCategory *string                 `json:"subCategory,omitempty"`
+}
+
+// ErrorItem defines model for ErrorItem.
+type ErrorItem struct {
+	Context   *map[string]interface{} `json:"context,omitempty"`
+	ErrorType *string                 `json:"errorType,omitempty"`
+	Message   *string                 `json:"message,omitempty"`
 }
 
 // Filter defines model for Filter.
@@ -141,3 +234,6 @@ type Properties = []string
 
 // PropertiesWithHistory defines model for PropertiesWithHistory.
 type PropertiesWithHistory = []string
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error
