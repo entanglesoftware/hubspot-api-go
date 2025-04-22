@@ -48,7 +48,158 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/campaignDetailsResponse"
+                $ref: "components.yaml#/components/schemas/CampaignDetailsResponse"
+    patch:
+      summary: Update a Campaign
+      operationId: updateCampaign
+      parameters:
+        - name: campaignGuid
+          in: path
+          required: true
+          description: The unique identifier of the campaign
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - properties
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of campaign properties to update
+                  additionalProperties:
+                    type: string
+                    example: "any string value"
+      responses:
+        '200':
+          description: Campaign updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2025-04-22T05:27:30.715Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2025-04-22T05:27:30.715Z"
+                  id:
+                    type: string
+                    example: "string"
+                  properties:
+                    type: object
+                    additionalProperties:
+                      type: string
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
+    delete:
+      summary: Delete a Campaign
+      operationId: deleteCampaign
+      tags:
+        - Campaigns
+      parameters:
+        - name: campaignGuid
+          in: path
+          required: true
+          description: The unique identifier of the campaign
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content. The campaign was successfully deleted.
+  /marketing/v3/campaigns/:
+    get:
+      summary: Get campaigns by name and properties
+      description: Retrieves campaigns filtered by name and selected properties from HubSpot.
+      operationId: searchCampaigns
+      parameters:
+        - name: name
+          in: query
+          description: Filter campaigns by name.
+          required: false
+          schema:
+            type: string
+        - name: properties
+          in: query
+          description: List of campaign properties to include in the response.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          description: Maximum number of campaigns to return.
+          required: false
+          schema:
+            type: integer
+        - name: after
+          in: query
+          description: A paging cursor token used to get the next set of results.
+          required: false
+          schema:
+            type: string
+        - name: sorts
+          in: query
+          description: List of properties to sort the campaigns by. Prefix a property name with a minus sign to sort in descending order.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Company object details.
+          content:
+            application/json:
+              schema:
+                $ref: "components.yaml#/components/schemas/CampaignsSearchResponse"
+    post:
+      summary: Create a Campaign
+      operationId: createCampaign
+      tags:
+        - Campaigns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - properties
+              properties:
+                properties:
+                  type: object
+                  description: Key-value pairs of campaign properties
+                  additionalProperties:
+                    type: string
+      responses:
+        '201':
+          description: Campaign created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  id:
+                    type: string
+                  properties:
+                    type: object
+                    additionalProperties:
+                      type: string
+        "400":
+          $ref: "components.yaml#/components/responses/ErrorResponse"
                 
 
 components:

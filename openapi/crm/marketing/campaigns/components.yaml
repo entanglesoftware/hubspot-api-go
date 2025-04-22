@@ -17,7 +17,7 @@ components:
           type: string
           description: The cursor token for the next page of results.
           x-go-type-skip-optional-pointer: true
-    campaignDetailsResponse:
+    CampaignDetailsResponse:
       type: object
       properties:
         id:
@@ -45,6 +45,90 @@ components:
                 type: string
               metrics:
                 type: object
+
+    CampaignSearchResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        properties:
+          type: object
+      x-go-type-skip-optional-pointer: true
+        
+    
+    Error:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        context:
+          $ref: "#/components/schemas/ErrorContext"
+        correlationId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+        category:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes:
+          type: array
+          items:
+            type: string
+        invalidPropertyName:
+          type: array
+          items:
+            type: string
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        code:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+        message:
+          type: string
+
+    CampaignsSearchResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/CampaignSearchResponse"
+          type: array
+          x-go-type-skip-optional-pointer: true
+        total:
+          type: integer
+      type: object
+
+  responses:
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
 
   securitySchemes:
     oauth2:

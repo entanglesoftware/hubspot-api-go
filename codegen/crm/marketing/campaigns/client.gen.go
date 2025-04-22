@@ -4,6 +4,7 @@
 package campaigns
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 )
@@ -88,8 +90,72 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// SearchCampaigns request
+	SearchCampaigns(ctx context.Context, params *SearchCampaignsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateCampaignWithBody request with any body
+	CreateCampaignWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateCampaign(ctx context.Context, body CreateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteCampaign request
+	DeleteCampaign(ctx context.Context, campaignGuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetCampaignDetails request
 	GetCampaignDetails(ctx context.Context, campaignGuid string, params *GetCampaignDetailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCampaignWithBody request with any body
+	UpdateCampaignWithBody(ctx context.Context, campaignGuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateCampaign(ctx context.Context, campaignGuid string, body UpdateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) SearchCampaigns(ctx context.Context, params *SearchCampaignsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchCampaignsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateCampaignWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCampaignRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateCampaign(ctx context.Context, body CreateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateCampaignRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteCampaign(ctx context.Context, campaignGuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteCampaignRequest(c.Server, campaignGuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetCampaignDetails(ctx context.Context, campaignGuid string, params *GetCampaignDetailsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -102,6 +168,217 @@ func (c *Client) GetCampaignDetails(ctx context.Context, campaignGuid string, pa
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateCampaignWithBody(ctx context.Context, campaignGuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCampaignRequestWithBody(c.Server, campaignGuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateCampaign(ctx context.Context, campaignGuid string, body UpdateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCampaignRequest(c.Server, campaignGuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewSearchCampaignsRequest generates requests for SearchCampaigns
+func NewSearchCampaignsRequest(server string, params *SearchCampaignsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/marketing/v3/campaigns/")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Name != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, *params.Name); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Properties != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "properties", runtime.ParamLocationQuery, *params.Properties); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.After != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "after", runtime.ParamLocationQuery, *params.After); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Sorts != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sorts", runtime.ParamLocationQuery, *params.Sorts); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateCampaignRequest calls the generic CreateCampaign builder with application/json body
+func NewCreateCampaignRequest(server string, body CreateCampaignJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateCampaignRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateCampaignRequestWithBody generates requests for CreateCampaign with any type of body
+func NewCreateCampaignRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/marketing/v3/campaigns/")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteCampaignRequest generates requests for DeleteCampaign
+func NewDeleteCampaignRequest(server string, campaignGuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "campaignGuid", runtime.ParamLocationPath, campaignGuid)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/marketing/v3/campaigns/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetCampaignDetailsRequest generates requests for GetCampaignDetails
@@ -192,6 +469,53 @@ func NewGetCampaignDetailsRequest(server string, campaignGuid string, params *Ge
 	return req, nil
 }
 
+// NewUpdateCampaignRequest calls the generic UpdateCampaign builder with application/json body
+func NewUpdateCampaignRequest(server string, campaignGuid string, body UpdateCampaignJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCampaignRequestWithBody(server, campaignGuid, "application/json", bodyReader)
+}
+
+// NewUpdateCampaignRequestWithBody generates requests for UpdateCampaign with any type of body
+func NewUpdateCampaignRequestWithBody(server string, campaignGuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "campaignGuid", runtime.ParamLocationPath, campaignGuid)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/marketing/v3/campaigns/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -235,8 +559,95 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// SearchCampaignsWithResponse request
+	SearchCampaignsWithResponse(ctx context.Context, params *SearchCampaignsParams, reqEditors ...RequestEditorFn) (*SearchCampaignsResponse, error)
+
+	// CreateCampaignWithBodyWithResponse request with any body
+	CreateCampaignWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCampaignResponse, error)
+
+	CreateCampaignWithResponse(ctx context.Context, body CreateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCampaignResponse, error)
+
+	// DeleteCampaignWithResponse request
+	DeleteCampaignWithResponse(ctx context.Context, campaignGuid string, reqEditors ...RequestEditorFn) (*DeleteCampaignResponse, error)
+
 	// GetCampaignDetailsWithResponse request
 	GetCampaignDetailsWithResponse(ctx context.Context, campaignGuid string, params *GetCampaignDetailsParams, reqEditors ...RequestEditorFn) (*GetCampaignDetailsResponse, error)
+
+	// UpdateCampaignWithBodyWithResponse request with any body
+	UpdateCampaignWithBodyWithResponse(ctx context.Context, campaignGuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCampaignResponse, error)
+
+	UpdateCampaignWithResponse(ctx context.Context, campaignGuid string, body UpdateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCampaignResponse, error)
+}
+
+type SearchCampaignsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CampaignsSearchResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchCampaignsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchCampaignsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateCampaignResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		CreatedAt  *string            `json:"createdAt,omitempty"`
+		Id         *string            `json:"id,omitempty"`
+		Properties *map[string]string `json:"properties,omitempty"`
+		UpdatedAt  *string            `json:"updatedAt,omitempty"`
+	}
+	JSON400 *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateCampaignResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateCampaignResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteCampaignResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteCampaignResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteCampaignResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetCampaignDetailsResponse struct {
@@ -261,6 +672,69 @@ func (r GetCampaignDetailsResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateCampaignResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		CreatedAt  *time.Time         `json:"createdAt,omitempty"`
+		Id         *string            `json:"id,omitempty"`
+		Properties *map[string]string `json:"properties,omitempty"`
+		UpdatedAt  *time.Time         `json:"updatedAt,omitempty"`
+	}
+	JSON400 *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCampaignResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCampaignResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// SearchCampaignsWithResponse request returning *SearchCampaignsResponse
+func (c *ClientWithResponses) SearchCampaignsWithResponse(ctx context.Context, params *SearchCampaignsParams, reqEditors ...RequestEditorFn) (*SearchCampaignsResponse, error) {
+	rsp, err := c.SearchCampaigns(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchCampaignsResponse(rsp)
+}
+
+// CreateCampaignWithBodyWithResponse request with arbitrary body returning *CreateCampaignResponse
+func (c *ClientWithResponses) CreateCampaignWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateCampaignResponse, error) {
+	rsp, err := c.CreateCampaignWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCampaignResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateCampaignWithResponse(ctx context.Context, body CreateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateCampaignResponse, error) {
+	rsp, err := c.CreateCampaign(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateCampaignResponse(rsp)
+}
+
+// DeleteCampaignWithResponse request returning *DeleteCampaignResponse
+func (c *ClientWithResponses) DeleteCampaignWithResponse(ctx context.Context, campaignGuid string, reqEditors ...RequestEditorFn) (*DeleteCampaignResponse, error) {
+	rsp, err := c.DeleteCampaign(ctx, campaignGuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteCampaignResponse(rsp)
+}
+
 // GetCampaignDetailsWithResponse request returning *GetCampaignDetailsResponse
 func (c *ClientWithResponses) GetCampaignDetailsWithResponse(ctx context.Context, campaignGuid string, params *GetCampaignDetailsParams, reqEditors ...RequestEditorFn) (*GetCampaignDetailsResponse, error) {
 	rsp, err := c.GetCampaignDetails(ctx, campaignGuid, params, reqEditors...)
@@ -268,6 +742,103 @@ func (c *ClientWithResponses) GetCampaignDetailsWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetCampaignDetailsResponse(rsp)
+}
+
+// UpdateCampaignWithBodyWithResponse request with arbitrary body returning *UpdateCampaignResponse
+func (c *ClientWithResponses) UpdateCampaignWithBodyWithResponse(ctx context.Context, campaignGuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCampaignResponse, error) {
+	rsp, err := c.UpdateCampaignWithBody(ctx, campaignGuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCampaignResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateCampaignWithResponse(ctx context.Context, campaignGuid string, body UpdateCampaignJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCampaignResponse, error) {
+	rsp, err := c.UpdateCampaign(ctx, campaignGuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCampaignResponse(rsp)
+}
+
+// ParseSearchCampaignsResponse parses an HTTP response from a SearchCampaignsWithResponse call
+func ParseSearchCampaignsResponse(rsp *http.Response) (*SearchCampaignsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchCampaignsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CampaignsSearchResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateCampaignResponse parses an HTTP response from a CreateCampaignWithResponse call
+func ParseCreateCampaignResponse(rsp *http.Response) (*CreateCampaignResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateCampaignResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			CreatedAt  *string            `json:"createdAt,omitempty"`
+			Id         *string            `json:"id,omitempty"`
+			Properties *map[string]string `json:"properties,omitempty"`
+			UpdatedAt  *string            `json:"updatedAt,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteCampaignResponse parses an HTTP response from a DeleteCampaignWithResponse call
+func ParseDeleteCampaignResponse(rsp *http.Response) (*DeleteCampaignResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteCampaignResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
 }
 
 // ParseGetCampaignDetailsResponse parses an HTTP response from a GetCampaignDetailsWithResponse call
@@ -290,6 +861,44 @@ func ParseGetCampaignDetailsResponse(rsp *http.Response) (*GetCampaignDetailsRes
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCampaignResponse parses an HTTP response from a UpdateCampaignWithResponse call
+func ParseUpdateCampaignResponse(rsp *http.Response) (*UpdateCampaignResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCampaignResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			CreatedAt  *time.Time         `json:"createdAt,omitempty"`
+			Id         *string            `json:"id,omitempty"`
+			Properties *map[string]string `json:"properties,omitempty"`
+			UpdatedAt  *time.Time         `json:"updatedAt,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 

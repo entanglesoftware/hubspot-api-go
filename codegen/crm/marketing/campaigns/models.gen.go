@@ -7,6 +7,62 @@ import (
 	"time"
 )
 
+// CampaignDetailsResponse defines model for CampaignDetailsResponse.
+type CampaignDetailsResponse struct {
+	Assets     *map[string]interface{} `json:"assets,omitempty"`
+	CreatedAt  *time.Time              `json:"createdAt,omitempty"`
+	Id         *string                 `json:"id,omitempty"`
+	Paging     Paging                  `json:"paging,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
+	Results    *[]struct {
+		Id      *string                 `json:"id,omitempty"`
+		Metrics *map[string]interface{} `json:"metrics,omitempty"`
+		Name    *string                 `json:"name,omitempty"`
+	} `json:"results,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// CampaignSearchResponse defines model for CampaignSearchResponse.
+type CampaignSearchResponse struct {
+	CreatedAt  *string                 `json:"createdAt,omitempty"`
+	Id         *string                 `json:"id,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
+	UpdatedAt  *string                 `json:"updatedAt,omitempty"`
+}
+
+// CampaignsSearchResponse defines model for CampaignsSearchResponse.
+type CampaignsSearchResponse struct {
+	Paging  Paging                   `json:"paging,omitempty"`
+	Results []CampaignSearchResponse `json:"results,omitempty"`
+	Total   *int                     `json:"total,omitempty"`
+}
+
+// Error defines model for Error.
+type Error struct {
+	Category      *string            `json:"category,omitempty"`
+	Context       *ErrorContext      `json:"context,omitempty"`
+	CorrelationId *string            `json:"correlationId,omitempty"`
+	Errors        *[]ErrorDetail     `json:"errors,omitempty"`
+	Links         *map[string]string `json:"links,omitempty"`
+	Message       *string            `json:"message,omitempty"`
+	SubCategory   *string            `json:"subCategory,omitempty"`
+}
+
+// ErrorContext defines model for ErrorContext.
+type ErrorContext struct {
+	InvalidPropertyName *[]string `json:"invalidPropertyName,omitempty"`
+	MissingScopes       *[]string `json:"missingScopes,omitempty"`
+}
+
+// ErrorDetail defines model for ErrorDetail.
+type ErrorDetail struct {
+	Code        *string                 `json:"code,omitempty"`
+	Context     *map[string]interface{} `json:"context,omitempty"`
+	In          *string                 `json:"in,omitempty"`
+	Message     *string                 `json:"message,omitempty"`
+	SubCategory *string                 `json:"subCategory,omitempty"`
+}
+
 // Paging defines model for Paging.
 type Paging struct {
 	Next *PagingNext `json:"next,omitempty"`
@@ -21,17 +77,5 @@ type PagingNext struct {
 	Link string `json:"link,omitempty"`
 }
 
-// CampaignDetailsResponse defines model for campaignDetailsResponse.
-type CampaignDetailsResponse struct {
-	Assets     *map[string]interface{} `json:"assets,omitempty"`
-	CreatedAt  *time.Time              `json:"createdAt,omitempty"`
-	Id         *string                 `json:"id,omitempty"`
-	Paging     Paging                  `json:"paging,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Results    *[]struct {
-		Id      *string                 `json:"id,omitempty"`
-		Metrics *map[string]interface{} `json:"metrics,omitempty"`
-		Name    *string                 `json:"name,omitempty"`
-	} `json:"results,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-}
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error

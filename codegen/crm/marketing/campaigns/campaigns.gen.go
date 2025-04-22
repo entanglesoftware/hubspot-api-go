@@ -22,6 +22,30 @@ const (
 	Oauth2Scopes = "oauth2.Scopes"
 )
 
+// SearchCampaignsParams defines parameters for SearchCampaigns.
+type SearchCampaignsParams struct {
+	// Name Filter campaigns by name.
+	Name *string `form:"name,omitempty" json:"name,omitempty"`
+
+	// Properties List of campaign properties to include in the response.
+	Properties *[]string `form:"properties,omitempty" json:"properties,omitempty"`
+
+	// Limit Maximum number of campaigns to return.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// After A paging cursor token used to get the next set of results.
+	After *string `form:"after,omitempty" json:"after,omitempty"`
+
+	// Sorts List of properties to sort the campaigns by. Prefix a property name with a minus sign to sort in descending order.
+	Sorts *[]string `form:"sorts,omitempty" json:"sorts,omitempty"`
+}
+
+// CreateCampaignJSONBody defines parameters for CreateCampaign.
+type CreateCampaignJSONBody struct {
+	// Properties Key-value pairs of campaign properties
+	Properties map[string]string `json:"properties"`
+}
+
 // GetCampaignDetailsParams defines parameters for GetCampaignDetails.
 type GetCampaignDetailsParams struct {
 	// Properties Properties to include in the campaign response.
@@ -34,16 +58,117 @@ type GetCampaignDetailsParams struct {
 	EndDate *string `form:"endDate,omitempty" json:"endDate,omitempty"`
 }
 
+// UpdateCampaignJSONBody defines parameters for UpdateCampaign.
+type UpdateCampaignJSONBody struct {
+	// Properties Key-value pairs of campaign properties to update
+	Properties map[string]string `json:"properties"`
+}
+
+// CreateCampaignJSONRequestBody defines body for CreateCampaign for application/json ContentType.
+type CreateCampaignJSONRequestBody CreateCampaignJSONBody
+
+// UpdateCampaignJSONRequestBody defines body for UpdateCampaign for application/json ContentType.
+type UpdateCampaignJSONRequestBody UpdateCampaignJSONBody
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get campaigns by name and properties
+	// (GET /marketing/v3/campaigns/)
+	SearchCampaigns(ctx echo.Context, params SearchCampaignsParams) error
+	// Create a Campaign
+	// (POST /marketing/v3/campaigns/)
+	CreateCampaign(ctx echo.Context) error
+	// Delete a Campaign
+	// (DELETE /marketing/v3/campaigns/{campaignGuid})
+	DeleteCampaign(ctx echo.Context, campaignGuid string) error
 	// Retrieve campaign details
 	// (GET /marketing/v3/campaigns/{campaignGuid})
 	GetCampaignDetails(ctx echo.Context, campaignGuid string, params GetCampaignDetailsParams) error
+	// Update a Campaign
+	// (PATCH /marketing/v3/campaigns/{campaignGuid})
+	UpdateCampaign(ctx echo.Context, campaignGuid string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// SearchCampaigns converts echo context to params.
+func (w *ServerInterfaceWrapper) SearchCampaigns(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.services.read", "marketing.events.read"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchCampaignsParams
+	// ------------- Optional query parameter "name" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "name", ctx.QueryParams(), &params.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter name: %s", err))
+	}
+
+	// ------------- Optional query parameter "properties" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "properties", ctx.QueryParams(), &params.Properties)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter properties: %s", err))
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
+	// ------------- Optional query parameter "sorts" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sorts", ctx.QueryParams(), &params.Sorts)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sorts: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SearchCampaigns(ctx, params)
+	return err
+}
+
+// CreateCampaign converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateCampaign(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.services.read", "marketing.events.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateCampaign(ctx)
+	return err
+}
+
+// DeleteCampaign converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteCampaign(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "campaignGuid" -------------
+	var campaignGuid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "campaignGuid", ctx.Param("campaignGuid"), &campaignGuid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter campaignGuid: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.services.read", "marketing.events.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteCampaign(ctx, campaignGuid)
+	return err
 }
 
 // GetCampaignDetails converts echo context to params.
@@ -87,6 +212,24 @@ func (w *ServerInterfaceWrapper) GetCampaignDetails(ctx echo.Context) error {
 	return err
 }
 
+// UpdateCampaign converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateCampaign(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "campaignGuid" -------------
+	var campaignGuid string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "campaignGuid", ctx.Param("campaignGuid"), &campaignGuid, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter campaignGuid: %s", err))
+	}
+
+	ctx.Set(Oauth2Scopes, []string{"crm.objects.services.read", "marketing.events.read"})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateCampaign(ctx, campaignGuid)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -115,28 +258,44 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/marketing/v3/campaigns/", wrapper.SearchCampaigns)
+	router.POST(baseURL+"/marketing/v3/campaigns/", wrapper.CreateCampaign)
+	router.DELETE(baseURL+"/marketing/v3/campaigns/:campaignGuid", wrapper.DeleteCampaign)
 	router.GET(baseURL+"/marketing/v3/campaigns/:campaignGuid", wrapper.GetCampaignDetails)
+	router.PATCH(baseURL+"/marketing/v3/campaigns/:campaignGuid", wrapper.UpdateCampaign)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"AP//8rWMthkcAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
