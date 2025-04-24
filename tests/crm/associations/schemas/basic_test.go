@@ -2,33 +2,15 @@ package associations_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 // TestGetAssociationsSchemas fetches a page of schemas
 func TestGetAssociationsSchemas(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	fromObjectType := "contact"
 	toObjectType := "companies"
@@ -55,23 +37,7 @@ func TestGetAssociationsSchemas(t *testing.T) {
 
 // TestCreateAssociationsSchemas fetches a page of schemas
 func TestCreateAssociationsSchemas(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 	fromObjectType := "contact"
 	toObjectType := "companies"
 
@@ -105,21 +71,7 @@ func TestCreateAssociationsSchemas(t *testing.T) {
 // TestUpdateAssociationsSchemas fetches a page of schemas
 func TestUpdateAssociationsSchemas(t *testing.T) {
 
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 	fromObjectType := "contact"
 	toObjectType := "companies"
 

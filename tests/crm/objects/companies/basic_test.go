@@ -2,34 +2,16 @@ package companies_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 // TestGetCompanies fetches a page of companies
 func TestGetCompanies(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	limit := 10
 
@@ -71,24 +53,7 @@ func TestGetCompanies(t *testing.T) {
 
 // TestGetCompanyById fetches a page of companies
 func TestGetCompanyById(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Make the API call
 	companyByIdParam := companies.GetCompanyByIdParams{}
@@ -114,24 +79,7 @@ func TestGetCompanyById(t *testing.T) {
 }
 
 func TestSaveCompany(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Initialize a variable of type Company
 	company := companies.CreateCompanyJSONRequestBody{

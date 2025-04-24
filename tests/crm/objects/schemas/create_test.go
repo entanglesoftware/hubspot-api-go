@@ -2,31 +2,15 @@ package schemas_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 // TestCreateAssociation tests the creation of a schema in HubSpot CRM
 func TestCreateAssociation(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Initialize the configuration
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Define the Association payload
 

@@ -2,30 +2,14 @@ package schemas_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 func TestGetSchemas(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Initialize the configuration
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Make the API call
 	ticketParams := schemas.GetObjectSchemasParams{}
@@ -53,21 +37,7 @@ func TestGetSchemas(t *testing.T) {
 }
 
 func TestGetExistingObjectSchema(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Initialize the configuration
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Make the API call
 	objectType := "contacts"
@@ -96,21 +66,7 @@ func TestGetExistingObjectSchema(t *testing.T) {
 
 // TestCreateSchema tests the creation of a schema in HubSpot CRM
 func TestCreateSchema(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Initialize the configuration
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Define the schema payload
 
@@ -133,7 +89,7 @@ func TestCreateSchema(t *testing.T) {
 		},
 		PrimaryDisplayProperty: "email",
 		Properties: schemas.SchemaProperties{
-			{
+			schemas.SchemaProperty{
 				Name:        &name,
 				Label:       &label,
 				Description: &description,

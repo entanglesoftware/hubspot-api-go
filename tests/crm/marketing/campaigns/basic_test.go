@@ -2,33 +2,15 @@ package campaigns_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/marketing/campaigns"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 // TestGetCampaigns fetches a page of discounts
 func TestGetCampaigns(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	campaignGuid := "a4226822-7b2d-4cc1-90ca-7f0d1844be6d"
 
@@ -64,23 +46,7 @@ func TestGetCampaigns(t *testing.T) {
 
 func TestSaveCampaigns(t *testing.T) {
 	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Initialize a variable of type Campaigns
 	campaign := campaigns.CreateCampaignJSONRequestBody{
@@ -115,24 +81,7 @@ func TestSaveCampaigns(t *testing.T) {
 }
 
 func TestUpdateCampaigns(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Initialize a variable of type Campaigns
 	campaign := campaigns.UpdateCampaignJSONRequestBody{
@@ -169,26 +118,9 @@ func TestUpdateCampaigns(t *testing.T) {
 }
 
 func TestDeleteCampaign(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
+	hsClient := crm.GetTestHubSpotClient(t)
 
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
-
-	campaignGuid := "a2a92f29-aee6-4ac3-a5ad-11b2748a67ad"
+	campaignGuid := "28a9d930-f110-48c1-aeee-913876196939"
 
 	ct := hsClient.Crm().Campaigns()
 

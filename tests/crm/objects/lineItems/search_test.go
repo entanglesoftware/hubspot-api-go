@@ -3,34 +3,15 @@ package lineItems_test
 import (
 	"context"
 	"encoding/json"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
 
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
 )
 
 func TestSearchLineItems(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
-	config := configuration.Configuration{
-		AccessToken:            token,
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	hsClient := crm.GetTestHubSpotClient(t)
 
 	// Make the API call
 
