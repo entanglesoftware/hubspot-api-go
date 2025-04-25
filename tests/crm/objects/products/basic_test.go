@@ -5,12 +5,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetProduct(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -19,7 +24,7 @@ func TestGetProduct(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Products()
+	ct := crm.Products()
 
 	response, err := ct.GetProductsWithResponse(context.Background(), &productParams)
 	if err != nil {
@@ -51,12 +56,16 @@ func TestGetProduct(t *testing.T) {
 }
 
 func TestGetProductById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	productByIdParam := products.GetProductByIdParams{}
 
-	ct := hsClient.Crm().Products()
+	ct := crm.Products()
 
 	response, err := ct.GetProductByIdWithResponse(context.Background(), "20159988656", &productByIdParam)
 	if err != nil {
@@ -77,9 +86,13 @@ func TestGetProductById(t *testing.T) {
 }
 
 func TestSaveProduct(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
-	ct := hsClient.Crm().Products()
+	ct := crm.Products()
 
 	body := products.CreateProductJSONRequestBody{
 		Properties: map[string]string{

@@ -5,14 +5,19 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestMergeContacts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
-	ct := hsClient.Crm().Contacts()
+	ct := crm.Contacts()
 
 	body := contacts.MergeContactsJSONRequestBody{
 		ObjectIdToMerge: "87484939431",

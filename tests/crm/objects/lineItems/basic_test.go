@@ -5,12 +5,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetLineItems(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -19,7 +24,7 @@ func TestGetLineItems(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().LineItems()
+	ct := crm.LineItems()
 
 	response, err := ct.GetLineItemsWithResponse(context.Background(), &LineItemParams)
 	if err != nil {
@@ -51,12 +56,16 @@ func TestGetLineItems(t *testing.T) {
 }
 
 func TestGetLineItemById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	LineItemByIdParam := lineItems.GetLineItemByIdParams{}
 
-	ct := hsClient.Crm().LineItems()
+	ct := crm.LineItems()
 
 	response, err := ct.GetLineItemByIdWithResponse(context.Background(), "27907650925", &LineItemByIdParam)
 	if err != nil {
@@ -77,9 +86,13 @@ func TestGetLineItemById(t *testing.T) {
 }
 
 func TestSaveLineItem(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
-	ct := hsClient.Crm().LineItems()
+	ct := crm.LineItems()
 
 	body := lineItems.CreateLineItemJSONRequestBody{
 		Properties: map[string]string{

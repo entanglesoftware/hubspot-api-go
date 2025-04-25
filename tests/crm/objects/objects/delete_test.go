@@ -4,17 +4,22 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteObject(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	objectType := "contacts"
 
 	objectId := "87481797267"
 
-	ct := hsClient.Crm().Objects()
+	ct := crm.Objects()
 
 	response, err := ct.DeleteObjectWithResponse(context.Background(), objectType, objectId)
 	if err != nil {

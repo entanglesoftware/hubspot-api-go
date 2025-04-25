@@ -4,15 +4,20 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteQuote(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	quoteId := "14923556151"
 
-	ct := hsClient.Crm().Quotes()
+	ct := crm.Quotes()
 
 	response, err := ct.DeleteQuoteByIdWithResponse(context.Background(), quoteId)
 	if err != nil {

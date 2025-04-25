@@ -5,19 +5,24 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/marketing/campaigns"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetCampaigns fetches a page of discounts
 func TestGetCampaigns(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	campaignGuid := "a4226822-7b2d-4cc1-90ca-7f0d1844be6d"
 
 	// Make the API call
 	discountsParams := campaigns.GetCampaignDetailsParams{}
 
-	ct := hsClient.Crm().Campaigns()
+	ct := crm.Campaigns()
 	response, err := ct.GetCampaignDetailsWithResponse(context.Background(), campaignGuid, &discountsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -46,7 +51,11 @@ func TestGetCampaigns(t *testing.T) {
 
 func TestSaveCampaigns(t *testing.T) {
 	// Fetch the access token from the environment
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Campaigns
 	campaign := campaigns.CreateCampaignJSONRequestBody{
@@ -57,7 +66,7 @@ func TestSaveCampaigns(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Campaigns()
+	ct := crm.Campaigns()
 	response, err := ct.CreateCampaignWithResponse(context.Background(), campaign)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -81,7 +90,11 @@ func TestSaveCampaigns(t *testing.T) {
 }
 
 func TestUpdateCampaigns(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Campaigns
 	campaign := campaigns.UpdateCampaignJSONRequestBody{
@@ -94,7 +107,7 @@ func TestUpdateCampaigns(t *testing.T) {
 
 	campaignGuid := "a2a92f29-aee6-4ac3-a5ad-11b2748a67ad"
 
-	ct := hsClient.Crm().Campaigns()
+	ct := crm.Campaigns()
 	response, err := ct.UpdateCampaignWithResponse(context.Background(), campaignGuid, campaign)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -118,11 +131,15 @@ func TestUpdateCampaigns(t *testing.T) {
 }
 
 func TestDeleteCampaign(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	campaignGuid := "28a9d930-f110-48c1-aeee-913876196939"
 
-	ct := hsClient.Crm().Campaigns()
+	ct := crm.Campaigns()
 
 	response, err := ct.DeleteCampaignWithResponse(context.Background(), campaignGuid)
 	if err != nil {

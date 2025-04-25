@@ -5,13 +5,18 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/taxes"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetTaxes fetches a page of taxes
 func TestGetTaxes(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -20,7 +25,7 @@ func TestGetTaxes(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Taxes()
+	ct := crm.Taxes()
 	response, err := ct.GetTaxesWithResponse(context.Background(), &taxesParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -51,12 +56,16 @@ func TestGetTaxes(t *testing.T) {
 
 // TestGetTaxById fetches a page of taxes
 func TestGetTaxById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	invoiceByIdParam := taxes.GetTaxByIdParams{}
 
-	ct := hsClient.Crm().Taxes()
+	ct := crm.Taxes()
 
 	response, err := ct.GetTaxByIdWithResponse(context.Background(), 404043653204, &invoiceByIdParam)
 	if err != nil {
@@ -77,7 +86,11 @@ func TestGetTaxById(t *testing.T) {
 }
 
 func TestSaveTaxes(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Taxes
 	invoice := taxes.CreateTaxJSONRequestBody{
@@ -89,7 +102,7 @@ func TestSaveTaxes(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Taxes()
+	ct := crm.Taxes()
 	response, err := ct.CreateTaxWithResponse(context.Background(), invoice)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

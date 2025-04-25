@@ -2,18 +2,20 @@ package schemas_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteSchema tests the creation of a schema in HubSpot CRM
 func TestDeleteSchema(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 	archived := false
 	deleteSchemaParams := schemas.DeleteSchemaParams{
 		Archived: &archived,
@@ -22,7 +24,7 @@ func TestDeleteSchema(t *testing.T) {
 	objectType := "2-39502275"
 
 	// Make the API call to create the schema
-	response, err := hsClient.Crm().SchemaItems().DeleteSchemaWithResponse(context.Background(), objectType, &deleteSchemaParams)
+	response, err := crm.SchemaItems().DeleteSchemaWithResponse(context.Background(), objectType, &deleteSchemaParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -36,27 +38,17 @@ func TestDeleteSchema(t *testing.T) {
 
 // TestAssociationSchema tests the creation of a schema in HubSpot CRM
 func TestAssociationSchema(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Initialize the configuration
 	config := configuration.Configuration{
-		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
-
-	hsClient := hubspot.NewClient(config)
+	crm := crm.NewCrmDiscovery(&config)
 
 	objectType := "2-39502275"
 	associationIdentifier := "608"
 
 	// Make the API call to create the schema
-	response, err := hsClient.Crm().SchemaItems().DeleteAssociationWithResponse(context.Background(), objectType, associationIdentifier)
+	response, err := crm.SchemaItems().DeleteAssociationWithResponse(context.Background(), objectType, associationIdentifier)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

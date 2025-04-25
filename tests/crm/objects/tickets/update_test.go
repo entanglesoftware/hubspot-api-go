@@ -5,11 +5,16 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestUpdateTicket(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Ticket
 	subject := "Update Ticket"
@@ -18,7 +23,7 @@ func TestUpdateTicket(t *testing.T) {
 
 	ticketId := "18791135765"
 
-	ct := hsClient.Crm().Tickets()
+	ct := crm.Tickets()
 
 	body := tickets.UpdateTicketJSONRequestBody{
 		Properties: map[string]string{

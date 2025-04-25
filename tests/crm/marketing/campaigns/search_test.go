@@ -6,18 +6,23 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/marketing/campaigns"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchDiscounts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	limit := 10
 	name := "New Campaigns name"
 
-	ct := hsClient.Crm().Campaigns()
+	ct := crm.Campaigns()
 
 	body := &campaigns.SearchCampaignsParams{
 		Limit:      &limit,

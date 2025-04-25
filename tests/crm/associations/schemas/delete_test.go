@@ -4,17 +4,22 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteAssociationsSchemas(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	fromObjectType := "contact"
 	toObjectType := "companies"
 	associationTypeId := 77
 
-	ct := hsClient.Crm().Schemas()
+	ct := crm.Schemas()
 
 	response, err := ct.DeleteAssociationsSchemaWithResponse(context.Background(), fromObjectType, toObjectType, associationTypeId)
 	if err != nil {

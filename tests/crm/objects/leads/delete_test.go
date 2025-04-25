@@ -4,14 +4,19 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteLeadById fetches a page of leads
 func TestDeleteLeadById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
-	ct := hsClient.Crm().Leads()
+	ct := crm.Leads()
 
 	response, err := ct.DeleteLeadByIdWithResponse(context.Background(), "396774476665")
 	if err != nil {

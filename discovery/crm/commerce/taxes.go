@@ -16,9 +16,15 @@ type TaxesDiscovery struct {
 
 // NewTaxesDiscovery creates a new instance of TaxesDiscovery
 func NewTaxesDiscovery(config *configuration.Configuration) (*TaxesDiscovery, error) {
-	// Create configuration for API clients
+	token, err := config.GetToken()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get token: %w", err)
+	}
+	if token == "" {
+		return nil, fmt.Errorf("no access token provided")
+	}
 	objectClient, err := taxes.NewClientWithResponses(config.BasePath, taxes.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 		return nil
 	}))
 	if err != nil {

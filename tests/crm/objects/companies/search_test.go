@@ -6,12 +6,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchCompanies(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 
@@ -29,7 +34,7 @@ func TestSearchCompanies(t *testing.T) {
 		}},
 	}
 
-	ct := hsClient.Crm().Companies()
+	ct := crm.Companies()
 
 	response, err := ct.SearchCompanyWithResponse(context.Background(), companyBody)
 	if err != nil {

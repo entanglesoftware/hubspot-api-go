@@ -16,9 +16,15 @@ type DiscountsDiscovery struct {
 
 // NewDiscountsDiscovery creates a new instance of DiscountsDiscovery
 func NewDiscountsDiscovery(config *configuration.Configuration) (*DiscountsDiscovery, error) {
-	// Create configuration for API clients
+	token, err := config.GetToken()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get token: %w", err)
+	}
+	if token == "" {
+		return nil, fmt.Errorf("no access token provided")
+	}
 	objectClient, err := discounts.NewClientWithResponses(config.BasePath, discounts.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 		return nil
 	}))
 	if err != nil {

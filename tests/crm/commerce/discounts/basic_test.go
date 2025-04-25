@@ -5,12 +5,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetDiscounts fetches a page of discounts
 func TestGetDiscounts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -19,7 +24,7 @@ func TestGetDiscounts(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Discounts()
+	ct := crm.Discounts()
 	response, err := ct.GetDiscountsWithResponse(context.Background(), &discountsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -50,12 +55,16 @@ func TestGetDiscounts(t *testing.T) {
 
 // TestGetDiscountById fetches a page of discounts
 func TestGetDiscountById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	invoiceByIdParam := discounts.GetDiscountByIdParams{}
 
-	ct := hsClient.Crm().Discounts()
+	ct := crm.Discounts()
 
 	response, err := ct.GetDiscountByIdWithResponse(context.Background(), 410308216595, &invoiceByIdParam)
 	if err != nil {
@@ -76,7 +85,11 @@ func TestGetDiscountById(t *testing.T) {
 }
 
 func TestSaveDiscounts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Discounts
 	invoice := discounts.CreateDiscountJSONRequestBody{
@@ -89,7 +102,7 @@ func TestSaveDiscounts(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Discounts()
+	ct := crm.Discounts()
 	response, err := ct.CreateDiscountWithResponse(context.Background(), invoice)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

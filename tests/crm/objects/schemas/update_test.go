@@ -6,12 +6,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestUpdateSchema tests the creation of a schema in HubSpot CRM
 func TestUpdateSchema(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Define the schema payload
 	pluralLabel := "My New1 Company objects"
@@ -30,7 +35,7 @@ func TestUpdateSchema(t *testing.T) {
 	objectType := "2-40910856"
 
 	// Make the API call to create the schema
-	response, err := hsClient.Crm().SchemaItems().UpdateSchemaWithResponse(context.Background(), objectType, schema)
+	response, err := crm.SchemaItems().UpdateSchemaWithResponse(context.Background(), objectType, schema)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

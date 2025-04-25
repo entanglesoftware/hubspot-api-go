@@ -1,7 +1,9 @@
 package configuration
 
 import (
+	"errors"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -56,4 +58,12 @@ func NewConfiguration(
 		LimiterJobOptions:      jobOptions,
 		HTTPAgent:              httpAgent,
 	}
+}
+
+func (c *Configuration) GetToken() (string, error) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+	if token == "" {
+		return "", errors.New("HS_ACCESS_TOKEN is not set in the environment")
+	}
+	return token, nil
 }

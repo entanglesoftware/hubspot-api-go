@@ -5,13 +5,18 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetContacts fetches a page of contacts
 func TestGetContacts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -20,7 +25,7 @@ func TestGetContacts(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Contacts()
+	ct := crm.Contacts()
 
 	response, err := ct.GetContactsWithResponse(context.Background(), &contactsParams)
 	if err != nil {
@@ -53,12 +58,16 @@ func TestGetContacts(t *testing.T) {
 
 // TestGetContactById fetches a page of contacts
 func TestGetContactById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	contactByIdParam := contacts.GetContactByIdParams{}
 
-	ct := hsClient.Crm().Contacts()
+	ct := crm.Contacts()
 
 	response, err := ct.GetContactByIdWithResponse(context.Background(), 84952873394, &contactByIdParam)
 	if err != nil {
@@ -80,7 +89,11 @@ func TestGetContactById(t *testing.T) {
 
 // TestSaveContacts save a contact
 func TestSaveContacts(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	body := contacts.CreateContactJSONRequestBody{
 		Properties: map[string]string{
@@ -90,7 +103,7 @@ func TestSaveContacts(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Contacts()
+	ct := crm.Contacts()
 
 	response, err := ct.CreateContactWithResponse(context.Background(), body)
 	if err != nil {

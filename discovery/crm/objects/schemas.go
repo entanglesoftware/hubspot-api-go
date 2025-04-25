@@ -17,9 +17,15 @@ type SchemasDiscovery struct {
 
 // NewSchemaItemsDiscovery creates a new instance of SchemasDiscovery
 func NewSchemaItemsDiscovery(config *configuration.Configuration) (*SchemasDiscovery, error) {
-	// Create configuration for API clients
+	token, err := config.GetToken()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get token: %w", err)
+	}
+	if token == "" {
+		return nil, fmt.Errorf("no access token provided")
+	}
 	ticketClient, err := schemas.NewClientWithResponses(config.BasePath, schemas.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 		return nil
 	}))
 	if err != nil {

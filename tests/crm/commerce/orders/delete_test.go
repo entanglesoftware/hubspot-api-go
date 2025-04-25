@@ -4,15 +4,20 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteOrder(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	taxId := "417774243908"
 
-	ct := hsClient.Crm().Orders()
+	ct := crm.Orders()
 
 	response, err := ct.DeleteOrderByIdWithResponse(context.Background(), taxId)
 	if err != nil {

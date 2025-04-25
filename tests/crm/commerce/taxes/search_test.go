@@ -6,12 +6,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/taxes"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
 
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchTaxes(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 
@@ -19,7 +24,7 @@ func TestSearchTaxes(t *testing.T) {
 	value := "Taxes"
 	limit := 10
 
-	ct := hsClient.Crm().Taxes()
+	ct := crm.Taxes()
 
 	body := taxes.SearchTaxesJSONRequestBody{
 		Limit: &limit,

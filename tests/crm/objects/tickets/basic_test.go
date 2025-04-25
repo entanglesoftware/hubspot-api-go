@@ -2,19 +2,20 @@ package tickets_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
 
-	"github.com/entanglesoftware/hubspot-api-go/hubspot"
-
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetTickets(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -23,7 +24,7 @@ func TestGetTickets(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Tickets()
+	ct := crm.Tickets()
 
 	response, err := ct.GetTicketsWithResponse(context.Background(), &ticketParams)
 	if err != nil {
@@ -55,29 +56,16 @@ func TestGetTickets(t *testing.T) {
 }
 
 func TestGetTicketById(t *testing.T) {
-	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
 	config := configuration.Configuration{
-		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
-
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	ticketByIdParam := tickets.GetTicketByIdParams{}
 
-	ct := hsClient.Crm().Tickets()
+	ct := crm.Tickets()
 
 	response, err := ct.GetTicketByIdWithResponse(context.Background(), "18791135765", &ticketByIdParam)
 	if err != nil {
@@ -99,25 +87,13 @@ func TestGetTicketById(t *testing.T) {
 
 func TestSaveTicket(t *testing.T) {
 	// Fetch the access token from the environment
-	token := os.Getenv("HS_ACCESS_TOKEN")
-
-	if token == "" {
-		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
-	}
-
-	// Correctly initialize the struct with the proper syntax
 	config := configuration.Configuration{
-		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
+	crm := crm.NewCrmDiscovery(&config)
 
-	hsClient := hubspot.NewClient(config)
-
-	// Initialize the client
-	hsClient.SetAccessToken(token)
-
-	ct := hsClient.Crm().Tickets()
+	ct := crm.Tickets()
 
 	body := tickets.CreateTicketJSONRequestBody{
 		Properties: map[string]string{

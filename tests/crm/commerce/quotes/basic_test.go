@@ -5,12 +5,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetQuotes fetches a page of quotes
 func TestGetQuotes(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 
@@ -19,7 +24,7 @@ func TestGetQuotes(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Quotes()
+	ct := crm.Quotes()
 
 	response, err := ct.GetQuotesWithResponse(context.Background(), &quotesParams)
 	if err != nil {
@@ -52,12 +57,16 @@ func TestGetQuotes(t *testing.T) {
 
 // TestGetQuoteById fetches a page of quotes
 func TestGetQuoteById(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Make the API call
 	quoteByIdParam := quotes.GetQuoteByIdParams{}
 
-	ct := hsClient.Crm().Quotes()
+	ct := crm.Quotes()
 
 	response, err := ct.GetQuoteByIdWithResponse(context.Background(), 14923556151, &quoteByIdParam)
 	if err != nil {
@@ -78,7 +87,11 @@ func TestGetQuoteById(t *testing.T) {
 }
 
 func TestSaveQuotes(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	// Initialize a variable of type Quotes
 	quote := quotes.CreateQuoteJSONRequestBody{
@@ -90,7 +103,7 @@ func TestSaveQuotes(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Quotes()
+	ct := crm.Quotes()
 	response, err := ct.CreateQuoteWithResponse(context.Background(), quote)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

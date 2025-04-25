@@ -3,9 +3,11 @@ package objects
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"net/http"
 )
 
 // ContactsDiscovery is the struct that contains all API clients
@@ -15,9 +17,16 @@ type ContactsDiscovery struct {
 
 // NewContactsDiscovery creates a new instance of ContactsDiscovery
 func NewContactsDiscovery(config *configuration.Configuration) (*ContactsDiscovery, error) {
-	// Create configuration for API clients
+	token, err := config.GetToken()
+	fmt.Errorf(os.Getenv("HS_ACCESS_TOKEN"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get token: %w", err)
+	}
+	if token == "" {
+		return nil, fmt.Errorf("no access token provided")
+	}
 	contactClient, err := contacts.NewClientWithResponses(config.BasePath, contacts.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 		return nil
 	}))
 	if err != nil {

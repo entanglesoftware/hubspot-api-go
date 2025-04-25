@@ -5,12 +5,17 @@ import (
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
-	"github.com/entanglesoftware/hubspot-api-go/tests/crm"
+	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetAssociationsDetails fetches a page of details
 func TestGetAssociationsDetails(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 
 	limit := 10
 	objectType := "contact"
@@ -22,7 +27,7 @@ func TestGetAssociationsDetails(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := hsClient.Crm().Details()
+	ct := crm.Details()
 	response, err := ct.GetAssociationsDetailsWithResponse(context.Background(), objectType, objectId, toObjectType, &detailsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -51,7 +56,11 @@ func TestGetAssociationsDetails(t *testing.T) {
 
 // TestCreateAssociationsDetails fetches a page of details
 func TestCreateAssociationsDetails(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 	objectType := "contact"
 	objectId := "100260047027"
 	toObjectType := "companies"
@@ -65,7 +74,7 @@ func TestCreateAssociationsDetails(t *testing.T) {
 		},
 	}
 
-	ct := hsClient.Crm().Details()
+	ct := crm.Details()
 	response, err := ct.CreateAssociationsDetailsWithResponse(context.Background(), objectType, objectId, toObjectType, toObjectId, detailsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -96,13 +105,17 @@ func TestCreateAssociationsDetails(t *testing.T) {
 
 // TestCreateDefaultAssociationsDetails fetches a page of details
 func TestCreateDefaultAssociationsDetails(t *testing.T) {
-	hsClient := crm.GetTestHubSpotClient(t)
+	config := configuration.Configuration{
+		BasePath:               configuration.BaseURL,
+		NumberOfAPICallRetries: 3,
+	}
+	crm := crm.NewCrmDiscovery(&config)
 	FromObjectType := "contact"
 	FromObjectId := "100260047027"
 	toObjectType := "companies"
 	toObjectId := "28292686395"
 
-	ct := hsClient.Crm().Details()
+	ct := crm.Details()
 	response, err := ct.CreateDefaultAssociationsDetailsWithResponse(context.Background(), FromObjectType, FromObjectId, toObjectType, toObjectId)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
