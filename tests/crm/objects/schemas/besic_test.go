@@ -89,7 +89,7 @@ func TestCreateSchema(t *testing.T) {
 		},
 		PrimaryDisplayProperty: "email",
 		Properties: schemas.SchemaProperties{
-			schemas.SchemaProperty{
+			{
 				Name:        &name,
 				Label:       &label,
 				Description: &description,
