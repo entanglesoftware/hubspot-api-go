@@ -211,6 +211,95 @@ components:
           type: array
           x-go-type-skip-optional-pointer: true
       type: object
+    OrderAssociationRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationTypeRequest"
+        to:
+          $ref: "#/components/schemas/AssociationTarget"
+      description: Association request for order creation
+
+    AssociationTypeRequest:
+      type: object
+      properties:
+        associationCategory:
+          type: string
+          enum:
+            - Search
+            - HUBSPOT_DEFINED
+            - USER_DEFINED
+            - INTEGRATOR_DEFINED
+        associationTypeId:
+          type: integer
+          format: int32
+
+    AssociationTarget:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Target object ID
+
+    Error:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        context:
+          $ref: "#/components/schemas/ErrorContext"
+        correlationId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+        category:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes:
+          type: array
+          items:
+            type: string
+        invalidPropertyName:
+          type: array
+          items:
+            type: string
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        code:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+        message:
+          type: string
+
+  responses:
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
   parameters:
     Properties:
         name: properties

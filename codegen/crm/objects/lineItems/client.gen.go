@@ -98,6 +98,11 @@ type ClientInterface interface {
 
 	CreateLineItem(ctx context.Context, body CreateLineItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// BatchCreateLineItemsWithBody request with any body
+	BatchCreateLineItemsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BatchCreateLineItems(ctx context.Context, body BatchCreateLineItemsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SearchLineItemsWithBody request with any body
 	SearchLineItemsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -141,6 +146,30 @@ func (c *Client) CreateLineItemWithBody(ctx context.Context, contentType string,
 
 func (c *Client) CreateLineItem(ctx context.Context, body CreateLineItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateLineItemRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchCreateLineItemsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchCreateLineItemsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BatchCreateLineItems(ctx context.Context, body BatchCreateLineItemsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBatchCreateLineItemsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -373,6 +402,46 @@ func NewCreateLineItemRequestWithBody(server string, contentType string, body io
 	}
 
 	operationPath := fmt.Sprintf("/crm/v3/objects/line_items")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBatchCreateLineItemsRequest calls the generic BatchCreateLineItems builder with application/json body
+func NewBatchCreateLineItemsRequest(server string, body BatchCreateLineItemsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBatchCreateLineItemsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewBatchCreateLineItemsRequestWithBody generates requests for BatchCreateLineItems with any type of body
+func NewBatchCreateLineItemsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/crm/v3/objects/line_items/batch/create")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -684,6 +753,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateLineItemWithResponse(ctx context.Context, body CreateLineItemJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateLineItemResponse, error)
 
+	// BatchCreateLineItemsWithBodyWithResponse request with any body
+	BatchCreateLineItemsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchCreateLineItemsResponse, error)
+
+	BatchCreateLineItemsWithResponse(ctx context.Context, body BatchCreateLineItemsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchCreateLineItemsResponse, error)
+
 	// SearchLineItemsWithBodyWithResponse request with any body
 	SearchLineItemsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLineItemsResponse, error)
 
@@ -748,6 +822,7 @@ type CreateLineItemResponse struct {
 		// UpdatedAt Timestamp when the lineItem was last updated.
 		UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	}
+	JSON400 *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -760,6 +835,29 @@ func (r CreateLineItemResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateLineItemResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BatchCreateLineItemsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *BatchResponseLineItems
+	JSON400      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r BatchCreateLineItemsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BatchCreateLineItemsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -900,6 +998,23 @@ func (c *ClientWithResponses) CreateLineItemWithResponse(ctx context.Context, bo
 	return ParseCreateLineItemResponse(rsp)
 }
 
+// BatchCreateLineItemsWithBodyWithResponse request with arbitrary body returning *BatchCreateLineItemsResponse
+func (c *ClientWithResponses) BatchCreateLineItemsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BatchCreateLineItemsResponse, error) {
+	rsp, err := c.BatchCreateLineItemsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchCreateLineItemsResponse(rsp)
+}
+
+func (c *ClientWithResponses) BatchCreateLineItemsWithResponse(ctx context.Context, body BatchCreateLineItemsJSONRequestBody, reqEditors ...RequestEditorFn) (*BatchCreateLineItemsResponse, error) {
+	rsp, err := c.BatchCreateLineItems(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBatchCreateLineItemsResponse(rsp)
+}
+
 // SearchLineItemsWithBodyWithResponse request with arbitrary body returning *SearchLineItemsResponse
 func (c *ClientWithResponses) SearchLineItemsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchLineItemsResponse, error) {
 	rsp, err := c.SearchLineItemsWithBody(ctx, contentType, body, reqEditors...)
@@ -1019,6 +1134,46 @@ func ParseCreateLineItemResponse(rsp *http.Response) (*CreateLineItemResponse, e
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBatchCreateLineItemsResponse parses an HTTP response from a BatchCreateLineItemsWithResponse call
+func ParseBatchCreateLineItemsResponse(rsp *http.Response) (*BatchCreateLineItemsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BatchCreateLineItemsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest BatchResponseLineItems
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 
