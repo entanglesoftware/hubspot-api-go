@@ -748,6 +748,7 @@ type CreateOrderResponse struct {
 		// UpdatedAt Timestamp when the order was last updated.
 		UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	}
+	JSON400 *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -1019,6 +1020,13 @@ func ParseCreateOrderResponse(rsp *http.Response) (*CreateOrderResponse, error) 
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 

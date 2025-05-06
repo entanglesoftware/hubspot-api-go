@@ -7,6 +7,21 @@ import (
 	"time"
 )
 
+// Defines values for AssociationTypeAssociationCategory.
+const (
+	HUBSPOTDEFINED    AssociationTypeAssociationCategory = "HUBSPOT_DEFINED"
+	INTEGRATORDEFINED AssociationTypeAssociationCategory = "INTEGRATOR_DEFINED"
+	USERDEFINED       AssociationTypeAssociationCategory = "USER_DEFINED"
+)
+
+// Defines values for BatchResponseLineItemsStatus.
+const (
+	CANCELED   BatchResponseLineItemsStatus = "CANCELED"
+	COMPLETE   BatchResponseLineItemsStatus = "COMPLETE"
+	PENDING    BatchResponseLineItemsStatus = "PENDING"
+	PROCESSING BatchResponseLineItemsStatus = "PROCESSING"
+)
+
 // Defines values for FilterOperator.
 const (
 	CONTAINSTOKEN    FilterOperator = "CONTAINS_TOKEN"
@@ -28,6 +43,71 @@ type AssociationResponse struct {
 
 	// Type The type of association.
 	Type *string `json:"type,omitempty"`
+}
+
+// AssociationSpec defines model for AssociationSpec.
+type AssociationSpec struct {
+	To    *AssociationTarget `json:"to,omitempty"`
+	Types *[]AssociationType `json:"types,omitempty"`
+}
+
+// AssociationTarget defines model for AssociationTarget.
+type AssociationTarget struct {
+	Id *string `json:"id,omitempty"`
+}
+
+// AssociationType defines model for AssociationType.
+type AssociationType struct {
+	AssociationCategory AssociationTypeAssociationCategory `json:"associationCategory"`
+	AssociationTypeId   int32                              `json:"associationTypeId"`
+}
+
+// AssociationTypeAssociationCategory defines model for AssociationType.AssociationCategory.
+type AssociationTypeAssociationCategory string
+
+// BatchCreateLineItemsRequest defines model for BatchCreateLineItemsRequest.
+type BatchCreateLineItemsRequest struct {
+	Inputs []LineItemCreateRequest `json:"inputs"`
+}
+
+// BatchResponseLineItems defines model for BatchResponseLineItems.
+type BatchResponseLineItems struct {
+	CompletedAt *time.Time                    `json:"completedAt,omitempty"`
+	Errors      *[]Error                      `json:"errors,omitempty"`
+	NumErrors   *int                          `json:"numErrors,omitempty"`
+	RequestedAt *time.Time                    `json:"requestedAt,omitempty"`
+	Results     *[]LineItemResponse           `json:"results,omitempty"`
+	StartedAt   *time.Time                    `json:"startedAt,omitempty"`
+	Status      *BatchResponseLineItemsStatus `json:"status,omitempty"`
+}
+
+// BatchResponseLineItemsStatus defines model for BatchResponseLineItems.Status.
+type BatchResponseLineItemsStatus string
+
+// Error defines model for Error.
+type Error struct {
+	Category      *string            `json:"category,omitempty"`
+	Context       *ErrorContext      `json:"context,omitempty"`
+	CorrelationId *string            `json:"correlationId,omitempty"`
+	Errors        *[]ErrorDetail     `json:"errors,omitempty"`
+	Links         *map[string]string `json:"links,omitempty"`
+	Message       *string            `json:"message,omitempty"`
+	SubCategory   *string            `json:"subCategory,omitempty"`
+}
+
+// ErrorContext defines model for ErrorContext.
+type ErrorContext struct {
+	InvalidPropertyName *[]string `json:"invalidPropertyName,omitempty"`
+	MissingScopes       *[]string `json:"missingScopes,omitempty"`
+}
+
+// ErrorDetail defines model for ErrorDetail.
+type ErrorDetail struct {
+	Code        *string                 `json:"code,omitempty"`
+	Context     *map[string]interface{} `json:"context,omitempty"`
+	In          *string                 `json:"in,omitempty"`
+	Message     *string                 `json:"message,omitempty"`
+	SubCategory *string                 `json:"subCategory,omitempty"`
 }
 
 // Filter defines model for Filter.
@@ -54,6 +134,15 @@ type FilterOperator string
 // FilterGroups defines model for FilterGroups.
 type FilterGroups struct {
 	Filters []Filter `json:"filters,omitempty"`
+}
+
+// LineItemCreateRequest defines model for LineItemCreateRequest.
+type LineItemCreateRequest struct {
+	Associations *[]AssociationSpec `json:"associations,omitempty"`
+
+	// ObjectWriteTraceId Unique trace ID for the operation.
+	ObjectWriteTraceId *string           `json:"objectWriteTraceId,omitempty"`
+	Properties         map[string]string `json:"properties"`
 }
 
 // LineItemResponse defines model for LineItemResponse.
@@ -141,3 +230,6 @@ type Properties = []string
 
 // PropertiesWithHistory defines model for PropertiesWithHistory.
 type PropertiesWithHistory = []string
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error

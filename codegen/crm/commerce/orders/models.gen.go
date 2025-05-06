@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+// Defines values for AssociationTypeRequestAssociationCategory.
+const (
+	HUBSPOTDEFINED    AssociationTypeRequestAssociationCategory = "HUBSPOT_DEFINED"
+	INTEGRATORDEFINED AssociationTypeRequestAssociationCategory = "INTEGRATOR_DEFINED"
+	Search            AssociationTypeRequestAssociationCategory = "Search"
+	USERDEFINED       AssociationTypeRequestAssociationCategory = "USER_DEFINED"
+)
+
 // Defines values for FilterOperator.
 const (
 	CONTAINSTOKEN    FilterOperator = "CONTAINS_TOKEN"
@@ -34,6 +42,47 @@ type AssociationResponse struct {
 
 	// Type The type of association.
 	Type string `json:"type,omitempty"`
+}
+
+// AssociationTarget defines model for AssociationTarget.
+type AssociationTarget struct {
+	// Id Target object ID
+	Id *string `json:"id,omitempty"`
+}
+
+// AssociationTypeRequest defines model for AssociationTypeRequest.
+type AssociationTypeRequest struct {
+	AssociationCategory *AssociationTypeRequestAssociationCategory `json:"associationCategory,omitempty"`
+	AssociationTypeId   *int32                                     `json:"associationTypeId,omitempty"`
+}
+
+// AssociationTypeRequestAssociationCategory defines model for AssociationTypeRequest.AssociationCategory.
+type AssociationTypeRequestAssociationCategory string
+
+// Error defines model for Error.
+type Error struct {
+	Category      *string            `json:"category,omitempty"`
+	Context       *ErrorContext      `json:"context,omitempty"`
+	CorrelationId *string            `json:"correlationId,omitempty"`
+	Errors        *[]ErrorDetail     `json:"errors,omitempty"`
+	Links         *map[string]string `json:"links,omitempty"`
+	Message       *string            `json:"message,omitempty"`
+	SubCategory   *string            `json:"subCategory,omitempty"`
+}
+
+// ErrorContext defines model for ErrorContext.
+type ErrorContext struct {
+	InvalidPropertyName *[]string `json:"invalidPropertyName,omitempty"`
+	MissingScopes       *[]string `json:"missingScopes,omitempty"`
+}
+
+// ErrorDetail defines model for ErrorDetail.
+type ErrorDetail struct {
+	Code        *string                 `json:"code,omitempty"`
+	Context     *map[string]interface{} `json:"context,omitempty"`
+	In          *string                 `json:"in,omitempty"`
+	Message     *string                 `json:"message,omitempty"`
+	SubCategory *string                 `json:"subCategory,omitempty"`
 }
 
 // Filter defines model for Filter.
@@ -65,6 +114,12 @@ type FilterGroups struct {
 // ObjectAssociationsResponse defines model for ObjectAssociationsResponse.
 type ObjectAssociationsResponse struct {
 	Results []AssociationResponse `json:"results,omitempty"`
+}
+
+// OrderAssociationRequest Association request for order creation
+type OrderAssociationRequest struct {
+	To    *AssociationTarget        `json:"to,omitempty"`
+	Types *[]AssociationTypeRequest `json:"types,omitempty"`
 }
 
 // OrderAssociations defines model for OrderAssociations.
@@ -169,3 +224,6 @@ type Properties = []string
 
 // PropertiesWithHistory defines model for PropertiesWithHistory.
 type PropertiesWithHistory = []string
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error
