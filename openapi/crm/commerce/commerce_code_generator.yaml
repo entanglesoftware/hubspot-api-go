@@ -11,3 +11,5 @@ resources:
     enabled: true
   - name: orders
     enabled: true
+  - name: carts
+    enabled: true
