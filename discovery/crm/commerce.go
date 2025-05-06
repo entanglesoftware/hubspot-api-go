@@ -1,6 +1,7 @@
 package crm
 
 import (
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/carts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/discounts"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/invoices"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/orders"
@@ -48,4 +49,12 @@ func (d *CrmDiscovery) Orders() *orders.ClientWithResponses {
 		client, _ := commerce.NewOrdersDiscovery(config)
 		return client.Orders
 	}).(*orders.ClientWithResponses)
+}
+
+// Carts retrieves the CartsDiscovery client.
+func (d *CrmDiscovery) Carts() *carts.ClientWithResponses {
+	return d.getClient("carts", func(config *configuration.Configuration) interface{} {
+		client, _ := commerce.NewCartsDiscovery(config)
+		return client.Carts
+	}).(*carts.ClientWithResponses)
 }
