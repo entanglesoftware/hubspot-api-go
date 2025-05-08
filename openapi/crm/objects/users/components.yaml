@@ -1,0 +1,399 @@
+components:
+  requestBodies:
+    SearchParams:
+      content:
+        application/json:
+          schema:
+            $ref: "components.yaml#/components/schemas/SearchParams"
+      description: The maximum number of results to display per page. Default Value = 10.
+  schemas:
+    UserResponse:
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: When the discount was created.
+          x-go-type-skip-optional-pointer: true
+        archived:
+          type: boolean
+          description: Indicates if the discount is archived.
+          x-go-type-skip-optional-pointer: true
+        archivedAt:
+          type: string
+          format: date-time
+          description: When the discount was archived.
+          x-go-type-skip-optional-pointer: true
+        propertiesWithHistory:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/PropertyHistory"
+          description: A map of the contact's properties including historical values.
+          x-go-type-skip-optional-pointer: true
+        id:
+          type: string
+          description: Unique identifier for the discount.
+          x-go-type-skip-optional-pointer: true
+        objectWriteTraceId:
+          type: string
+          description: Unique trace ID for the operation.
+          x-go-type-skip-optional-pointer: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: A key-value map of the contact's properties.
+          x-go-type-skip-optional-pointer: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the discount was last updated.
+          x-go-type-skip-optional-pointer: true
+      type: object
+      x-go-type-skip-optional-pointer: true
+    PropertyHistory:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          description: The source ID of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceType:
+          type: string
+          description: The source type of the historical property value.
+          x-go-type-skip-optional-pointer: true
+        sourceLabel:
+          type: string
+          description: The source label for the historical property.
+          x-go-type-skip-optional-pointer: true
+        updatedByUserId:
+          type: integer
+          description: The user ID who updated the property.
+          x-go-type-skip-optional-pointer: true
+        value:
+          type: string
+          description: The historical value of the property.
+          x-go-type-skip-optional-pointer: true
+        timestamp:
+          type: string
+          format: date-time
+          description: When the property value was set.
+          x-go-type-skip-optional-pointer: true
+    Paging:
+      properties:
+        next:
+          $ref: "components.yaml#/components/schemas/PagingNext"
+      type: object
+    PagingNext:
+      type: object
+      x-go-type-skip-optional-pointer: true
+      properties:
+        link:
+          type: string
+          description: The link for the next page of results.
+          x-go-type-skip-optional-pointer: true
+        after:
+          type: string
+          description: The cursor token for the next page of results.
+          x-go-type-skip-optional-pointer: true
+    SearchParams:
+      properties:
+        after:
+          type: integer
+        schema:
+          $ref: "components.yaml#/components/schemas/FilterGroups"
+        limit:
+          type: integer
+        properties:
+          items:
+            type: string
+          type: array
+        query:
+          type: string
+        sorts:
+          description:
+            Use a sorting rule in the request body to see results in a specific
+            order (ascending or descending). Only one sorting rule can be
+            applied to any search.
+          items:
+            $ref: "components.yaml#/components/schemas/Sort"
+          type: array
+      type: object
+    Sort:
+      properties:
+        direction:
+          enum:
+            - ASCENDING
+            - DESCENDING
+          type: string
+        propertyName:
+          type: string
+      type: object
+    FilterGroups:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: "components.yaml#/components/schemas/Filter"
+          x-go-type-skip-optional-pointer: true
+      x-go-type-skip-optional-pointer: true
+
+    Filter:
+      type: object
+      properties:
+        highValue:
+          type: string
+          description: A high-value filter criterion.
+          x-go-type-skip-optional-pointer: true
+        propertyName:
+          type: string
+          description: The property name to filter by.
+          x-go-type-skip-optional-pointer: true
+        values:
+          type: array
+          items:
+            type: string
+          description: List of values to match for the property.
+          x-go-type-skip-optional-pointer: true
+        value:
+          type: string
+          description: A single value to match for the property.
+          x-go-type-skip-optional-pointer: true
+        operator:
+          type: string
+          description: defines model for Filter.Operator
+          enum:
+            - EQ
+            - NEQ
+            - LT
+            - LTE
+            - GT
+            - GTE
+            - HAS_PROPERTY
+            - NOT_HAS_PROPERTY
+            - CONTAINS_TOKEN
+            - NOT_CONTAINS_TOKEN
+          x-go-type-skip-optional-pointer: true
+    UsersResponse:
+      properties:
+        paging:
+          $ref: "components.yaml#/components/schemas/Paging"
+        results:
+          items:
+            $ref: "components.yaml#/components/schemas/UserResponse"
+          type: array
+          x-go-type-skip-optional-pointer: true
+      type: object
+
+    BatchInputItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product to update (optional for creates)
+        idProperty:
+          type: string
+          description: The name of a property whose values are unique for this object
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+        associations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationRequest"
+      required:
+        - id
+        - properties
+
+    BatchUsersUpsertRequest:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchInputItem"
+      required:
+        - inputs
+
+    BatchUsersResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ PENDING, PROCESSING, COMPLETE ]
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserResponse"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorItem"
+
+    ErrorItem:
+      type: object
+      properties:
+        errorType:
+          type: string
+        message:
+          type: string
+        context:
+          type: object
+    
+    AssociationRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssociationType"
+        to:
+          $ref: "#/components/schemas/AssociationTarget"
+    
+    AssociationType:
+      type: object
+      properties:
+        associationCategory:
+          type: string
+          enum: [ HUBSPOT_DEFINED, USER_DEFINED, INTEGRATOR_DEFINED ]
+          x-enum-varnames:
+            - AssociationCategoryHubspotDefined
+            - AssociationCategoryUserDefined
+            - AssociationCategoryIntegratorDefined
+
+    AssociationTarget:
+      type: object
+      properties:
+        id:
+          type: string
+    
+    Error:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        context:
+          $ref: "#/components/schemas/ErrorContext"
+        correlationId:
+          type: string
+        links:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+        category:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+
+    ErrorContext:
+      type: object
+      properties:
+        missingScopes:
+          type: array
+          items:
+            type: string
+        invalidPropertyName:
+          type: array
+          items:
+            type: string
+
+    ErrorDetail:
+      type: object
+      properties:
+        subCategory:
+          type: string
+        code:
+          type: string
+        in:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+        message:
+          type: string
+
+  parameters:
+    Properties:
+        name: properties
+        in: query
+        description: |
+          Comma-separated list of properties to include in the response.
+          If a specified property is not present, it will be ignored.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+        examples:
+          defaultProperties:
+            summary: Example properties
+            value: ["hs_title", "hs_currency"]
+    PropertiesWithHistory:
+      name: propertiesWithHistory
+      in: query
+      description: |
+        Comma-separated list of properties to include with their historical values.
+        Historical data reduces the maximum number of objects returned per request.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultPropertiesWithHistory:
+          summary: Example properties with history
+          value: ["hs_title", "hs_currency"]
+    Associations:
+      name: associations
+      in: query
+      description: |
+        Comma-separated list of object types to retrieve associated IDs for.
+        Nonexistent associations will be ignored.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+      examples:
+        defaultAssociations:
+          summary: Example associations
+          value: ["deals"]
+    Archived:
+      name: archived
+      in: query
+      description: Include only archived results.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+
+  responses:
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.hubspot.com/oauth/authorize
+          tokenUrl: https://api.hubapi.com/oauth/v1/token
+          scopes:
+            crm.objects.users.write : Grants access to users

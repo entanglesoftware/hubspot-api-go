@@ -101,7 +101,7 @@ func TestSaveLead(t *testing.T) {
 			"hs_lead_name":      "New Lead Demo 1",
 			"hs_pipeline_stage": "connected-stage-id",
 		},
-		Associations: []struct {
+		Associations: &[]struct {
 			To *struct {
 				Id *string "json:\"id,omitempty\""
 			} "json:\"to,omitempty\""

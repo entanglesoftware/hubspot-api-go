@@ -21,3 +21,5 @@ resources:
     enabled: true
   - name: objects
     enabled: true
+  - name: users
+    enabled: true

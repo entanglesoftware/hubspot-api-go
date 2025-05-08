@@ -10,6 +10,7 @@ import (
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/users"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
 	"github.com/entanglesoftware/hubspot-api-go/discovery/crm/objects"
 )
@@ -84,4 +85,12 @@ func (d *CrmDiscovery) Objects() *customObject.ClientWithResponses {
 		client, _ := objects.NewObjectsDiscovery(config)
 		return client.Objects
 	}).(*customObject.ClientWithResponses)
+}
+
+// Users retrieves the UsersDiscovery client.
+func (d *CrmDiscovery) Users() *users.ClientWithResponses {
+	return d.getClient("users", func(config *configuration.Configuration) interface{} {
+		client, _ := objects.NewUsersDiscovery(config)
+		return client.Users
+	}).(*users.ClientWithResponses)
 }

@@ -1,18 +1,18 @@
 openapi: 3.0.0
 info:
-  title: HubSpot Leads API
-  description: API for fetching leads from HubSpot
+  title: HubSpot Users API
+  description: API for creating and managing users in HubSpot.
   version: v3
 servers:
   - url: https://api.hubapi.com/
 security:
-  - oauth2: ['leads']
+  - oauth2: ['crm.objects.users.write']
 paths:
-  /crm/v3/objects/leads:
+  /crm/v3/objects/users:
     get:
-      summary: Retrieve a list of leads
-      description: Fetches leads with pagination and properties.
-      operationId: getLeads
+      summary: Retrieve a list of users
+      description: Fetches users with pagination and properties.
+      operationId: getUsers
       parameters:
         - name: limit
           in: query
@@ -35,20 +35,18 @@ paths:
         - $ref: 'components.yaml#/components/parameters/Archived'
       responses:
         "200":
-          description: Paginated list of leads.
+          description: Paginated list of users.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/LeadsResponse"
+                $ref: "components.yaml#/components/schemas/UsersResponse"
     post:
-      summary: Create a new lead
-      description: Create a new lead in the HubSpot CRM.
-      tags:
-        - Leads
-      operationId: createLead
+      summary: Create a user
+      description: Create a standard user with properties and associations.
+      operationId: createUser
       requestBody:
-        description: Lead details to create a new lead.
         required: true
+        description: User details to create a new user.
         content:
           application/json:
             schema:
@@ -89,19 +87,11 @@ paths:
                           id:
                             type: string
                             description: Target object ID.
-                objectWriteTraceId:
-                  type: string
-                  description: Trace ID for object write operations.
               required:
                 - properties
-              example:
-                properties:
-                  leadname: "Lead1"
-                  leadstage: "200"
-                  pipeline: "p1"
       responses:
         "201":
-          description: Lead created successfully.
+          description: User created successfully.
           content:
             application/json:
               schema:
@@ -109,16 +99,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the created lead.
+                    description: Unique ID of the created user.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the created lead.
+                    description: Properties of the created user.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was created.
+                    description: Timestamp when the user was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -127,12 +117,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was archived.
+                    description: Timestamp when the user was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was last updated.
+                    description: Timestamp when the user was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -140,64 +130,85 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the lead's properties including historical values.
+                    description: A map of the user's properties including historical values.
                     x-go-type-skip-optional-pointer: true
-  
-  /crm/v3/objects/leads/{leadId}:
+  /crm/v3/objects/users/{userId}:
     get:
-      summary: Get Lead Details
-      description: Retrieve lead details, including associations and additional metadata.
-      operationId: getLeadById
+      summary: Get a user by ID
+      description: Retrieve a user by its ID, with optional properties, history, associations, and archived status.
+      operationId: getUserById
       parameters:
-        - name: leadId
+        - name: userId
           in: path
           required: true
-          description: The ID of the lead to retrieve.
+          description: The ID of the user to retrieve.
           schema:
             type: string
-            format: int64
-        - name: idProperty
+
+        - name: properties
           in: query
+          description: Properties to include in the response.
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
           required: false
-          description: The property to use as the ID.
+
+        - name: propertiesWithHistory
+          in: query
+          description: Properties to include with their history.
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          required: false
+
+        - name: associations
+          in: query
+          description: Associations to include in the response.
           schema:
             type: string
-        - $ref: 'components.yaml#/components/parameters/Properties'
-        - $ref: 'components.yaml#/components/parameters/PropertiesWithHistory'
-        - $ref: 'components.yaml#/components/parameters/Associations'
-        - $ref: 'components.yaml#/components/parameters/Archived'
+          required: false
+
+        - name: archived
+          in: query
+          description: Whether to include archived users.
+          schema:
+            type: boolean
+          required: false
       responses:
         "200":
-          description: Lead object details.
+          description: User details.
           content:
             application/json:
               schema:
-                $ref: "components.yaml#/components/schemas/LeadResponse"
+                $ref: "components.yaml#/components/schemas/UserResponse"
     patch:
-      summary: Update a lead
-      description: Updates the details of a lead in HubSpot CRM.
-      operationId: updateLead
+      summary: Update a user
+      description: Updates the details of a user in HubSpot CRM.
+      operationId: updateUser
       parameters:
-        - name: leadId
+        - name: userId
           in: path
           required: true
-          description: The unique identifier of the lead to update.
+          description: The unique identifier of the user to update.
           schema:
             type: string
       requestBody:
-        description: Lead details to update.
+        description: User details to update.
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                objectWriteTraceId:
-                  type: string
-                  description: Unique trace ID for the operation.
                 properties:
                   type: object
-                  description: Key-value pairs representing the lead properties to update.
+                  description: Key-value pairs representing the deal properties to update.
                   additionalProperties:
                     type: string
                     description: Value of the property to update.
@@ -205,7 +216,7 @@ paths:
                 - properties
       responses:
         '200':
-          description: Successfully updated the lead.
+          description: Successfully updated the user.
           content:
             application/json:
               schema:
@@ -213,16 +224,16 @@ paths:
                 properties:
                   id:
                     type: string
-                    description: Unique ID of the updated lead.
+                    description: Unique ID of the updated user.
                     x-go-type-skip-optional-pointer: true
                   properties:
                     type: object
-                    description: Properties of the updated lead.
+                    description: Properties of the updated user.
                     x-go-type-skip-optional-pointer: true
                   createdAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was created.
+                    description: Timestamp when the user was created.
                     x-go-type-skip-optional-pointer: true
                   archived:
                     type: boolean
@@ -231,12 +242,12 @@ paths:
                   archivedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was archived.
+                    description: Timestamp when the user was archived.
                     x-go-type-skip-optional-pointer: true
                   updatedAt:
                     type: string
                     format: date-time
-                    description: Timestamp when the lead was last updated.
+                    description: Timestamp when the user was last updated.
                     x-go-type-skip-optional-pointer: true
                   propertiesWithHistory:
                     type: object
@@ -244,21 +255,21 @@ paths:
                       type: array
                       items:
                         $ref: "components.yaml#/components/schemas/PropertyHistory"
-                    description: A map of the lead's properties including historical values.
+                    description: A map of the user's properties including historical values.
                     x-go-type-skip-optional-pointer: true
     delete:
-      summary: Delete a lead
-      description: Deletes a lead from HubSpot using the provided lead ID.
-      operationId: deleteLeadById
+      summary: Delete a user
+      description: Deletes a user from HubSpot using the provided user ID.
+      operationId: deleteUserById
       parameters:
-        - name: leadId
+        - name: userId
           in: path
           required: true
-          description: The unique ID of the lead to delete.
+          description: The unique ID of the user to delete.
           schema:
             type: string
       responses:
         '204':
-          description: No Content. The lead was successfully deleted.
-  /crm/v3/objects/leads/search:
+          description: No Content. The user was successfully deleted.
+  /crm/v3/objects/users/search:
     $ref: './search.yaml#/search'
