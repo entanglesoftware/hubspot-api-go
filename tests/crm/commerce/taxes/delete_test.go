@@ -2,22 +2,16 @@ package taxes_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteTax(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	taxId := "416498264080"
 
-	ct := crm.Taxes()
+	ct := crmClient.Taxes()
 
 	response, err := ct.DeleteTaxByIdWithResponse(context.Background(), taxId)
 	if err != nil {

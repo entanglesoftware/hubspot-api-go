@@ -3,20 +3,15 @@ package quotes_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/quotes"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetQuotes fetches a page of quotes
 func TestGetQuotes(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -25,7 +20,7 @@ func TestGetQuotes(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Quotes()
+	ct := crmClient.Quotes()
 
 	response, err := ct.GetQuotesWithResponse(context.Background(), &quotesParams)
 	if err != nil {
@@ -58,16 +53,12 @@ func TestGetQuotes(t *testing.T) {
 
 // TestGetQuoteById fetches a page of quotes
 func TestGetQuoteById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	quoteByIdParam := quotes.GetQuoteByIdParams{}
 
-	ct := crm.Quotes()
+	ct := crmClient.Quotes()
 
 	response, err := ct.GetQuoteByIdWithResponse(context.Background(), 14923556151, &quoteByIdParam)
 	if err != nil {
@@ -88,11 +79,7 @@ func TestGetQuoteById(t *testing.T) {
 }
 
 func TestSaveQuotes(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Quotes
 	quote := quotes.CreateQuoteJSONRequestBody{
@@ -104,7 +91,7 @@ func TestSaveQuotes(t *testing.T) {
 		},
 	}
 
-	ct := crm.Quotes()
+	ct := crmClient.Quotes()
 	response, err := ct.CreateQuoteWithResponse(context.Background(), quote)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

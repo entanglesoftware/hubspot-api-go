@@ -2,22 +2,16 @@ package invoices_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteInvoice(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	invoiceId := "408555114028"
 
-	ct := crm.Invoices()
+	ct := crmClient.Invoices()
 
 	response, err := ct.DeleteInvoiceByIdWithResponse(context.Background(), invoiceId)
 	if err != nil {

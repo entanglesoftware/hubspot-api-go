@@ -3,21 +3,15 @@ package taxes_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/taxes"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetTaxes fetches a page of taxes
 func TestGetTaxes(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -26,7 +20,7 @@ func TestGetTaxes(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Taxes()
+	ct := crmClient.Taxes()
 	response, err := ct.GetTaxesWithResponse(context.Background(), &taxesParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -57,16 +51,12 @@ func TestGetTaxes(t *testing.T) {
 
 // TestGetTaxById fetches a page of taxes
 func TestGetTaxById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	invoiceByIdParam := taxes.GetTaxByIdParams{}
 
-	ct := crm.Taxes()
+	ct := crmClient.Taxes()
 
 	response, err := ct.GetTaxByIdWithResponse(context.Background(), 404043653204, &invoiceByIdParam)
 	if err != nil {
@@ -87,11 +77,7 @@ func TestGetTaxById(t *testing.T) {
 }
 
 func TestSaveTaxes(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Taxes
 	invoice := taxes.CreateTaxJSONRequestBody{
@@ -103,7 +89,7 @@ func TestSaveTaxes(t *testing.T) {
 		},
 	}
 
-	ct := crm.Taxes()
+	ct := crmClient.Taxes()
 	response, err := ct.CreateTaxWithResponse(context.Background(), invoice)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

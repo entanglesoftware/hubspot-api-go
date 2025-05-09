@@ -3,20 +3,15 @@ package orders_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/orders"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetOrders fetches a page of orders
 func TestGetOrders(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -25,7 +20,7 @@ func TestGetOrders(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Orders()
+	ct := crmClient.Orders()
 	response, err := ct.GetOrdersWithResponse(context.Background(), &ordersParams)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -56,16 +51,12 @@ func TestGetOrders(t *testing.T) {
 
 // TestGetOrderById fetches a page of orders
 func TestGetOrderById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	invoiceByIdParam := orders.GetOrderByIdParams{}
 
-	ct := crm.Orders()
+	ct := crmClient.Orders()
 
 	response, err := ct.GetOrderByIdWithResponse(context.Background(), 417774243908, &invoiceByIdParam)
 	if err != nil {
@@ -86,18 +77,14 @@ func TestGetOrderById(t *testing.T) {
 }
 
 func TestSaveOrders(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Orders
 	invoice := orders.CreateOrderJSONRequestBody{
 		Properties: map[string]string{},
 	}
 
-	ct := crm.Orders()
+	ct := crmClient.Orders()
 	response, err := ct.CreateOrderWithResponse(context.Background(), invoice)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
