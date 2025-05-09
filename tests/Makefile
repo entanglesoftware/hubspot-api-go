@@ -1,0 +1,1 @@
+# set env by cd tests &&  "env $(cat ../.env) go test ./... -v"

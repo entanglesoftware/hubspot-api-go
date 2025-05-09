@@ -4,18 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
 )
 
 func TestGetDeals(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 
 	limit := 10
 
@@ -56,11 +52,7 @@ func TestGetDeals(t *testing.T) {
 }
 
 func TestGetDealById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 	// Make the API call
 	dealByIdParam := deals.GetDealByIdParams{}
 
@@ -85,11 +77,7 @@ func TestGetDealById(t *testing.T) {
 }
 
 func TestSaveDeal(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 
 	body := deals.CreateDealJSONRequestBody{
 		Properties: map[string]string{

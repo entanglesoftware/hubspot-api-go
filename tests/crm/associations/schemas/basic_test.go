@@ -2,25 +2,21 @@ package associations_test
 
 import (
 	"context"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetAssociationsSchemas fetches a page of schemas
 func TestGetAssociationsSchemas(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	fromObjectType := "contact"
 	toObjectType := "companies"
 
-	ct := crm.Schemas()
+	ct := crmClient.Schemas()
 	response, err := ct.GetAssociationsSchemaWithResponse(context.Background(), fromObjectType, toObjectType)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -42,11 +38,7 @@ func TestGetAssociationsSchemas(t *testing.T) {
 
 // TestCreateAssociationsSchemas fetches a page of schemas
 func TestCreateAssociationsSchemas(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	fromObjectType := "contact"
 	toObjectType := "companies"
 
@@ -57,7 +49,7 @@ func TestCreateAssociationsSchemas(t *testing.T) {
 		Label:        "Custom Contact Companies Label New",
 	}
 
-	ct := crm.Schemas()
+	ct := crmClient.Schemas()
 	response, err := ct.CreateAssociationSchemaWithResponse(context.Background(), fromObjectType, toObjectType, schemasParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -79,12 +71,7 @@ func TestCreateAssociationsSchemas(t *testing.T) {
 
 // TestUpdateAssociationsSchemas fetches a page of schemas
 func TestUpdateAssociationsSchemas(t *testing.T) {
-
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	fromObjectType := "contact"
 	toObjectType := "companies"
 
@@ -94,7 +81,7 @@ func TestUpdateAssociationsSchemas(t *testing.T) {
 		Label:             "Custom Contact Companies Label Updated",
 	}
 
-	ct := crm.Schemas()
+	ct := crmClient.Schemas()
 	response, err := ct.UpdateAssociationSchemaWithResponse(context.Background(), fromObjectType, toObjectType, schemasParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)

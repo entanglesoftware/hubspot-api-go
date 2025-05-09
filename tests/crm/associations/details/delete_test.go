@@ -2,25 +2,19 @@ package associations_test
 
 import (
 	"context"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteAssociationsDetails(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
-
+	crmClient := testsutil.GetClient()
 	objectType := "contact"
 	objectId := "100260047027"
 	toObjectType := "companies"
 	toObjectId := "28292686395"
 
-	ct := crm.Details()
+	ct := crmClient.Details()
 
 	response, err := ct.DeleteAssociationWithResponse(context.Background(), objectType, objectId, toObjectType, toObjectId)
 	if err != nil {

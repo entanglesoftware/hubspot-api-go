@@ -4,19 +4,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
+
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
 )
 
 // TestGetContacts fetches a page of contacts
 func TestGetContacts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 
 	limit := 10
 
@@ -58,11 +55,7 @@ func TestGetContacts(t *testing.T) {
 
 // TestGetContactById fetches a page of contacts
 func TestGetContactById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 
 	// Make the API call
 	contactByIdParam := contacts.GetContactByIdParams{}
@@ -89,11 +82,7 @@ func TestGetContactById(t *testing.T) {
 
 // TestSaveContacts save a contact
 func TestSaveContacts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crm := testsutil.GetClient()
 
 	body := contacts.CreateContactJSONRequestBody{
 		Properties: map[string]string{

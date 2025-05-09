@@ -3,6 +3,7 @@ package objects_test
 import (
 	"context"
 	"fmt"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/objects"

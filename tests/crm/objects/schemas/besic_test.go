@@ -2,6 +2,7 @@ package schemas_test
 
 import (
 	"context"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"

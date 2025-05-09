@@ -2,21 +2,15 @@ package associations_test
 
 import (
 	"context"
-	"testing"
-
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
+	"testing"
 )
 
 // TestGetAssociationsDetails fetches a page of details
 func TestGetAssociationsDetails(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
-
+	crmClient := testsutil.GetClient()
 	limit := 10
 	objectType := "contact"
 	objectId := "100260047027"
@@ -27,7 +21,7 @@ func TestGetAssociationsDetails(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Details()
+	ct := crmClient.Details()
 	response, err := ct.GetAssociationsDetailsWithResponse(context.Background(), objectType, objectId, toObjectType, &detailsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -56,11 +50,7 @@ func TestGetAssociationsDetails(t *testing.T) {
 
 // TestCreateAssociationsDetails fetches a page of details
 func TestCreateAssociationsDetails(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	objectType := "contact"
 	objectId := "100260047027"
 	toObjectType := "companies"
@@ -74,7 +64,7 @@ func TestCreateAssociationsDetails(t *testing.T) {
 		},
 	}
 
-	ct := crm.Details()
+	ct := crmClient.Details()
 	response, err := ct.CreateAssociationsDetailsWithResponse(context.Background(), objectType, objectId, toObjectType, toObjectId, detailsParams)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)
@@ -105,17 +95,13 @@ func TestCreateAssociationsDetails(t *testing.T) {
 
 // TestCreateDefaultAssociationsDetails fetches a page of details
 func TestCreateDefaultAssociationsDetails(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	FromObjectType := "contact"
 	FromObjectId := "100260047027"
 	toObjectType := "companies"
 	toObjectId := "28292686395"
 
-	ct := crm.Details()
+	ct := crmClient.Details()
 	response, err := ct.CreateDefaultAssociationsDetailsWithResponse(context.Background(), FromObjectType, FromObjectId, toObjectType, toObjectId)
 	if err != nil {
 		t.Fatalf("API call failed: %+v", err)

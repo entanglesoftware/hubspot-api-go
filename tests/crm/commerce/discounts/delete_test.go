@@ -2,22 +2,16 @@ package discounts_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestDeleteDiscount(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	discountId := "410308216595"
 
-	ct := crm.Discounts()
+	ct := crmClient.Discounts()
 
 	response, err := ct.DeleteDiscountByIdWithResponse(context.Background(), discountId)
 	if err != nil {

@@ -2,19 +2,15 @@ package carts_test
 
 import (
 	"context"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/carts"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSaveCarts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Carts
 	cart := carts.CreateCartJSONRequestBody{
@@ -24,7 +20,7 @@ func TestSaveCarts(t *testing.T) {
 		},
 	}
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 	response, err := ct.CreateCartWithResponse(context.Background(), cart)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -46,11 +42,7 @@ func TestSaveCarts(t *testing.T) {
 }
 
 func TestRetrieveCart(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	cartId := "427642968875"
 
@@ -59,7 +51,7 @@ func TestRetrieveCart(t *testing.T) {
 		Properties: &[]string{"hs_cart_name", "hs_cart_discount"},
 	}
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 	response, err := ct.GetCartByIdWithResponse(context.Background(), cartId, &cart)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -81,16 +73,12 @@ func TestRetrieveCart(t *testing.T) {
 }
 
 func TestRetrieveCarts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Carts
 	cart := carts.GetCartsParams{}
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 	response, err := ct.GetCartsWithResponse(context.Background(), &cart)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -119,11 +107,7 @@ func TestRetrieveCarts(t *testing.T) {
 }
 
 func TestUpdateCart(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	cartId := "427637542790"
 
@@ -134,7 +118,7 @@ func TestUpdateCart(t *testing.T) {
 		},
 	}
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 	response, err := ct.UpdateCartWithResponse(context.Background(), cartId, cart)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -154,15 +138,11 @@ func TestUpdateCart(t *testing.T) {
 }
 
 func TestDeleteCart(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	cartId := "427637542790"
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 	response, err := ct.DeleteCartByIdWithResponse(context.Background(), cartId)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

@@ -3,20 +3,15 @@ package carts_test
 import (
 	"context"
 	"encoding/json"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/carts"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchCarts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -24,7 +19,7 @@ func TestSearchCarts(t *testing.T) {
 	value := "Cart Name"
 	limit := 10
 
-	ct := crm.Carts()
+	ct := crmClient.Carts()
 
 	body := carts.SearchCartsJSONRequestBody{
 		Limit: &limit,
