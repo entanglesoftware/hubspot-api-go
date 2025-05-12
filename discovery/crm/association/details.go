@@ -3,10 +3,9 @@ package association
 import (
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/association/details"
 	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	"net/http"
 )
 
 // DetailsDiscovery is the struct that contains all API clients

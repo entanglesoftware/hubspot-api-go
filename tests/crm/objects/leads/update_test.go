@@ -2,20 +2,14 @@ package leads_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestUpdateLead(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Lead
 	hs_lead_name := "Update Lead New"
@@ -23,7 +17,7 @@ func TestUpdateLead(t *testing.T) {
 
 	leadId := "396777411872"
 
-	ct := crm.Leads()
+	ct := crmClient.Leads()
 
 	body := leads.UpdateLeadJSONRequestBody{
 		Properties: map[string]string{

@@ -99,5 +99,9 @@ func (c *Client) getDecorators() []decorator.IDecorator {
 		decorators = append(decorators, decorator.NewRetryDecorator(c.Config.NumberOfAPICallRetries))
 	}
 
+	if c.Config.AccessToken != "" {
+		decorators = append(decorators, decorator.NewAuthDecorator(c.Config.AccessToken))
+	}
+
 	return decorators
 }

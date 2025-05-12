@@ -2,21 +2,15 @@ package products_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteProductById fetches a page of products
 func TestDeleteProductById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Products()
+	ct := crmClient.Products()
 
 	response, err := ct.DeleteProductByIdWithResponse(context.Background(), "17897571956")
 	if err != nil {

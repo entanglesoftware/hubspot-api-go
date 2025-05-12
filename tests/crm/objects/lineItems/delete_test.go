@@ -2,21 +2,15 @@ package lineItems_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteLineItemsById fetches a page of lineItems
 func TestDeleteLineItemsById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.LineItems()
+	ct := crmClient.LineItems()
 
 	response, err := ct.DeleteLineItemByIdWithResponse(context.Background(), "27907650925")
 	if err != nil {

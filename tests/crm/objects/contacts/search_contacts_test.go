@@ -3,20 +3,14 @@ package contacts_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/contacts"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchContacts(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -35,7 +29,7 @@ func TestSearchContacts(t *testing.T) {
 		}},
 	}
 
-	ct := crm.Contacts()
+	ct := crmClient.Contacts()
 
 	response, err := ct.SearchContactsWithResponse(context.Background(), body)
 

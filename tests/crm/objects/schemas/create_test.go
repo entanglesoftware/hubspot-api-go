@@ -2,20 +2,15 @@ package schemas_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestCreateAssociation tests the creation of a schema in HubSpot CRM
 func TestCreateAssociation(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Define the Association payload
 
@@ -32,7 +27,7 @@ func TestCreateAssociation(t *testing.T) {
 	objectType := "contacts"
 
 	// Make the API call to create the association
-	response, err := crm.SchemaItems().CreateAssociationWithResponse(context.Background(), objectType, association)
+	response, err := crmClient.SchemaItems().CreateAssociationWithResponse(context.Background(), objectType, association)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

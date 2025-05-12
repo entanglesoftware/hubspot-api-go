@@ -3,20 +3,14 @@ package tickets_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/tickets"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetTickets(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -25,7 +19,7 @@ func TestGetTickets(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Tickets()
+	ct := crmClient.Tickets()
 
 	response, err := ct.GetTicketsWithResponse(context.Background(), &ticketParams)
 	if err != nil {
@@ -57,16 +51,12 @@ func TestGetTickets(t *testing.T) {
 }
 
 func TestGetTicketById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	ticketByIdParam := tickets.GetTicketByIdParams{}
 
-	ct := crm.Tickets()
+	ct := crmClient.Tickets()
 
 	response, err := ct.GetTicketByIdWithResponse(context.Background(), "18791135765", &ticketByIdParam)
 	if err != nil {
@@ -88,13 +78,9 @@ func TestGetTicketById(t *testing.T) {
 
 func TestSaveTicket(t *testing.T) {
 	// Fetch the access token from the environment
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Tickets()
+	ct := crmClient.Tickets()
 
 	body := tickets.CreateTicketJSONRequestBody{
 		Properties: map[string]string{

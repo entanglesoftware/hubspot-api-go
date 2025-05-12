@@ -3,25 +3,19 @@ package objects_test
 import (
 	"context"
 	"fmt"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/objects"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSaveObject(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	associationTypeId := int32(580)
 	associationCategory := "HUBSPOT_DEFINED"
 	id := "28106025611"
 
-	ct := crm.Objects()
+	ct := crmClient.Objects()
 
 	objectType := "leads"
 

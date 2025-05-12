@@ -3,20 +3,14 @@ package users_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/users"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchUsers(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -24,7 +18,7 @@ func TestSearchUsers(t *testing.T) {
 	value := "parmar"
 	limit := 10
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 
 	body := users.SearchUsersJSONRequestBody{
 		Limit: &limit,

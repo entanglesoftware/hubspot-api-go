@@ -3,20 +3,14 @@ package leads_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetLeads(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -25,7 +19,7 @@ func TestGetLeads(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Leads()
+	ct := crmClient.Leads()
 
 	response, err := ct.GetLeadsWithResponse(context.Background(), &leadParams)
 	if err != nil {
@@ -57,16 +51,12 @@ func TestGetLeads(t *testing.T) {
 }
 
 func TestGetLeadById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	leadByIdParam := leads.GetLeadByIdParams{}
 
-	ct := crm.Leads()
+	ct := crmClient.Leads()
 
 	response, err := ct.GetLeadByIdWithResponse(context.Background(), "396711567278", &leadByIdParam)
 	if err != nil {
@@ -87,16 +77,12 @@ func TestGetLeadById(t *testing.T) {
 }
 
 func TestSaveLead(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	associationTypeId := int32(580)
 	associationCategory := "HUBSPOT_DEFINED"
 	id := "28106025611"
 
-	ct := crm.Leads()
+	ct := crmClient.Leads()
 	body := leads.CreateLeadJSONRequestBody{
 		Properties: map[string]string{
 			"hs_lead_name":      "New Lead Demo 1",

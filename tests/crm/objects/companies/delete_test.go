@@ -2,21 +2,15 @@ package companies_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteCompanyById fetches a page of companies
 func TestDeleteCompanyById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 
 	response, err := ct.DeleteCompanyByIdWithResponse(context.Background(), "28189124426")
 	if err != nil {

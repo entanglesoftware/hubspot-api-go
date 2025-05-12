@@ -5,27 +5,21 @@ import (
 	"context"
 	"encoding/json"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/users"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetUsers(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Users
 	user := users.GetUsersParams{
 		Properties: &[]string{"hs_job_title", "hs_availability_status", "hs_working_hours"},
 	}
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 	response, err := ct.GetUsersWithResponse(context.Background(), &user)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -54,11 +48,7 @@ func TestGetUsers(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	userId := "389641148436"
 
@@ -67,7 +57,7 @@ func TestGetUser(t *testing.T) {
 		Properties: &[]string{"hs_job_title", "hs_availability_status", "hs_working_hours"},
 	}
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 	response, err := ct.GetUserByIdWithResponse(context.Background(), userId, &user)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -90,13 +80,9 @@ func TestGetUser(t *testing.T) {
 
 func TestSaveUsers(t *testing.T) {
 	// Fetch the access token from the environment
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 
 	body := users.CreateUserJSONBody{
 		Properties: map[string]string{
@@ -129,11 +115,7 @@ func TestSaveUsers(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	userId := "389641148436"
 
@@ -146,7 +128,7 @@ func TestUpdateUser(t *testing.T) {
 		},
 	}
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 	response, err := ct.UpdateUserWithResponse(context.Background(), userId, user)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
@@ -166,15 +148,11 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	userId := "427637542790"
 
-	ct := crm.Users()
+	ct := crmClient.Users()
 	response, err := ct.DeleteUserByIdWithResponse(context.Background(), userId)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

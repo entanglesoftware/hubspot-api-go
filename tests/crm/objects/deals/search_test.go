@@ -5,26 +5,22 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
 )
 
 func TestSearchDeals(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
 	propertyName := "dealname"
-	value := "New Deal 1"
+	value := "New Deal 11"
 	limit := 10
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	body := deals.SearchDealsJSONRequestBody{
 		Limit: &limit,

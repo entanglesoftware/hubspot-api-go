@@ -3,6 +3,7 @@ package lineItems_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
@@ -12,11 +13,7 @@ import (
 )
 
 func TestGetLineItems(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -25,7 +22,7 @@ func TestGetLineItems(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.LineItems()
+	ct := crmClient.LineItems()
 
 	response, err := ct.GetLineItemsWithResponse(context.Background(), &LineItemParams)
 	if err != nil {

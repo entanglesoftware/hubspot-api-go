@@ -2,20 +2,14 @@ package products_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/products"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestUpdateProduct(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Product
 	name := "New Product 1"
@@ -24,7 +18,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	productId := "20156772701"
 
-	ct := crm.Products()
+	ct := crmClient.Products()
 
 	body := products.UpdateProductJSONRequestBody{
 		Properties: map[string]string{

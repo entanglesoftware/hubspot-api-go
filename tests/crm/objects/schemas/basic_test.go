@@ -3,24 +3,19 @@ package schemas_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/schemas"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetSchemas(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	ticketParams := schemas.GetObjectSchemasParams{}
 
-	ct := crm.SchemaItems()
+	ct := crmClient.SchemaItems()
 
 	response, err := ct.GetObjectSchemasWithResponse(context.Background(), &ticketParams)
 	if err != nil {
@@ -43,16 +38,12 @@ func TestGetSchemas(t *testing.T) {
 }
 
 func TestGetExistingObjectSchema(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	objectType := "contacts"
 
-	ct := crm.SchemaItems()
+	ct := crmClient.SchemaItems()
 
 	response, err := ct.GetExistingObjectSchemaWithResponse(context.Background(), objectType)
 	if err != nil {
@@ -76,11 +67,7 @@ func TestGetExistingObjectSchema(t *testing.T) {
 
 // TestCreateSchema tests the creation of a schema in HubSpot CRM
 func TestCreateSchema(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Define the schema payload
 
@@ -118,7 +105,7 @@ func TestCreateSchema(t *testing.T) {
 	}
 
 	// Make the API call to create the schema
-	response, err := crm.SchemaItems().CreateCustomObjectSchemaWithResponse(context.Background(), schema)
+	response, err := crmClient.SchemaItems().CreateCustomObjectSchemaWithResponse(context.Background(), schema)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}

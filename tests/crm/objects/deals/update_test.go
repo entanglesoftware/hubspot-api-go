@@ -2,20 +2,16 @@ package deals_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/deals"
 )
 
 func TestUpdateDeal(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Deal
 	dealstage := "appointmentscheduled"
@@ -25,7 +21,7 @@ func TestUpdateDeal(t *testing.T) {
 
 	dealId := "33612177707"
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	body := deals.UpdateDealJSONRequestBody{
 		Properties: map[string]string{

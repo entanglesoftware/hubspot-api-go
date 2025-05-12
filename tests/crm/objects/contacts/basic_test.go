@@ -13,7 +13,7 @@ import (
 
 // TestGetContacts fetches a page of contacts
 func TestGetContacts(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -22,7 +22,7 @@ func TestGetContacts(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Contacts()
+	ct := crmClient.Contacts()
 
 	response, err := ct.GetContactsWithResponse(context.Background(), &contactsParams)
 	if err != nil {
@@ -55,12 +55,12 @@ func TestGetContacts(t *testing.T) {
 
 // TestGetContactById fetches a page of contacts
 func TestGetContactById(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	contactByIdParam := contacts.GetContactByIdParams{}
 
-	ct := crm.Contacts()
+	ct := crmClient.Contacts()
 
 	response, err := ct.GetContactByIdWithResponse(context.Background(), 84952873394, &contactByIdParam)
 	if err != nil {
@@ -82,7 +82,7 @@ func TestGetContactById(t *testing.T) {
 
 // TestSaveContacts save a contact
 func TestSaveContacts(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 
 	body := contacts.CreateContactJSONRequestBody{
 		Properties: map[string]string{
@@ -92,7 +92,7 @@ func TestSaveContacts(t *testing.T) {
 		},
 	}
 
-	ct := crm.Contacts()
+	ct := crmClient.Contacts()
 
 	response, err := ct.CreateContactWithResponse(context.Background(), body)
 	if err != nil {

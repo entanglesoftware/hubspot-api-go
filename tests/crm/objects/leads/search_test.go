@@ -3,20 +3,14 @@ package leads_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/leads"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchLeads(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -24,7 +18,7 @@ func TestSearchLeads(t *testing.T) {
 	value := "new-stage-id"
 	limit := 10
 
-	ct := crm.Leads()
+	ct := crmClient.Leads()
 
 	body := leads.SearchLeadsJSONRequestBody{
 		Limit: &limit,

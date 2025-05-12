@@ -20,7 +20,7 @@ type Request struct {
 	baseURL string
 	url     *url.URL
 	method  string
-	headers Headers
+	Headers Headers
 	body    []byte
 }
 
@@ -29,7 +29,7 @@ func NewHttpRequest(config configuration.Configuration, opts Options) (*Request,
 	req := &Request{
 		config:  config,
 		opts:    opts,
-		headers: Headers{},
+		Headers: Headers{},
 	}
 
 	if config.BasePath != "" {
@@ -92,7 +92,7 @@ func (r *Request) applyAuth() error {
 		query.Set("hapikey", r.config.APIKey)
 		r.url.RawQuery = query.Encode()
 	} else if r.config.AccessToken != "" {
-		r.headers["Authorization"] = "Bearer " + r.config.AccessToken
+		r.Headers["Authorization"] = "Bearer " + r.config.AccessToken
 	} else {
 		return errors.New("authentication method not set in configuration")
 	}
@@ -101,16 +101,16 @@ func (r *Request) applyAuth() error {
 
 // Initialize headers based on options and configuration
 func (r *Request) initHeaders() {
-	r.headers = Headers{
+	r.Headers = Headers{
 		"Content-Type": "application/json",
 	}
 
 	for k, v := range r.config.DefaultHeaders {
-		r.headers[k] = v
+		r.Headers[k] = v
 	}
 
 	for k, v := range r.opts.Headers {
-		r.headers[k] = v
+		r.Headers[k] = v
 	}
 }
 
@@ -141,7 +141,7 @@ func (r *Request) GetSendData() (*http.Request, error) {
 	}
 
 	// Set headers for the request
-	for key, value := range r.headers {
+	for key, value := range r.Headers {
 		req.Header.Set(key, value)
 	}
 

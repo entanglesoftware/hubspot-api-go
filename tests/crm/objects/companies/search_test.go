@@ -3,20 +3,14 @@ package companies_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchCompanies(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -34,7 +28,7 @@ func TestSearchCompanies(t *testing.T) {
 		}},
 	}
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 
 	response, err := ct.SearchCompanyWithResponse(context.Background(), companyBody)
 	if err != nil {

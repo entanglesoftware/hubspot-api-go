@@ -2,21 +2,15 @@ package tickets_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
-
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestDeleteTicketById fetches a page of tickets
 func TestDeleteTicketById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Tickets()
+	ct := crmClient.Tickets()
 
 	response, err := ct.DeleteTicketByIdWithResponse(context.Background(), "18816298665")
 	if err != nil {

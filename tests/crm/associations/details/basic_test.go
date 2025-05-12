@@ -11,6 +11,7 @@ import (
 // TestGetAssociationsDetails fetches a page of details
 func TestGetAssociationsDetails(t *testing.T) {
 	crmClient := testsutil.GetClient()
+
 	limit := 10
 	objectType := "contact"
 	objectId := "100260047027"
@@ -51,6 +52,7 @@ func TestGetAssociationsDetails(t *testing.T) {
 // TestCreateAssociationsDetails fetches a page of details
 func TestCreateAssociationsDetails(t *testing.T) {
 	crmClient := testsutil.GetClient()
+
 	objectType := "contact"
 	objectId := "100260047027"
 	toObjectType := "companies"
@@ -96,6 +98,7 @@ func TestCreateAssociationsDetails(t *testing.T) {
 // TestCreateDefaultAssociationsDetails fetches a page of details
 func TestCreateDefaultAssociationsDetails(t *testing.T) {
 	crmClient := testsutil.GetClient()
+
 	FromObjectType := "contact"
 	FromObjectId := "100260047027"
 	toObjectType := "companies"

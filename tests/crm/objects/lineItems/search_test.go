@@ -3,20 +3,14 @@ package lineItems_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/lineItems"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestSearchLineItems(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 
@@ -24,7 +18,7 @@ func TestSearchLineItems(t *testing.T) {
 	value := "27907650998"
 	limit := 10
 
-	ct := crm.LineItems()
+	ct := crmClient.LineItems()
 
 	body := lineItems.SearchLineItemsJSONRequestBody{
 		Limit: &limit,

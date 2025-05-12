@@ -3,21 +3,15 @@ package companies_test
 import (
 	"context"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 // TestGetCompanies fetches a page of companies
 func TestGetCompanies(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -26,7 +20,7 @@ func TestGetCompanies(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 
 	response, err := ct.GetCompaniesWithResponse(context.Background(), &companiesParams)
 	if err != nil {
@@ -59,16 +53,12 @@ func TestGetCompanies(t *testing.T) {
 
 // TestGetCompanyById fetches a page of companies
 func TestGetCompanyById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	companyByIdParam := companies.GetCompanyByIdParams{}
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 
 	response, err := ct.GetCompanyByIdWithResponse(context.Background(), 28189124426, &companyByIdParam)
 	if err != nil {
@@ -89,11 +79,7 @@ func TestGetCompanyById(t *testing.T) {
 }
 
 func TestSaveCompany(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Initialize a variable of type Company
 	company := companies.CreateCompanyJSONRequestBody{
@@ -103,7 +89,7 @@ func TestSaveCompany(t *testing.T) {
 		},
 	}
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 	response, err := ct.CreateCompanyWithResponse(context.Background(), company)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)

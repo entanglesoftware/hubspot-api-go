@@ -4,20 +4,14 @@ import (
 	"context"
 	"fmt"
 	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/objects"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestGetObjects(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -26,7 +20,7 @@ func TestGetObjects(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Objects()
+	ct := crmClient.Objects()
 
 	objectType := "contacts"
 
@@ -51,16 +45,12 @@ func TestGetObjects(t *testing.T) {
 }
 
 func TestGetObject(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
 	// Make the API call
 	objectParams := objects.GetObjectByTypeAndIdParams{}
 
-	ct := crm.Objects()
+	ct := crmClient.Objects()
 
 	objectType := "contacts"
 

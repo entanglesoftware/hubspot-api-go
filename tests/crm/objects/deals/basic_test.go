@@ -11,7 +11,7 @@ import (
 )
 
 func TestGetDeals(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 
 	limit := 10
 
@@ -20,7 +20,7 @@ func TestGetDeals(t *testing.T) {
 		Limit: &limit,
 	}
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	response, err := ct.GetDealsWithResponse(context.Background(), &dealParams)
 	if err != nil {
@@ -52,11 +52,11 @@ func TestGetDeals(t *testing.T) {
 }
 
 func TestGetDealById(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 	// Make the API call
 	dealByIdParam := deals.GetDealByIdParams{}
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	response, err := ct.GetDealByIdWithResponse(context.Background(), "31738621965", &dealByIdParam)
 	if err != nil {
@@ -77,7 +77,7 @@ func TestGetDealById(t *testing.T) {
 }
 
 func TestSaveDeal(t *testing.T) {
-	crm := testsutil.GetClient()
+	crmClient := testsutil.GetClient()
 
 	body := deals.CreateDealJSONRequestBody{
 		Properties: map[string]string{
@@ -88,7 +88,7 @@ func TestSaveDeal(t *testing.T) {
 		},
 	}
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	response, err := ct.CreateDealWithResponse(context.Background(), body)
 	if err != nil {

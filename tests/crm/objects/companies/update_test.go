@@ -2,20 +2,14 @@ package companies_test
 
 import (
 	"context"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/objects/companies"
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
 )
 
 func TestUpdateCompany(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 	domain := "newdomain.com"
 	name := "New Name"
 
@@ -28,7 +22,7 @@ func TestUpdateCompany(t *testing.T) {
 		},
 	}
 
-	ct := crm.Companies()
+	ct := crmClient.Companies()
 
 	response, err := ct.UpdateCompanyWithResponse(context.Background(), companyId, body)
 	if err != nil {

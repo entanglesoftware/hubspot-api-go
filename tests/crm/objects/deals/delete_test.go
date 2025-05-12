@@ -4,19 +4,15 @@ import (
 	"context"
 	"testing"
 
-	"github.com/entanglesoftware/hubspot-api-go/configuration"
-	"github.com/entanglesoftware/hubspot-api-go/discovery/crm"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
+	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 )
 
 // TestDeleteDealById fetches a page of deals
 func TestDeleteDealById(t *testing.T) {
-	config := configuration.Configuration{
-		BasePath:               configuration.BaseURL,
-		NumberOfAPICallRetries: 3,
-	}
-	crm := crm.NewCrmDiscovery(&config)
+	crmClient := testsutil.GetClient()
 
-	ct := crm.Deals()
+	ct := crmClient.Deals()
 
 	response, err := ct.DeleteDealByIdWithResponse(context.Background(), "31738621965")
 	if err != nil {
