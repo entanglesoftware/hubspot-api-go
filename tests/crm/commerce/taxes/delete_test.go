@@ -2,6 +2,7 @@ package taxes_test
 
 import (
 	"context"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 )

@@ -3,6 +3,7 @@ package contacts_test
 import (
 	"context"
 	"encoding/json"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 

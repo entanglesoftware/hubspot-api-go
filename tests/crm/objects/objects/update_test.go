@@ -3,6 +3,7 @@ package objects_test
 import (
 	"context"
 	"fmt"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 

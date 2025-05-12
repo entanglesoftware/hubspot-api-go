@@ -3,6 +3,7 @@ package users_test
 import (
 	"context"
 	"encoding/json"
+	_ "github.com/entanglesoftware/hubspot-api-go/tests"
 	"github.com/entanglesoftware/hubspot-api-go/tests/testsutil"
 	"testing"
 
@@ -11,7 +12,6 @@ import (
 
 func TestSearchUsers(t *testing.T) {
 	crmClient := testsutil.GetClient()
-
 	// Make the API call
 
 	propertyName := "hs_family_name"
