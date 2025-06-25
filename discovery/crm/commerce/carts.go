@@ -16,15 +16,8 @@ type CartsDiscovery struct {
 
 // NewCartsDiscovery creates a new instance of CartsDiscovery
 func NewCartsDiscovery(config *configuration.Configuration) (*CartsDiscovery, error) {
-	token, err := config.GetToken()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get token: %w", err)
-	}
-	if token == "" {
-		return nil, fmt.Errorf("no access token provided")
-	}
 	objectClient, err := carts.NewClientWithResponses(config.BasePath, carts.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.AccessToken))
 		return nil
 	}))
 	if err != nil {
