@@ -3,6 +3,7 @@ package carts_test
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/carts"
@@ -12,7 +13,13 @@ import (
 )
 
 func TestSearchCarts(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}

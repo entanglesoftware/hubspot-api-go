@@ -2,6 +2,7 @@ package carts_test
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/entanglesoftware/hubspot-api-go/codegen/crm/commerce/carts"
@@ -10,7 +11,13 @@ import (
 )
 
 func TestSaveCarts(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
@@ -46,7 +53,13 @@ func TestSaveCarts(t *testing.T) {
 }
 
 func TestRetrieveCart(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
@@ -81,7 +94,13 @@ func TestRetrieveCart(t *testing.T) {
 }
 
 func TestRetrieveCarts(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
@@ -119,7 +138,13 @@ func TestRetrieveCarts(t *testing.T) {
 }
 
 func TestUpdateCart(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
@@ -154,7 +179,13 @@ func TestUpdateCart(t *testing.T) {
 }
 
 func TestDeleteCart(t *testing.T) {
+	token := os.Getenv("HS_ACCESS_TOKEN")
+
+	if token == "" {
+		t.Skip("HS_ACCESS_TOKEN is not set. Skipping test.")
+	}
 	config := configuration.Configuration{
+		AccessToken:            token,
 		BasePath:               configuration.BaseURL,
 		NumberOfAPICallRetries: 3,
 	}
